@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 
 import pandas as pd
 
@@ -18,13 +19,37 @@ class PivotEstimator:
         df: pd.DataFrame,
         query_col: str = "query_id",
         doc_col: str = "doc_id",
+        imps_col: Optional[str] = None,
+        clicks_col: Optional[str] = None,
     ) -> pd.DataFrame:
+        """
+        Estimates position bias using the pivot method.
+        
+        Args:
+            df: DataFrame with click data
+            query_col: Name of the column containing query identifiers
+            doc_col: Name of the column containing document identifiers
+            imps_col: Optional column with impression counts (for aggregated data)
+            clicks_col: Optional column with click counts (for aggregated data)
+            
+        Returns:
+            DataFrame with position and examination probability
+        """
         logger.info(f"Position bias between rank k and pivot rank: {self.pivot_rank}")
-        assert_columns_in_df(df, ["position", query_col, doc_col, "click"])
-
-        df = build_intervention_sets(df, query_col, doc_col)
+        
+        # Handle two different input formats
+        if imps_col is not None and clicks_col is not None:
+            # Pre-aggregated format
+            assert_columns_in_df(df, ["position", query_col, doc_col, imps_col, clicks_col])
+            df = build_intervention_sets(df, query_col, doc_col, imps_col, clicks_col)
+        else:
+            # Original binary format
+            assert_columns_in_df(df, ["position", query_col, doc_col, "click"])
+            df = build_intervention_sets(df, query_col, doc_col)
+        
         # Filter interventions with pivot rank in first positions:
         df = df[df.position_0 == self.pivot_rank]
+        
         # Computing CTR ratio between position k and the pivot rank:
         df["examination"] = (df["c_1"] / df["c_0"]).fillna(0)
         df.examination = normalize_bias(df.examination)

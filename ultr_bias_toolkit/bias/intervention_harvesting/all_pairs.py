@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 
 import pandas as pd
 import torch
@@ -29,14 +30,37 @@ class AllPairsEstimator:
         df: pd.DataFrame,
         query_col: str = "query_id",
         doc_col: str = "doc_id",
+        imps_col: Optional[str] = None,
+        clicks_col: Optional[str] = None,
     ) -> pd.DataFrame:
+        """
+        Estimates position bias using the all pairs method with neural network training.
+        
+        Args:
+            df: DataFrame with click data
+            query_col: Name of the column containing query identifiers
+            doc_col: Name of the column containing document identifiers
+            imps_col: Optional column with impression counts (for aggregated data)
+            clicks_col: Optional column with click counts (for aggregated data)
+            
+        Returns:
+            DataFrame with position and examination probability
+        """
         logger.info(f"Position bias estimation using global all pairs estimator")
-        assert_columns_in_df(df, ["position", query_col, doc_col, "click"])
-
+        
         n_positions = df.position.nunique()
         max_position = df.position.max()
-
-        df = build_intervention_sets(df, query_col, doc_col)
+        
+        # Handle two different input formats
+        if imps_col is not None and clicks_col is not None:
+            # Pre-aggregated format
+            assert_columns_in_df(df, ["position", query_col, doc_col, imps_col, clicks_col])
+            df = build_intervention_sets(df, query_col, doc_col, imps_col, clicks_col)
+        else:
+            # Original binary format
+            assert_columns_in_df(df, ["position", query_col, doc_col, "click"])
+            df = build_intervention_sets(df, query_col, doc_col)
+        
         df = df[df.position_0 != df.position_1].copy()
 
         dataset = AllPairsDataset(df)
