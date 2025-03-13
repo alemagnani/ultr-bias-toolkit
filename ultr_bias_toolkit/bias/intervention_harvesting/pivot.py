@@ -1,5 +1,5 @@
 import logging
-from typing import Optional
+from typing import Optional, Literal
 
 import pandas as pd
 
@@ -11,8 +11,18 @@ logger = logging.getLogger(__name__)
 
 
 class PivotEstimator:
-    def __init__(self, pivot_rank: int = 1):
+    def __init__(self, pivot_rank: int = 1, weighting: Literal["original", "variance_reduced"] = "original"):
+        """
+        Initialize the Pivot estimator.
+        
+        Args:
+            pivot_rank: Position to use as pivot (default=1)
+            weighting: Weighting scheme to use (default="original")
+                - "original": Standard weighting
+                - "variance_reduced": Modified weighting that reduces variance while maintaining unbiasedness
+        """
         self.pivot_rank = pivot_rank
+        self.weighting = weighting
 
     def __call__(
         self,
@@ -36,16 +46,23 @@ class PivotEstimator:
             DataFrame with position and examination probability
         """
         logger.info(f"Position bias between rank k and pivot rank: {self.pivot_rank}")
+        logger.info(f"Using weighting scheme: {self.weighting}")
         
-        # Handle two different input formats
+        # Handle different input formats
         if imps_col is not None and clicks_col is not None:
             # Pre-aggregated format
             assert_columns_in_df(df, ["position", query_col, doc_col, imps_col, clicks_col])
-            df = build_intervention_sets(df, query_col, doc_col, imps_col, clicks_col)
+            df = build_intervention_sets(
+                df, query_col, doc_col, imps_col, clicks_col, 
+                weighting=self.weighting
+            )
         else:
             # Original binary format
             assert_columns_in_df(df, ["position", query_col, doc_col, "click"])
-            df = build_intervention_sets(df, query_col, doc_col)
+            df = build_intervention_sets(
+                df, query_col, doc_col, 
+                weighting=self.weighting
+            )
         
         # Filter interventions with pivot rank in first positions:
         df = df[df.position_0 == self.pivot_rank]

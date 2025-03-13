@@ -204,4 +204,55 @@ print(examination_df)
 
 This format is much more efficient for large datasets as it avoids creating millions of rows with binary clicks.
 
+### Example 6: Using Variance-Reduced Weighting
+The toolkit supports a modified weighting scheme that reduces variance while maintaining unbiasedness:
+
+```python
+import pandas as pd
+import matplotlib.pyplot as plt
+from ultr_bias_toolkit.bias.intervention_harvesting import PivotEstimator, AdjacentChainEstimator
+
+# Create click data
+click_data = pd.DataFrame({
+    "query_id": [1, 1, 1, 1, 2, 2, 2, 2],
+    "doc_id": ["a", "b", "a", "c", "d", "e", "d", "f"],
+    "position": [1, 2, 3, 4, 1, 2, 3, 4],
+    "impressions": [500, 300, 100, 200, 800, 400, 150, 250],
+    "clicks": [150, 60, 10, 15, 240, 80, 15, 20]
+})
+
+# Compare original and variance-reduced weighting
+estimators = {
+    "Original Pivot": PivotEstimator(pivot_rank=1, weighting="original"),
+    "Variance-Reduced Pivot": PivotEstimator(pivot_rank=1, weighting="variance_reduced"),
+    "Original Adjacent Chain": AdjacentChainEstimator(weighting="original"),
+    "Variance-Reduced Adjacent Chain": AdjacentChainEstimator(weighting="variance_reduced")
+}
+
+results = []
+for name, estimator in estimators.items():
+    result = estimator(
+        click_data, 
+        imps_col="impressions", 
+        clicks_col="clicks"
+    )
+    result["method"] = name
+    results.append(result)
+
+all_results = pd.concat(results)
+
+# Visualize and compare the results
+plt.figure(figsize=(12, 6))
+for name, group in all_results.groupby("method"):
+    plt.plot(group["position"], group["examination"], marker='o', label=name)
+plt.xlabel("Position")
+plt.ylabel("Examination Probability")
+plt.title("Comparison of Original vs. Variance-Reduced Weighting")
+plt.legend()
+plt.grid(True)
+plt.show()
+```
+
+The variance-reduced weighting scheme (`weighting="variance_reduced"`) produces more stable estimates particularly when there are large imbalances in impression counts across positions.
+
 For more complex scenarios and the All Pairs Estimator which uses a neural network approach, refer to the code examples in the documentation.

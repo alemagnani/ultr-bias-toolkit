@@ -1,5 +1,5 @@
 import logging
-from typing import Optional
+from typing import Optional, Literal
 
 import pandas as pd
 import torch
@@ -20,10 +20,23 @@ class AllPairsEstimator:
         epochs: int = 5_000,
         lr: float = 0.01,
         batch_size: int = 512,
+        weighting: Literal["original", "variance_reduced"] = "original",
     ):
+        """
+        Initialize the All Pairs estimator.
+        
+        Args:
+            epochs: Number of training epochs (default=5000)
+            lr: Learning rate (default=0.01)
+            batch_size: Batch size for training (default=512)
+            weighting: Weighting scheme to use (default="original")
+                - "original": Standard weighting
+                - "variance_reduced": Modified weighting that reduces variance while maintaining unbiasedness
+        """
         self.epochs = epochs
         self.lr = lr
         self.batch_size = batch_size
+        self.weighting = weighting
 
     def __call__(
         self,
@@ -47,19 +60,26 @@ class AllPairsEstimator:
             DataFrame with position and examination probability
         """
         logger.info(f"Position bias estimation using global all pairs estimator")
+        logger.info(f"Using weighting scheme: {self.weighting}")
         
         n_positions = df.position.nunique()
         max_position = df.position.max()
         
-        # Handle two different input formats
+        # Handle different input formats
         if imps_col is not None and clicks_col is not None:
             # Pre-aggregated format
             assert_columns_in_df(df, ["position", query_col, doc_col, imps_col, clicks_col])
-            df = build_intervention_sets(df, query_col, doc_col, imps_col, clicks_col)
+            df = build_intervention_sets(
+                df, query_col, doc_col, imps_col, clicks_col, 
+                weighting=self.weighting
+            )
         else:
             # Original binary format
             assert_columns_in_df(df, ["position", query_col, doc_col, "click"])
-            df = build_intervention_sets(df, query_col, doc_col)
+            df = build_intervention_sets(
+                df, query_col, doc_col, 
+                weighting=self.weighting
+            )
         
         df = df[df.position_0 != df.position_1].copy()
 

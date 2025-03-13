@@ -5,7 +5,8 @@ import numpy as np
 from ultr_bias_toolkit.bias.intervention_harvesting.util import (
     build_intervention_sets,
     build_intervention_sets_binary,
-    build_intervention_sets_aggregated
+    build_intervention_sets_aggregated,
+    build_intervention_sets_variance_reduced
 )
 
 
@@ -178,3 +179,209 @@ def test_large_aggregated_dataset():
     assert "c_1" in result.columns
     assert "not_c_0" in result.columns
     assert "not_c_1" in result.columns
+
+
+def test_variance_reduced_weighting_basic():
+    """Test the basic functionality of variance-reduced weighting"""
+    # Create dataset with imbalanced impressions across positions
+    df = pd.DataFrame({
+        "query_id": [1, 1, 2, 2],
+        "doc_id": ["a", "a", "b", "b"],
+        "position": [1, 2, 1, 2],
+        "impressions": [1000, 100, 500, 2000],  # Large imbalance between positions
+        "clicks": [300, 20, 150, 500]
+    })
+    
+    # Get results with original weighting
+    original_result = build_intervention_sets(
+        df, "query_id", "doc_id", "impressions", "clicks", 
+        weighting="original"
+    )
+    
+    # Get results with variance-reduced weighting
+    vr_result = build_intervention_sets(
+        df, "query_id", "doc_id", "impressions", "clicks", 
+        weighting="variance_reduced"
+    )
+    
+    # Sort both results for comparison
+    original_result = original_result.sort_values(["position_0", "position_1"]).reset_index(drop=True)
+    vr_result = vr_result.sort_values(["position_0", "position_1"]).reset_index(drop=True)
+    
+    # For our specific test case, verify that the results are different (indicating weighting was applied)
+    assert not np.allclose(original_result.c_0.values, vr_result.c_0.values)
+    assert not np.allclose(original_result.c_1.values, vr_result.c_1.values)
+    
+    # Check that min weight was applied correctly
+    # For doc_id="a", the min impressions is 100, so weight should be 100/1000 = 0.1 for position 1
+    # Verify the c_0 value (position_0=1) in variance-reduced result is approximately 0.1 times 
+    # the c_0 value in the original result for this specific test case
+    original_value = original_result[original_result.position_0 == 1].c_0.iloc[0]
+    vr_value = vr_result[vr_result.position_0 == 1].c_0.iloc[0]
+    assert np.isclose(vr_value / original_value, 0.1, rtol=0.05)
+
+
+def test_variance_reduced_weighting_repeated_rows():
+    """Test variance-reduced weighting with repeated rows that need aggregation"""
+    # Create a dataset with repeated rows for the same query-doc-position combinations
+    repeated_df = pd.DataFrame({
+        "query_id": [1, 1, 1, 1, 2, 2],
+        "doc_id":   ["a", "a", "b", "b", "c", "c"],
+        "position": [1, 1, 2, 2, 1, 2],
+        "impressions": [800, 200, 300, 100, 500, 600],  # Multiple rows per (query,doc,position)
+        "clicks":     [240, 60, 60, 20, 150, 120]
+    })
+    
+    # Create the same dataset but already pre-aggregated
+    preaggregated_df = pd.DataFrame({
+        "query_id": [1, 1, 2],
+        "doc_id":   ["a", "b", "c"],
+        "position": [1, 2, 1],  # Only include position 1 for doc "c"
+        "impressions": [1000, 400, 500],  # Already aggregated
+        "clicks":     [300, 80, 150]
+    })
+    
+    # Add position 2 for doc "c" separately
+    preaggregated_extra = pd.DataFrame({
+        "query_id": [2],
+        "doc_id":   ["c"],
+        "position": [2],
+        "impressions": [600],
+        "clicks":     [120]
+    })
+    preaggregated_df = pd.concat([preaggregated_df, preaggregated_extra], ignore_index=True)
+    
+    # Process both datasets with variance-reduced weighting
+    repeated_result = build_intervention_sets(
+        repeated_df, 
+        "query_id", 
+        "doc_id", 
+        imps_col="impressions", 
+        clicks_col="clicks",
+        weighting="variance_reduced"
+    )
+    
+    preaggregated_result = build_intervention_sets(
+        preaggregated_df, 
+        "query_id", 
+        "doc_id", 
+        imps_col="impressions", 
+        clicks_col="clicks",
+        weighting="variance_reduced"
+    )
+    
+    # Sort both results for comparison
+    repeated_result = repeated_result.sort_values(["position_0", "position_1"]).reset_index(drop=True)
+    preaggregated_result = preaggregated_result.sort_values(["position_0", "position_1"]).reset_index(drop=True)
+    
+    # Verify results are the same - this confirms correct aggregation before applying weighting
+    pd.testing.assert_frame_equal(repeated_result, preaggregated_result, check_dtype=False)
+
+
+def test_variance_reduced_weighting_extreme_imbalance():
+    """Test variance-reduced weighting with extreme impression imbalances"""
+    # Create dataset with extremely imbalanced impressions
+    df = pd.DataFrame({
+        "query_id": [1, 1, 2, 2],
+        "doc_id": ["a", "a", "b", "b"],
+        "position": [1, 2, 1, 2],
+        "impressions": [10000, 10, 20, 5000],  # Extreme imbalance (1000:1 and 1:250)
+        "clicks": [3000, 2, 5, 1000]
+    })
+    
+    # Get results with both weighting schemes
+    original_result = build_intervention_sets(
+        df, "query_id", "doc_id", "impressions", "clicks", 
+        weighting="original"
+    )
+    
+    vr_result = build_intervention_sets(
+        df, "query_id", "doc_id", "impressions", "clicks", 
+        weighting="variance_reduced"
+    )
+    
+    # Sort both results for comparison
+    original_result = original_result.sort_values(["position_0", "position_1"]).reset_index(drop=True)
+    vr_result = vr_result.sort_values(["position_0", "position_1"]).reset_index(drop=True)
+    
+    # Verify ratio for doc_id="a" at position 1
+    # Min weight is 10/10000 = 0.001
+    original_value = original_result[
+        (original_result.position_0 == 1) & (original_result.position_1 == 2)
+    ].c_0.iloc[0]
+    vr_value = vr_result[
+        (vr_result.position_0 == 1) & (vr_result.position_1 == 2)
+    ].c_0.iloc[0]
+    assert np.isclose(vr_value / original_value, 0.001, rtol=0.01)
+    
+    # Verify ratio for doc_id="b" at position 2
+    # Min weight is 20/5000 = 0.004
+    original_value = original_result[
+        (original_result.position_0 == 2) & (original_result.position_1 == 1)
+    ].c_0.iloc[0]
+    vr_value = vr_result[
+        (vr_result.position_0 == 2) & (vr_result.position_1 == 1)
+    ].c_0.iloc[0]
+    assert np.isclose(vr_value / original_value, 0.004, rtol=0.01)
+
+
+def test_variance_reduced_weights_calculation():
+    """Test that the weight calculations are correct in the internal function"""
+    # Create a simple dataset
+    df = pd.DataFrame({
+        "query_id": [1, 1, 2, 2],
+        "doc_id": ["a", "a", "b", "b"],
+        "position": [1, 2, 1, 2],
+        "impressions": [500, 100, 200, 800],
+        "clicks": [150, 20, 60, 160]
+    })
+    
+    # Get aggregated data
+    aggregated_df = _get_aggregated_data(df, "query_id", "doc_id", "impressions", "clicks")
+    
+    # Create intervention pairs with standard merging
+    merged_df = aggregated_df.merge(aggregated_df, on=["query_id", "doc_id"], suffixes=["_0", "_1"])
+    
+    # Manually calculate the weights
+    merged_df["manual_weight_0"] = np.minimum(merged_df["impressions_0"], merged_df["impressions_1"]) / merged_df["impressions_0"]
+    merged_df["manual_weight_1"] = np.minimum(merged_df["impressions_0"], merged_df["impressions_1"]) / merged_df["impressions_1"]
+    
+    # Call the actual function
+    result_df = build_intervention_sets_variance_reduced(df, "query_id", "doc_id", "impressions", "clicks")
+    
+    # Get the position pairs we want to check
+    pos_pairs = [
+        (1, 2),  # For query 1, doc a - should be min(500,100)/500 = 0.2 for pos 1
+        (2, 1),  # For query 1, doc a - should be min(500,100)/100 = 1.0 for pos 2
+        (1, 2),  # For query 2, doc b - should be min(200,800)/200 = 1.0 for pos 1
+        (2, 1)   # For query 2, doc b - should be min(200,800)/800 = 0.25 for pos 2
+    ]
+    
+    # Verify expected weights through manual calculation
+    for i, (pos0, pos1) in enumerate(pos_pairs):
+        query_id = 1 if i < 2 else 2
+        doc_id = "a" if i < 2 else "b"
+        
+        # Find the row in merged_df
+        mask = (
+            (merged_df.query_id == query_id) & 
+            (merged_df.doc_id == doc_id) & 
+            (merged_df.position_0 == pos0) & 
+            (merged_df.position_1 == pos1)
+        )
+        row = merged_df[mask]
+        
+        # Calculate expected c_0 after weighting
+        expected_c0 = row.c_0.iloc[0] * row.manual_weight_0.iloc[0]
+        expected_c1 = row.c_1.iloc[0] * row.manual_weight_1.iloc[0]
+        
+        # Find the corresponding row in result_df
+        result_mask = (
+            (result_df.position_0 == pos0) & 
+            (result_df.position_1 == pos1)
+        )
+        result_row = result_df[result_mask]
+        
+        # Check that the weighted values were correctly calculated
+        assert np.isclose(result_row.c_0.iloc[0], expected_c0, rtol=0.01)
+        assert np.isclose(result_row.c_1.iloc[0], expected_c1, rtol=0.01)

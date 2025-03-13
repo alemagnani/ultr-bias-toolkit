@@ -1,5 +1,5 @@
 import logging
-from typing import Optional
+from typing import Optional, Literal
 
 import pandas as pd
 
@@ -11,6 +11,17 @@ logger = logging.getLogger(__name__)
 
 
 class AdjacentChainEstimator:
+    def __init__(self, weighting: Literal["original", "variance_reduced"] = "original"):
+        """
+        Initialize the Adjacent Chain estimator.
+        
+        Args:
+            weighting: Weighting scheme to use (default="original")
+                - "original": Standard weighting
+                - "variance_reduced": Modified weighting that reduces variance while maintaining unbiasedness
+        """
+        self.weighting = weighting
+        
     def __call__(
         self,
         df: pd.DataFrame,
@@ -33,16 +44,23 @@ class AdjacentChainEstimator:
             DataFrame with position and examination probability
         """
         logger.info(f"Position bias between adjacent/neighboring ranks")
+        logger.info(f"Using weighting scheme: {self.weighting}")
         
-        # Handle two different input formats
+        # Handle different input formats
         if imps_col is not None and clicks_col is not None:
             # Pre-aggregated format
             assert_columns_in_df(df, ["position", query_col, doc_col, imps_col, clicks_col])
-            df = build_intervention_sets(df, query_col, doc_col, imps_col, clicks_col)
+            df = build_intervention_sets(
+                df, query_col, doc_col, imps_col, clicks_col, 
+                weighting=self.weighting
+            )
         else:
             # Original binary format
             assert_columns_in_df(df, ["position", query_col, doc_col, "click"])
-            df = build_intervention_sets(df, query_col, doc_col)
+            df = build_intervention_sets(
+                df, query_col, doc_col, 
+                weighting=self.weighting
+            )
         
         # Filter interventions between adjacent pairs, prepend exam=1.0 for position 1:
         pos_1_df = df[(df.position_0 == 1) & (df.position_1 == 1)]
