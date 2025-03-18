@@ -4,6 +4,7 @@ from collections import defaultdict
 import pandas as pd
 import seaborn as sns
 from tqdm import tqdm
+from ultr_bias_toolkit.bias.intervention_harvesting import AdjacentChainEstimator, PivotEstimator
 
 
 class SyntheticExperiment:
@@ -15,7 +16,7 @@ class SyntheticExperiment:
             self,
             num_queries=5000,
             num_items=100,
-            num_positions=10,
+            num_positions=20,
             num_rankers=2,
             alpha=1.0,  # Position bias steepness
             rare_item_ratio=0.7,  # Percentage of rare items
@@ -44,8 +45,11 @@ class SyntheticExperiment:
         # Normalize to make position 1 have bias 1.0
         self.true_position_bias = self.true_position_bias / self.true_position_bias[0]
 
+        self.estimator_pair_original = AdjacentChainEstimator(weighting="original")
+        self.estimator_pair_var_reduce = AdjacentChainEstimator(weighting="variance_reduced")
+
     def generate_synthetic_data(self, num_queries=None):
-        """Generate synthetic click data with common and rare items."""
+        """Generate synthetic impression and click data with common and rare items."""
         if num_queries is None:
             num_queries = self.num_queries
 
@@ -60,10 +64,10 @@ class SyntheticExperiment:
         # Clip relevance to [0, 1]
         item_relevance = np.clip(item_relevance, 0, 1)
 
-        # Store clicks and rankings
-        click_data = []
+        # Store impressions and clicks
+        impression_data = []
 
-        # Generate queries and clicks
+        # Generate queries, impressions and clicks
         for q in range(num_queries):
             # Choose a ranker
             ranker_id = np.random.randint(self.num_rankers)
@@ -97,7 +101,7 @@ class SyntheticExperiment:
                 np.random.shuffle(ranking)
                 ranking = ranking[:self.num_positions]
 
-            # Generate clicks according to PBM with noise
+            # Generate impressions and clicks according to PBM with noise
             for position, item in enumerate(ranking):
                 position_bias = self.true_position_bias[position]
                 rel = item_relevance[item]
@@ -113,17 +117,18 @@ class SyntheticExperiment:
                     # Normal PBM click
                     click = 1 if np.random.random() < click_prob else 0
 
-                click_data.append({
+                impression_data.append({
                     'query_id': q,
                     'item_id': item,
                     'position': position + 1,  # 1-indexed positions
+                    'impression': 1,  # All items are impressed
                     'click': click,
                     'ranker_id': ranker_id,
                     'relevance': rel,
                     'is_rare': item >= common_items
                 })
 
-        return pd.DataFrame(click_data), item_relevance
+        return pd.DataFrame(impression_data), item_relevance
 
     def compute_weights(self, df, position_col='position'):
         """Compute original weights w(q,d,k) for each (query, item, position) tuple."""
@@ -140,114 +145,22 @@ class SyntheticExperiment:
 
         return weight_dict
 
-    def compute_interventional_sets(self, df):
-        """Compute interventional sets S_{k,k'} and extract clicks."""
-        interventional_sets = defaultdict(list)
-
-        # Group by query_id and item_id
-        for (query, item), group in df.groupby(['query_id', 'item_id']):
-            positions = group['position'].unique()
-
-            # If this item appears at multiple positions for this query, it's part of interventional sets
-            if len(positions) > 1:
-                for i, pos1 in enumerate(positions):
-                    for pos2 in positions[i + 1:]:
-                        interventional_sets[(pos1, pos2)].append((query, item))
-                        interventional_sets[(pos2, pos1)].append((query, item))
-
-        return interventional_sets
-
-    def estimate_propensities_original(self, df, interventional_sets, weights, max_position=None):
-        """Estimate propensities using the original AllPairs method."""
-        if max_position is None:
-            max_position = self.num_positions
-
-        click_rates = defaultdict(float)
-
-        # Compute click rates for each position pair
-        for (pos1, pos2), query_items in interventional_sets.items():
-            if pos1 > max_position or pos2 > max_position:
-                continue
-
-            for query, item in query_items:
-                # Find all occurrences of this query-item pair
-                mask = (df['query_id'] == query) & (df['item_id'] == item)
-                item_data = df[mask]
-
-                # Calculate weighted click rates
-                for _, row in item_data.iterrows():
-                    if row['position'] == pos1:
-                        weight = weights[(query, item, pos1)]
-                        click_rates[(pos1, pos2)] += row['click'] / weight
-                    elif row['position'] == pos2:
-                        weight = weights[(query, item, pos2)]
-                        click_rates[(pos2, pos1)] += row['click'] / weight
-
-        # Estimate relative propensities using position 1 as reference
-        estimated_propensities = np.ones(max_position)
-
-        # For each position, find pairs involving position 1 and this position
-        for pos in range(2, max_position + 1):
-            if click_rates[(1, pos)] > 0 and click_rates[(pos, 1)] > 0:
-                estimated_propensities[pos - 1] = click_rates[(pos, 1)] / click_rates[(1, pos)]
-
-        return estimated_propensities
-
-    def estimate_propensities_modified(self, df, interventional_sets, weights, max_position=None):
-        """Estimate propensities using our modified weighting scheme."""
-        if max_position is None:
-            max_position = self.num_positions
-
-        click_rates = defaultdict(float)
-
-        # Compute click rates with modified weights
-        for (pos1, pos2), query_items in interventional_sets.items():
-            if pos1 > max_position or pos2 > max_position:
-                continue
-
-            for query, item in query_items:
-                # Find all occurrences of this query-item pair
-                mask = (df['query_id'] == query) & (df['item_id'] == item)
-                item_data = df[mask]
-
-                # Get original weights
-                w1 = weights[(query, item, pos1)]
-                w2 = weights[(query, item, pos2)]
-
-                # Compute modified weights
-                min_weight = min(w1, w2)
-                modified_w1 = w1 / min_weight
-                modified_w2 = w2 / min_weight
-
-                # Calculate weighted click rates with modified weights
-                for _, row in item_data.iterrows():
-                    if row['position'] == pos1:
-                        click_rates[(pos1, pos2)] += row['click'] / modified_w1
-                    elif row['position'] == pos2:
-                        click_rates[(pos2, pos1)] += row['click'] / modified_w2
-
-        # Estimate relative propensities using position 1 as reference
-        estimated_propensities = np.ones(max_position)
-
-        # For each position, find pairs involving position 1 and this position
-        for pos in range(2, max_position + 1):
-            if click_rates[(1, pos)] > 0 and click_rates[(pos, 1)] > 0:
-                estimated_propensities[pos - 1] = click_rates[(pos, 1)] / click_rates[(1, pos)]
-
-        return estimated_propensities
-
     def run_single_experiment(self, num_queries=None):
         """Run a single experiment with the given number of queries."""
         # Generate synthetic data
         df, _ = self.generate_synthetic_data(num_queries)
 
-        # Compute weights and interventional sets
-        weights = self.compute_weights(df)
-        interventional_sets = self.compute_interventional_sets(df)
+        # Ensure we have the necessary columns for the estimators
+        if 'impression' not in df.columns:
+            df['impression'] = 1  # All rows are impressions by default
 
+        print(df.shape)
+        print(df.columns)
+        print(df[['position', 'impression', 'click']])
+        exit()
         # Estimate propensities using both methods
-        est_original = self.estimate_propensities_original(df, interventional_sets, weights)
-        est_modified = self.estimate_propensities_modified(df, interventional_sets, weights)
+        est_original = self.estimator_pair_original(df, doc_col='item_id')
+        est_modified = self.estimator_pair_var_reduce(df, doc_col='item_id')
 
         return est_original, est_modified
 
@@ -494,6 +407,20 @@ class SyntheticExperiment:
 
         return fig
 
+    def create_impression_click_dataframe(self, df=None, num_queries=None):
+        """
+        Create a dataframe with impressions and clicks.
+        If df is provided, it will use that dataframe; otherwise, it will generate synthetic data.
+        """
+        if df is None:
+            df, _ = self.generate_synthetic_data(num_queries)
+
+        # Make sure we have the impression column
+        if 'impression' not in df.columns:
+            df['impression'] = 1  # All rows are impressions
+
+        return df
+
 
 # Example usage
 if __name__ == "__main__":
@@ -511,8 +438,23 @@ if __name__ == "__main__":
         random_seed=42
     )
 
+    # Generate and use a dataframe with impressions and clicks
+    print("Creating impression-click dataframe...")
+    impression_click_df = experiment.create_impression_click_dataframe(num_queries=1000)
+
+    # Example of using the dataframe with the estimators directly
+    print("Using dataframe with estimators directly...")
+    est_original = experiment.estimator_pair_original(impression_click_df, doc_col='item_id')
+    est_modified = experiment.estimator_pair_var_reduce(impression_click_df, doc_col='item_id')
+
+    print("First few rows of the dataframe:")
+    print(impression_click_df.head())
+
+    print("Original estimator results:", est_original)
+    print("Modified estimator results:", est_modified)
+
     # Run basic experiment with confidence intervals
-    print("Running basic experiment...")
+    print("\nRunning basic experiment with both estimators...")
     results_original, results_modified = experiment.run_multiple_experiments(num_iterations=50)
     original_mean, modified_mean, original_std, modified_std = experiment.plot_confidence_intervals(results_original,
                                                                                                     results_modified)
