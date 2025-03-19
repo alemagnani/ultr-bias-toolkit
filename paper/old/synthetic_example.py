@@ -5,6 +5,7 @@ import pandas as pd
 import seaborn as sns
 from tqdm import tqdm
 from ultr_bias_toolkit.bias.intervention_harvesting import AdjacentChainEstimator, PivotEstimator
+from ultr_bias_toolkit.bias.naive import NaiveCtrEstimator
 
 
 class SyntheticExperiment:
@@ -45,8 +46,13 @@ class SyntheticExperiment:
         # Normalize to make position 1 have bias 1.0
         self.true_position_bias = self.true_position_bias / self.true_position_bias[0]
 
-        self.estimator_pair_original = AdjacentChainEstimator(weighting="original")
-        self.estimator_pair_var_reduce = AdjacentChainEstimator(weighting="variance_reduced")
+        #self.estimator_pair_original = AdjacentChainEstimator(weighting="original")
+        #self.estimator_pair_var_reduce = AdjacentChainEstimator(weighting="variance_reduced")
+
+        self.estimator_pair_original = NaiveCtrEstimator()
+        self.estimator_pair_var_reduce = NaiveCtrEstimator()
+
+
 
     def generate_synthetic_data(self, num_queries=None):
         """Generate synthetic impression and click data with common and rare items."""
@@ -130,21 +136,6 @@ class SyntheticExperiment:
 
         return pd.DataFrame(impression_data), item_relevance
 
-    def compute_weights(self, df, position_col='position'):
-        """Compute original weights w(q,d,k) for each (query, item, position) tuple."""
-        weight_dict = defaultdict(int)
-
-        # Group by query_id, item_id and count occurrences at each position
-        for _, group in df.groupby(['query_id', 'item_id']):
-            query = group['query_id'].iloc[0]
-            item = group['item_id'].iloc[0]
-
-            # Count how many times this (query, item) appears at each position
-            for pos, count in group[position_col].value_counts().items():
-                weight_dict[(query, item, pos)] = count
-
-        return weight_dict
-
     def run_single_experiment(self, num_queries=None):
         """Run a single experiment with the given number of queries."""
         # Generate synthetic data
@@ -154,10 +145,6 @@ class SyntheticExperiment:
         if 'impression' not in df.columns:
             df['impression'] = 1  # All rows are impressions by default
 
-        print(df.shape)
-        print(df.columns)
-        print(df[['position', 'impression', 'click']])
-        exit()
         # Estimate propensities using both methods
         est_original = self.estimator_pair_original(df, doc_col='item_id')
         est_modified = self.estimator_pair_var_reduce(df, doc_col='item_id')
@@ -180,8 +167,8 @@ class SyntheticExperiment:
             est_original, est_modified = self.run_single_experiment(num_queries)
 
             # Store results
-            results_original[i] = est_original
-            results_modified[i] = est_modified
+            results_original[i] = est_original['examination']
+            results_modified[i] = est_modified['examination']
 
         return results_original, results_modified
 

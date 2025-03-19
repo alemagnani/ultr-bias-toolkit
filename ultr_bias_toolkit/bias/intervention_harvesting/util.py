@@ -100,7 +100,11 @@ def build_intervention_sets_aggregated(
     
     # Get aggregated data with click and no-click rates
     df = _get_aggregated_data(df, query_col, doc_col, imps_col, clicks_col)
-    
+
+    #Apply weight
+    df["c"] = df["c"] / df["impressions"]
+    df["not_c"] = df["not_c"] / df["impressions"]
+
     # Merge to create intervention pairs
     df = df.merge(df, on=[query_col, doc_col], suffixes=["_0", "_1"])
     
@@ -218,8 +222,11 @@ def _get_aggregated_data(
     )
     
     # Calculate click and no-click rates
-    df["c"] = df["clicks"] / df["impressions"]
-    df["not_c"] = df["no_clicks"] / df["impressions"]
+    # df["c"] = df["clicks"] / df["impressions"]
+    # df["not_c"] = df["no_clicks"] / df["impressions"]
+    #
+    df["c"] = df["clicks"]
+    df["not_c"] = df["no_clicks"]
     
     return df
 
