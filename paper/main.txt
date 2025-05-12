@@ -1,0 +1,408 @@
+\documentclass[sigconf]{acmart}
+\usepackage{amsmath, amsthm, amssymb}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{booktabs}    % For better tables
+\usepackage{xcolor}      % For colored text if needed
+\usepackage{caption}     % For better control of captions
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}{Definition}
+
+\AtBeginDocument{%
+  \providecommand\BibTeX{{%
+    Bib\TeX}}}
+
+\setcopyright{acmlicensed}
+\copyrightyear{2025}
+\acmYear{2025}
+\acmDOI{XXXXXXX.XXXXXXX}
+\acmConference[CIKM '25]{CIKM}{June 03--05,
+  2025}{Woodstock, NY}
+\acmISBN{978-1-4503-XXXX-X/2018/06}
+
+
+
+\title{Estimating Position Bias with Reduced Variance without Intrusive Interventions}
+
+\author{Alessandro Magnani}
+\email{almagnan@coupang.com}
+\affiliation{%
+  \institution{Coupang Inc.}
+}
+
+\author{Min Xie}
+\email{mixie@coupang.com}
+\affiliation{%
+  \institution{Coupang Inc.}
+}
+
+\renewcommand{\shortauthors}{Magnani et al.}
+
+\begin{document}
+
+\begin{abstract}
+Presentation bias remains a major challenge in learning-to-rank from implicit feedback, as it obscures the true relevance signal. Recent counterfactual learning-to-rank methods have shown that unbiased propensity estimation is possible when observation propensities are known. Building upon the work in \cite{agarwal2019estimating}, which introduced intervention harvesting without intrusive randomization, we propose a novel estimator that retains unbiasedness while significantly reducing variance. Our method leverages naturally occurring intervention data from historical rankers and introduces a modified weighting scheme that improves statistical efficiency. We validate our approach on synthetic datasets and the Yahoo Learning-to-Rank dataset, demonstrating superior performance with variance reductions of 45-99\% compared to existing methods.
+\end{abstract}
+
+\maketitle
+
+\section{Introduction}
+\label{sec:introduction}
+
+In modern information retrieval systems, presentation bias remains one of the most significant challenges when learning-to-rank from implicit user feedback. Position bias—where users are more likely to examine and click on higher-ranked results regardless of relevance—is particularly problematic as it systematically obscures the true relevance signal. For instance, in e-commerce platforms, a product listed in the first position may receive 5-10 times more clicks than an equally relevant item appearing in the tenth position, creating a feedback loop that can perpetuate suboptimal rankings.
+
+Recent advances in counterfactual learning-to-rank methods have shown that unbiased learning is possible when observation propensities are known \cite{joachims2017unbiased}. However, estimating these propensities accurately and efficiently remains challenging. Traditional approaches rely on expensive randomized interventions—such as swap experiments or result randomization—which, while statistically sound, can significantly degrade user experience \cite{joachims2017unbiased, wang2018position}. In production systems serving millions of users, such interventions can lead to revenue loss, decreased user satisfaction, and potential long-term user attrition.
+
+In production ranking systems, usually multiple ranking algorithms will be running simultaneously to test many different business needs and hypotheses. Intervention harvesting from these naturally occurring ranking variations, as introduced by \cite{agarwal2019estimating}, offers a promising non-intrusive alternative. This approach leverages the fact that the same item appears at different positions across different ranking variations. While this method preserves user experience, the conventional weighting scheme employed often results in excessively high estimator variance, particularly in scenarios with imbalanced observations—a common scenario in real-world information retrieval systems.
+
+We propose a novel modified weighting scheme that addresses this critical limitation. Our approach:
+
+\begin{itemize}
+  \item Leverages naturally available intervention data without requiring additional randomized experiments, maintaining optimal user experience
+  \item Retains mathematical unbiasedness of the original estimator while providing strong theoretical guarantees
+  \item Significantly reduces the variance of position bias estimates by up to 99\% in certain scenarios, as demonstrated through both theoretical proofs and extensive empirical validation
+  \item Improves the statistical efficiency of counterfactual estimators for real-world information retrieval applications with imbalanced observation patterns
+\end{itemize}
+
+The practical implications of our work extend to a wide range of information retrieval systems, from web search to e-commerce platforms, recommendation systems, and content discovery applications. By providing more reliable position bias estimates without intrusive interventions, our approach enables more accurate relevance modeling while preserving the quality of user experience.
+
+We validate our method through rigorous theoretical analysis, controlled synthetic experiments simulating challenging scenarios, and experiments on the widely-used Yahoo Learning-to-Rank dataset. Our results demonstrate variance reductions between 45-99\% compared to existing non-intrusive methods, and also improvements in Mean Squared Error (MSE) and ranking quality.
+
+% Furthermore, we provide practical guidelines for implementing our approach in production retrieval systems, where naturally imbalanced observation patterns are common.
+
+\section{Background and Preliminaries}
+\label{sec:background}
+
+\subsection{Position-Based Propensity Model (PBM)}
+The Position-Based Model recognizes that higher-ranked results are more likely to be examined by users than lower-ranked results. For a query $q$ where document $d$ is displayed at position $k$, let $C$ be the random variable indicating whether the user clicks on $d$, and $E$ be the random variable denoting whether the user examines $d$.
+
+Following \cite{agarwal2019estimating}, we denote the relevance of a document as a non-random function $\textrm{rel}(q,d)$ of $q$, where $\textrm{rel}(q,d) = 1$ indicates relevant and $\textrm{rel}(q,d) = 0$ indicates non-relevant. According to the PBM \cite{chuklin2015click}, the probability of a click is:
+
+\begin{equation}
+\mathrm{Pr}(C = 1|q,d,k) = \mathrm{Pr}(E = 1|k) \cdot \textrm{rel}(q,d) = p_k \cdot \textrm{rel}(q,d)
+\end{equation}
+
+where $p_k := \mathrm{Pr}(E = 1|k)$ is the examination probability, which depends only on the position $k$.
+
+
+\subsection{Intervention Harvesting and Interventional Sets}
+\label{sec:intervention-harvesting}
+
+For each pair of positions $k \neq k' \in [M]$ (where $M$ is the number of positions of interest), \cite{agarwal2019estimating} defined interventional sets:
+\begin{align*}
+S_{k,k'} := \{(q,d) :\ & q \in Q, d \in \Omega(q),\\
+& \exists f,f' \textrm{ s.t. } \textrm{rk}(d|f(q))=k,\\
+& \textrm{rk}(d|f'(q))=k'\}
+\end{align*}
+
+Each interventional set $S_{k,k'}$ contains query-document pairs where the document appeared at position $k$ in one ranking and position $k'$ in another.
+
+The weight is defined as:
+\begin{align*}
+w(q,d,k) := \sum_{i=1}^{m} n_i \mathbf{1}\{\textrm{rk}(d|f_i(q)) = k\}
+\end{align*}
+
+This weight reflects how often document $d$ is ranked at position $k$ across the ranking functions.
+
+
+\subsection{Weighted Click Rate Estimators}
+
+For each interventional set $S_{k,k'}$, \cite{agarwal2019estimating} defined weighted click rates for positions $k$ and $k'$:
+\begin{equation}
+\hat{c}^{k,k'}_r := \sum_{i=1}^{m} \sum_{j=1}^{n_i} \sum_{d \in \Omega(q^j_i)} \frac{\mathbf{1}\{(q^j_i,d) \in S_{k,k'}\} \mathbf{1}\{\textrm{rk}(d|y^j_i)=r\} c^j_i(d)}{w(q^j_i,d,r)}
+\end{equation}
+where $r \in \{k, k'\}$.
+
+Under the PBM, the ratio of expected click rates provides an unbiased estimate of the relative propensity:
+\begin{equation}
+\frac{p_k}{p_{k'}} = \frac{\mathbb{E}_{q,c}[\hat{c}^{k,k'}_k]}{\mathbb{E}_{q,c}[\hat{c}^{k,k'}_{k'}]}
+\end{equation}
+
+\section{Modified Weighting Scheme}
+\label{sec:modified_weight}
+
+In this section, we introduce a modified weighting scheme that maintains the unbiasedness of the estimator from \cite{agarwal2019estimating} while significantly reducing its variance.
+
+\subsection{Proposed Modified Weight}
+We define our modified weight as:
+\begin{align*}
+\hat{w}(q,d,k)=\frac{w(q,d,k)}{\min\{w(q,d,k),\,w(q,d,k')\}}
+\end{align*}
+
+This normalization effectively caps the ratio between weights and improves the statistical efficiency of the estimator. Importantly, our modified weighting scheme is compatible with all propensity estimation approaches described in \cite{agarwal2019estimating}, including the PivotOne estimator, the AdjacentChain estimator, and the AllPairs estimator. The modification operates at the level of the weights used within these estimators rather than changing the estimator structure itself, making it a plug-and-play enhancement to the original methods.
+
+
+
+
+We prove that the ratio of expected values of weighted click rate estimators using modified weights provides an unbiased estimate of relative propensity $p_k / p_{k'}$:
+\[
+\frac{E[\hat{\tilde{c}}_{k,k'}]}{E[\hat{\tilde{c}}_{k',k}]} = \frac{p_k}{p_{k'}}
+\]
+under the Position-Based Model (PBM) and suitable intervention data.
+
+\textbf{Definitions:}
+\begin{itemize}\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}
+    \item $p_k$: Examination probability at position $k$
+    \item $\text{rel}(q, d)$: Relevance of document $d$ for query $q$ (0 or 1)
+    \item PBM: $Pr(\text{Click}|q, d, k) = p_k \cdot \text{rel}(q, d)$
+    \item $N_k(q, d)$: Times $(q, d)$ observed at position $k$ ($w(q,d,k)$)
+    \item $S_{k,k'}$: Interventional set $\{(q, d) | N_k(q, d) > 0, N_{k'}(q, d) > 0\}$
+    \item $C_k(q, d)$: Clicks for $(q, d)$ at position $k$
+    \item Modified weight: $\frac{1}{\hat{w}(q, d, k)} = \frac{\min\{N_k, N_{k'}\}}{N_k}$
+\end{itemize}
+
+\smallskip
+\noindent\textbf{Proof:}
+
+1.  \textbf{Expectation of $\hat{\tilde{c}}_{k,k'}$}:
+    \begin{align*}
+    E[\hat{\tilde{c}}_{k,k'}] &= E \Bigl[ \sum_{(q,d)} \mathbf{1}\{S_{k,k'}\} C_k(q, d) \frac{\min\{N_k, N_{k'}\}}{N_k} \Bigr] \\
+    &= \sum_{(q,d)} E \Bigl[ \mathbf{1}\{S_{k,k'}\} C_k(q, d) \frac{\min\{N_k, N_{k'}\}}{N_k} \Bigr]
+    \end{align*}
+
+    Using Law of Total Expectation and conditioning on the observation counts:
+    \begin{align*}
+    E[\hat{\tilde{c}}_{k,k'}] &= \sum_{(q,d)} E \Bigl[ \mathbf{1}\{S_{k,k'}\} E[C_k|q,d,N_k,N_{k'}] \\
+    &\quad \times \frac{\min\{N_k, N_{k'}\}}{N_k} \Bigr]
+    \end{align*}
+
+    Under PBM, $E[C_k|q,d,N_k,N_{k'}] = N_k \cdot p_k \cdot \text{rel}(q, d)$, so:
+    \begin{align*}
+    E[\hat{\tilde{c}}_{k,k'}] &= \sum_{(q,d)} E \Bigl[ \mathbf{1}\{S_{k,k'}\} (N_k \cdot p_k \cdot \text{rel}(q, d)) \\
+    &\quad \times \frac{\min\{N_k, N_{k'}\}}{N_k} \Bigr]
+    \end{align*}
+
+    The $N_k$ terms cancel when $\mathbf{1}\{S_{k,k'}\} = 1$:
+    \begin{align*}
+    E[\hat{\tilde{c}}_{k,k'}] &= \sum_{(q,d)} E \Bigl[ \mathbf{1}\{S_{k,k'}\} \cdot p_k \cdot \text{rel}(q, d) \\
+    &\quad \times \min\{N_k, N_{k'}\} \Bigr]
+    \end{align*}
+
+    Since $p_k$ and $\text{rel}(q, d)$ are constants:
+    \begin{align*}
+    E[\hat{\tilde{c}}_{k,k'}] = p_k \sum_{(q,d)} \text{rel}(q, d) \cdot E \Bigl[ \mathbf{1}\{S_{k,k'}\} \min\{N_k, N_{k'}\} \Bigr]
+    \end{align*}
+
+2.  \textbf{Expectation of $\hat{\tilde{c}}_{k',k}$}:
+    Following the same steps for position $k'$:
+    \begin{align*}
+    E[\hat{\tilde{c}}_{k',k}] = p_{k'} \sum_{(q,d)} \text{rel}(q, d) \cdot E \Bigl[ \mathbf{1}\{S_{k,k'}\} \min\{N_k, N_{k'}\} \Bigr]
+    \end{align*}
+
+3.  \textbf{Ratio of Expectations}:
+    Let $\tilde{R}_{k,k'}$ denote the common factor:
+    \[
+    \tilde{R}_{k,k'} = \sum_{(q,d)} \text{rel}(q, d) \cdot E \Bigl[ \mathbf{1}\{S_{k,k'}\} \min\{N_k, N_{k'}\} \Bigr]
+    \]
+
+    Now form the ratio:
+    \[
+    \frac{E[\hat{\tilde{c}}_{k,k'}]}{E[\hat{\tilde{c}}_{k',k}]} = \frac{p_k \cdot \tilde{R}_{k,k'}}{p_{k'} \cdot \tilde{R}_{k,k'}} = \frac{p_k}{p_{k'}}
+    \]
+    provided $\tilde{R}_{k,k'} \neq 0$.
+
+This completes the proof. The ratio of expected values of the modified click rate estimators is an unbiased estimate of the relative propensity $p_k / p_{k'}$.
+
+\section{Variance Reduction Analysis}
+\label{sec:variance_reduction}
+
+While the modified weighting scheme preserves unbiasedness, its primary advantage is the significant reduction in variance.
+
+\subsection{Intuition}
+The intuition behind our variance reduction approach is straightforward. The original estimator from \cite{agarwal2019estimating} can exhibit high variance when there are large imbalances in the weights $w(q,d,k)$ and $w(q,d,k')$, especially when one weight is much larger than the other. Such imbalances are common in practice when some ranking functions consistently place certain documents at specific positions.
+
+Our modified weighting scheme addresses this issue by normalizing the weights using their minimum value, effectively capping the ratio between weights. This reduces the dispersion of importance weights, which is known to be a key factor affecting the variance of importance sampling estimators \cite{swaminathan2015CRM, owen2013monte}.
+
+\subsection{Effective Sample Size Analysis}
+For importance sampling estimators, the Effective Sample Size (ESS) is commonly approximated as \cite{kong1992note, elvira2022rethinking}:
+\begin{equation}
+\text{ESS} = \frac{\left(\sum_i w_i\right)^2}{\sum_i w_i^2}
+\end{equation}
+
+When the weights are highly skewed, the ESS can be much smaller than the actual sample size, leading to high variance.
+
+In our setting, the original estimator uses a weight of $\frac{1}{w(q,d,k)}$, while the modified estimator uses $\frac{1}{\hat{w}(q,d,k)} = \frac{\min\{w(q,d,k), w(q,d,k')\}}{w(q,d,k)}$.
+
+Since $\min\{w(q,d,k), w(q,d,k')\} \leq w(q,d,k)$, we have:
+\begin{equation}
+\frac{\min\{w(q,d,k), w(q,d,k')\}}{w(q,d,k)} \leq 1
+\end{equation}
+
+This means the modified weights are always smaller than the original weights, which leads to improved ESS and reduced variance.
+
+\subsection{Variance Reduction via Second Moment Comparison}
+
+\begin{theorem}
+Under the Position-Based Model and the conditions in \cite{agarwal2019estimating}, the modified estimator $\hat{c}^{k,k'}_k(\text{mod})$ has lower variance than the original estimator $\hat{c}^{k,k'}_k$ for any interventional set $S_{k,k'}$.
+\end{theorem}
+
+\begin{proof}
+Let's compare the second moments of the two estimators. For the original estimator, examining a single term:
+\begin{align*}
+\mathbb{E}\left[\left(\frac{c(d)}{w(q,d,k)}\right)^2\right]
+&= \mathbb{E}\left[\frac{c(d)}{w(q,d,k)^2}\right] \\
+&= p_k \cdot \textrm{rel}(q,d) \cdot \frac{1}{w(q,d,k)^2}
+\end{align*}
+
+For the modified estimator:
+\begin{align*}
+\mathbb{E}\left[\left(\frac{c(d)}{\hat{w}(q,d,k)}\right)^2\right]
+&= \mathbb{E}\left[\frac{c(d)}{\hat{w}(q,d,k)^2}\right] \\
+&= p_k \cdot \textrm{rel}(q,d) \cdot \frac{1}{\hat{w}(q,d,k)^2}
+\end{align*}
+
+Substituting our definition of $\hat{w}(q,d,k)$:
+\begin{align*}
+\mathbb{E}\left[\left(\frac{c(d)}{\hat{w}(q,d,k)}\right)^2\right]
+&= p_k \cdot \textrm{rel}(q,d) \cdot \frac{\min\{w(q,d,k),w(q,d,k')\}^2}{w(q,d,k)^2}
+\end{align*}
+
+Since $\min\{w(q,d,k),w(q,d,k')\} \leq w(q,d,k)$, we have:
+\begin{align*}
+\frac{\min\{w(q,d,k),w(q,d,k')\}^2}{w(q,d,k)^2} \leq 1
+\end{align*}
+
+Therefore:
+\begin{align*}
+\mathbb{E}\left[\left(\frac{c(d)}{\hat{w}(q,d,k)}\right)^2\right] \leq \mathbb{E}\left[\left(\frac{c(d)}{w(q,d,k)}\right)^2\right]
+\end{align*}
+
+Since both estimators have the same expectation (as proved earlier) but the modified estimator has a smaller second moment, it must have a smaller variance.
+\end{proof}
+
+\section{Synthetic Experiments}
+\label{sec:synthetic}
+
+% To evaluate our method, we conducted synthetic experiments simulating challenging scenarios with significant observation imbalances.
+
+\subsection{Experimental Setup}
+
+\begin{figure}[t!]
+    \centering
+    \includegraphics[width=0.48\textwidth]{figures/synthetic_AllPairs_estimates.png}
+    \vspace{-20px}
+    \caption{Comparison of mean propensity estimates (±95\% CI) for the AllPairs estimator over 100 runs. Both original (red) and modified (blue) weighting schemes produce unbiased estimates on average, but the modified scheme has significantly tighter confidence intervals, indicating lower variance.}
+    \label{fig:allpairs_estimates}
+    \vspace*{-\baselineskip}
+\end{figure}
+
+We designed a synthetic environment mimicking data logged from systems with varying ranking functions, focusing on conditions that induce variance in propensity estimation.
+
+We evaluated two position bias estimators:
+\begin{itemize}
+    \item \textbf{AdjacentChainEstimator:} Estimates propensity ratios $p_{k+1}/p_k$ using only documents observed at adjacent positions.
+    \item \textbf{AllPairsEstimator:} Estimates ratios $p_k/p_{k'}$ for all pairs $(k, k')$ where documents are observed at both positions, combining estimates via optimization \cite{agarwal2019estimating}.
+\end{itemize}
+
+For each estimator, we compared the performance using the original weighting scheme and the modified weighting scheme.
+
+We generated synthetic data based on the Position-Based Model \cite{chuklin2015click} with the following key characteristics:
+\begin{itemize}
+    \item True position bias follows $p_k = (1/k)^\eta$ with $\eta = 1.0$.
+    \item Within each adjacent pair $(k, k+1)$, half the documents receive 100 total impressions, while the other half receive only 5.
+    \item Impressions are split asymmetrically: 80\% at the higher position $k$ and 20\% at the lower position $k+1$.
+\end{itemize}
+
+\subsection{Results and Discussion}
+
+
+As shown in Figure~\ref{fig:allpairs_estimates} and Table~\ref{tab:synthetic_variance_results}, both the original and modified weighting schemes produce unbiased estimates, confirming Theorem 1, but the modified scheme demonstrates dramatically lower variance. For the AdjacentChain estimator, the variance reduction is 99.75\%, while for the AllPairs estimator, it is 92.20\%. This translates to substantial improvements in Mean Squared Error (MSE).
+
+\begin{table}[t!]
+    \small
+    \centering
+    \begin{tabular}{lccccc}
+        \toprule
+        Estimator & Weighting & Avg MSE & Mean Var & Var. Reduc. (\%) \\
+        \midrule
+        \textbf{AdjacentChain} & Original & 0.105545 & 2.526793 & -- \\
+                               & Modified & 0.000267 & 0.006209 & 99.75 \\
+        \addlinespace % Add space between groups
+        \textbf{AllPairs}      & Original & 0.004788 & 0.043519 & -- \\
+                               & Modified & 0.000078 & 0.003395 & 92.20 \\
+        \bottomrule
+    \end{tabular}
+    \caption{Quantitative comparison of original and modified weighting schemes on synthetic data (avg'ed over 100 runs).}
+    \label{tab:synthetic_variance_results}
+    \vspace*{-\baselineskip}
+\end{table}
+
+\section{Experiments on Yahoo LTR Data}
+
+\begin{table}[t!]
+    \centering
+    \vspace*{-\baselineskip}
+    \begin{tabular}{lccccc}
+        \toprule
+        Estimator & Weighting & Avg MSE & Mean Var & Var. Reduc. (\%) \\
+        \midrule
+        \textbf{AllPairs} & Original & 0.000046 & 0.000034 & -- \\
+                          & Modified & 0.000096 & 0.000019 & 45.57 \\
+        \bottomrule
+    \end{tabular}
+    \caption{Quantitative comparison on simulated Yahoo LTR data under extreme stress conditions (averaged over 5 runs).}
+    \label{tab:yahoo_results_extreme}
+    \vspace*{-\baselineskip}
+\end{table}
+
+\subsection{Experimental Setup: Extreme Stress Test}
+We simulated an extreme stress test scenario with severe imbalances:
+\begin{itemize}\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}
+    \item Four rankers with highly disproportionate logging volumes (ratios 100:10:1:0.1).
+    \item 25\% of items designated as "rare" with severely reduced logging probability (0.005).
+    \item Reduced overall data volume.
+\end{itemize}
+
+For each ranker, we trained an LGBM LambdaMART model \cite{ke2017lightgbm} on a distinct subset of the Yahoo training queries.
+
+\subsection{Results}
+
+As shown in Table~\ref{tab:yahoo_results_extreme}, even under these extreme conditions, the modified weighting scheme maintains unbiasedness while reducing variance by 45.57\% compared to the original scheme. The lower variance reduction compared to the synthetic experiments suggests that as conditions become more extreme, the benefits of variance reduction remain significant but may be somewhat moderated by the complexity of real-world data.
+
+
+
+\section{Related Work and Conclusion}
+\label{sec:related_work}
+
+Position bias estimation methods broadly fall into three categories: randomized interventions, joint relevance-propensity models, and intervention harvesting.
+
+\textbf{Randomized interventions} explicitly manipulate result rankings to estimate examination probabilities \cite{joachims2017unbiased, wang2018position}. These approaches guarantee unbiasedness by randomizing item placements, yet they significantly degrade the user experience due to intrusive changes in rankings \cite{Joachims2017}.
+
+\textbf{Joint relevance-propensity models} simultaneously estimate relevance and propensity from observational data using techniques like Expectation-Maximization (EM) \cite{wang2018position}. While these methods are non-intrusive, they require accurately specified relevance models. Misspecification can introduce substantial bias, limiting their reliability \cite{Wang2018}.
+
+\textbf{Intervention harvesting approaches}, originally proposed by \cite{agarwal2019estimating}, leverage natural ranking variations from multiple historical rankers, eliminating explicit randomization. Such methods preserve user experience while producing unbiased propensity estimates without assuming a relevance model. Extensions of this idea include temporal fluctuations in e-commerce search rankings \cite{aslanyan2019eCommerceBias} and policy-aware estimation from bandit logs \cite{oosterhuis2023DoublyRobustLTR}.
+
+Despite advances, propensity estimation remains prone to high variance, especially when utilizing importance sampling techniques \cite{swaminathan2015CRM}. Researchers have introduced numerous variance-reduction strategies such as clipping \cite{bottou2013counterfactual}, self-normalized estimators \cite{swaminathan2015batch}, doubly robust estimators \cite{dudik2011doubly, oosterhuis2023DoublyRobustLTR}, and control variates \cite{kong1992note}. Notably, doubly robust methods specifically tailored for learning-to-rank have shown substantial variance reduction and efficiency improvements \cite{oosterhuis2023DoublyRobustLTR}.
+
+% Recent works further address propensity estimation accuracy. \cite{Luo2024} identified propensity overestimation issues and proposed an unconfounded estimator using causal adjustments to separate relevance effects from positional exposure \cite{Luo2024}. \cite{Chen2023} extended propensity modeling by incorporating context-dependent biases, enabling finer-grained adjustments and better capturing of user behavior variations \cite{Chen2023}.
+
+% Advances in non-intrusive approaches also integrate additional knowledge beyond clicks. \cite{Luo2023} introduced a model-based unbiased learning-to-rank (MULTR), leveraging simulated user behavior to generate additional training data \cite{Luo2023}. Similarly, \cite{Ishikawa2024} applied embedding-based position bias estimation to address sparsity in click logs, significantly improving estimation in low-data scenarios \cite{Ishikawa2024}.
+
+% The practical effectiveness of unbiased learning-to-rank (ULTR) has recently been evaluated comprehensively in large-scale industrial scenarios. \cite{Hager2024} provided critical insights from experiments on industrial datasets, revealing that unbiased methods effectively model click distributions but sometimes fail to outperform traditional supervised methods in overall ranking performance \cite{Hager2024}. This highlights the complexity of real-world ULTR deployment and underscores the need for pairing bias correction methods with robust ranking models and suitable objectives.
+
+% \section{Conclusion}
+% \label{sec:conclusion}
+
+Based on the intervention harvesting approach of \cite{agarwal2019estimating}, we proposed a modified weighting scheme for non-intrusive position bias estimation that maintains unbiasedness while substantially reducing variance. Our method leverages naturally occurring intervention data from historical rankers \cite{agarwal2019estimating}, which is abundant in production ranking system, and introduces a weight normalization approach that improves statistical efficiency.
+
+The key contributions of our work are:
+\begin{itemize}
+  \item A variance-reduced estimator that preserves the unbiasedness of intervention harvesting
+  \item Theoretical proofs demonstrating both unbiasedness and variance reduction
+  \item Empirical validation showing 45-99\% variance reduction across different conditions
+\end{itemize}
+
+% Our approach enables more reliable position bias estimation without requiring intrusive interventions, making it particularly valuable for production learning-to-rank systems where user experience is paramount and where naturally occurring intervention data may contain significant imbalances.
+
+Our implementation and all experiments presented in this paper are publicly available at \url{https://github.com/alemagnani/ultr-bias-toolkit}. The implementation builds upon the unbiased learning-to-rank toolkit by \cite{Hager2024}, which provides a comprehensive framework for position bias estimation and evaluation.
+
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{refs}
+
+\end{document}
