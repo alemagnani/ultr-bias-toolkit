@@ -1,6 +1,7 @@
 import logging
-from typing import Optional, Literal
+from typing import Callable, Optional, Tuple, Union
 
+import numpy as np
 import pandas as pd
 
 from ultr_bias_toolkit.bias.intervention_harvesting.util import build_intervention_sets
@@ -11,14 +12,19 @@ logger = logging.getLogger(__name__)
 
 
 class AdjacentChainEstimator:
-    def __init__(self, weighting: Literal["original", "variance_reduced"] = "original"):
-        """
-        Initialize the Adjacent Chain estimator.
-        
+    def __init__(
+        self,
+        weighting: Union[
+            str, Callable[[np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray]]
+        ] = "original",
+    ):
+        """Initialize the Adjacent Chain estimator.
+
         Args:
-            weighting: Weighting scheme to use (default="original")
-                - "original": Standard weighting
-                - "variance_reduced": Modified weighting that reduces variance while maintaining unbiasedness
+            weighting: Weighting scheme.  Either a string name
+                ("original", "variance_reduced", "min", "harmonic",
+                "clipped_2", "clipped_5", "clipped_10") or a callable
+                ``weight_fn(N_k, N_kp) -> (omega_k, omega_kp)``.
         """
         self.weighting = weighting
         

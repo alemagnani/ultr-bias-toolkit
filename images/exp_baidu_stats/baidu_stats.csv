@@ -1,0 +1,2 @@
+n_rows,n_cells,frac_single_impression,frac_le3_impressions,median_impressions,mean_impressions,n_qd_total,n_qd_multi_pos,frac_qd_multi_pos,n_adjacent_pairs,frac_ratio_balanced,median_ratio
+14257354,12259771,0.940642447562846,0.9866538290152401,1.0,1.162938035302617,11585564,493356,0.04258368431610235,454215,0.7837477846394328,1.0

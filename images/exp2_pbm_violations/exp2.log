@@ -1,0 +1,32 @@
+Running Experiment 2: PBM Violations
+  Models: ['trust', 'cascade', 'pos_dependent_rel']
+  Trials: 500, imbalance ratio: 50.0, split: 0.8
+PBM violation models:   0%|          | 0/3 [00:00<?, ?it/s]PBM violation models:  33%|███▎      | 1/3 [00:22<00:44, 22.42s/it]PBM violation models:  67%|██████▋   | 2/3 [00:46<00:23, 23.39s/it]PBM violation models: 100%|██████████| 3/3 [01:07<00:00, 22.51s/it]PBM violation models: 100%|██████████| 3/3 [01:07<00:00, 22.65s/it]
+Warning: Ignoring XDG_SESSION_TYPE=wayland on Gnome. Use QT_QPA_PLATFORM=wayland to run on Wayland anyway.
+
+Results saved to images/exp2_pbm_violations/exp2_results.csv
+Plots saved to images/exp2_pbm_violations/
+
+--- LaTeX Table: MSE / Variance / Bias² by model and scheme ---
+\begin{tabular}{llrrr}
+\hline
+Model & Scheme & MSE & Variance & Bias$^2$ \\
+\hline
+Trust Bias           & Original        & 0.00486 & 0.00485 & 0.00001 \\
+                     & Min             & 0.00274 & 0.00273 & 0.00001 \\
+                     & Harmonic        & 0.00259 & 0.00259 & 0.00000 \\
+                     & Clipped $\tau$=5 & 0.04152 & 0.00002 & 0.04150 \\
+\hline
+Cascade              & Original        & 0.01358 & 0.00281 & 0.01077 \\
+                     & Min             & 0.01220 & 0.00170 & 0.01050 \\
+                     & Harmonic        & 0.01240 & 0.00150 & 0.01089 \\
+                     & Clipped $\tau$=5 & 0.04588 & 0.00002 & 0.04586 \\
+\hline
+Pos-Dep. Relevance   & Original        & 0.03442 & 0.03335 & 0.00107 \\
+                     & Min             & 0.02865 & 0.02758 & 0.00106 \\
+                     & Harmonic        & 0.02684 & 0.02592 & 0.00092 \\
+                     & Clipped $\tau$=5 & 0.04090 & 0.00075 & 0.04015 \\
+\hline
+\end{tabular}
+
+Experiment 2 done.

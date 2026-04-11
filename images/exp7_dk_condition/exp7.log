@@ -1,0 +1,19 @@
+Warning: Ignoring XDG_SESSION_TYPE=wayland on Gnome. Use QT_QPA_PLATFORM=wayland to run on Wayland anyway.
+Running Experiment 7: D_k condition verification
+Results saved to images/exp7_dk_condition/exp7_results.csv
+Plots saved to images/exp7_dk_condition/
+
+--- Theorem 6 Verification ---
+Cauchy-Schwarz (D_k + D_kp <= 0, should be 0 violations):
+  Systematic violations: 0/189 [expected 0]
+  Adversarial violations: 0/63 [expected 0]
+
+Systematic anchor-item imbalance:
+  D_k >= 0 (sufficient condition for term2 <= 0): 88/189 (46.6%)
+  Total > 0 (harmonic worse): 0/189 [expected 0]
+
+Adversarial mixed imbalance:
+  D_k < 0 (sufficient condition violated): 62/63 (98.4%)
+  Total > 0 (harmonic worse): 0/63
+
+Experiment 7 done.

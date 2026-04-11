@@ -1,6 +1,9 @@
-import pandas as pd
+from typing import Callable, Optional, Tuple, Union
+
 import numpy as np
-from typing import Optional, Literal
+import pandas as pd
+
+from ultr_bias_toolkit.bias.intervention_harvesting.weighting import get_weight_fn
 
 
 def build_intervention_sets(
@@ -9,46 +12,43 @@ def build_intervention_sets(
     doc_col: str,
     imps_col: Optional[str] = None,
     clicks_col: Optional[str] = None,
-    weighting: Literal["original", "variance_reduced"] = "original",
+    weighting: Union[str, Callable] = "original",
 ) -> pd.DataFrame:
-    """
-    Build intervention sets for position bias estimation.
-    
+    """Build intervention sets for position bias estimation.
+
     Args:
-        df: DataFrame with click data
-        query_col: Name of the column containing query identifiers
-        doc_col: Name of the column containing document identifiers
-        imps_col: Optional column with impression counts (for aggregated data)
-        clicks_col: Optional column with click counts (for aggregated data)
-        weighting: Weighting scheme to use. Options:
-            - "original": Standard weighting (default)
-            - "variance_reduced": Modified weighting that reduces variance while maintaining unbiasedness
-        
+        df: DataFrame with click data.
+        query_col: Column containing query identifiers.
+        doc_col: Column containing document identifiers.
+        imps_col: Column with impression counts (aggregated format).
+        clicks_col: Column with click counts (aggregated format).
+        weighting: Weighting scheme. Either a string name (see
+            ``get_weight_fn`` for supported values) or a callable
+            ``weight_fn(N_k, N_kp) -> (omega_k, omega_kp)``.
+
     Returns:
-        DataFrame with intervention pairs
+        DataFrame with columns position_0, position_1, c_0, c_1,
+        not_c_0, not_c_1.
     """
     df = df.copy()
-    
-    # Handle two different input formats:
-    # 1. Binary format: Each row is a single impression with click=0/1
-    # 2. Aggregated format: Rows contain impression and click counts
+
     if imps_col is not None and clicks_col is not None:
-        # Pre-aggregated format
+        # Aggregated format
         if weighting == "original":
             return build_intervention_sets_aggregated(df, query_col, doc_col, imps_col, clicks_col)
-        else:
-            return build_intervention_sets_variance_reduced(df, query_col, doc_col, imps_col, clicks_col)
+        weight_fn = get_weight_fn(weighting) if isinstance(weighting, str) else weighting
+        return build_intervention_sets_weighted(df, query_col, doc_col, imps_col, clicks_col, weight_fn)
     else:
-        # Original binary format
+        # Binary format: convert to aggregated first
         if weighting == "original":
             return build_intervention_sets_binary(df, query_col, doc_col)
-        else:
-            # Convert binary to aggregated format first, then apply variance-reduced weighting
-            df_agg = _binary_to_aggregated(df, query_col, doc_col)
-            return build_intervention_sets_variance_reduced(
-                df_agg, query_col, doc_col, 
-                imps_col="impressions", clicks_col="clicks"
-            )
+        df_agg = _binary_to_aggregated(df, query_col, doc_col)
+        weight_fn = get_weight_fn(weighting) if isinstance(weighting, str) else weighting
+        return build_intervention_sets_weighted(
+            df_agg, query_col, doc_col,
+            imps_col="impressions", clicks_col="clicks",
+            weight_fn=weight_fn,
+        )
 
 
 def build_intervention_sets_binary(
@@ -56,7 +56,7 @@ def build_intervention_sets_binary(
     query_col: str,
     doc_col: str,
 ) -> pd.DataFrame:
-    """Original implementation for binary click data (0/1)"""
+    """Original implementation for binary click data (0/1)."""
     df["no_click"] = 1 - df["click"]
     df = (
         df.groupby([query_col, doc_col, "position"])
@@ -93,22 +93,19 @@ def build_intervention_sets_aggregated(
     imps_col: str,
     clicks_col: str,
 ) -> pd.DataFrame:
-    """Implementation for pre-aggregated data with impression and click counts"""
-    # Validate that clicks <= impressions
+    """Implementation for pre-aggregated data with impression and click counts."""
     if (df[clicks_col] > df[imps_col]).any():
-        raise ValueError(f"Found rows where {clicks_col} > {imps_col}. Clicks must be <= impressions.")
-    
-    # Get aggregated data with click and no-click rates
+        raise ValueError(
+            f"Found rows where {clicks_col} > {imps_col}. Clicks must be <= impressions."
+        )
+
     df = _get_aggregated_data(df, query_col, doc_col, imps_col, clicks_col)
 
-    #Apply weight
     df["c"] = df["c"] / df["impressions"]
     df["not_c"] = df["not_c"] / df["impressions"]
 
-    # Merge to create intervention pairs
     df = df.merge(df, on=[query_col, doc_col], suffixes=["_0", "_1"])
-    
-    # Aggregate by position pairs
+
     df = (
         df.groupby(["position_0", "position_1"])
         .agg(
@@ -119,8 +116,59 @@ def build_intervention_sets_aggregated(
         )
         .reset_index()
     )
-    
+
     return df
+
+
+def build_intervention_sets_weighted(
+    df: pd.DataFrame,
+    query_col: str,
+    doc_col: str,
+    imps_col: str,
+    clicks_col: str,
+    weight_fn: Callable[[np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray]],
+) -> pd.DataFrame:
+    """Generic weighted intervention sets using a caller-supplied weight function.
+
+    Args:
+        weight_fn: ``weight_fn(N_k, N_kp) -> (omega_k, omega_kp)`` where
+            omega_k and omega_kp are per-pair weights.  They may differ
+            (e.g. clipped weights) which breaks ratio-unbiasedness.
+
+    The contribution of pair i to position k's sum is:
+        omega_k^i * C_k^i / N_k^i = omega_k^i * CTR_k^i
+    """
+    if (df[clicks_col] > df[imps_col]).any():
+        raise ValueError(
+            f"Found rows where {clicks_col} > {imps_col}. Clicks must be <= impressions."
+        )
+
+    df = _get_aggregated_data(df, query_col, doc_col, imps_col, clicks_col)
+
+    merged = df.merge(df, on=[query_col, doc_col], suffixes=["_0", "_1"])
+
+    N_k = merged["impressions_0"].values.astype(float)
+    N_kp = merged["impressions_1"].values.astype(float)
+    omega_k, omega_kp = weight_fn(N_k, N_kp)
+
+    # factor_0 = omega_k / N_k  →  clicks_0 * factor_0 = omega_k * CTR_0
+    merged["weighted_c_0"] = merged["c_0"] * omega_k / N_k
+    merged["weighted_c_1"] = merged["c_1"] * omega_kp / N_kp
+    merged["weighted_not_c_0"] = merged["not_c_0"] * omega_k / N_k
+    merged["weighted_not_c_1"] = merged["not_c_1"] * omega_kp / N_kp
+
+    result = (
+        merged.groupby(["position_0", "position_1"])
+        .agg(
+            c_0=("weighted_c_0", "sum"),
+            c_1=("weighted_c_1", "sum"),
+            not_c_0=("weighted_not_c_0", "sum"),
+            not_c_1=("weighted_not_c_1", "sum"),
+        )
+        .reset_index()
+    )
+
+    return result
 
 
 def build_intervention_sets_variance_reduced(
@@ -130,48 +178,12 @@ def build_intervention_sets_variance_reduced(
     imps_col: str,
     clicks_col: str,
 ) -> pd.DataFrame:
-    """
-    Implementation with modified weighting scheme that reduces variance
-    while maintaining unbiasedness:
-    
-    Modified weight = min{w(q,d,k), w(q,d,k')} / w(q,d,k)
-    
-    Where w(q,d,k) is the weight (or impressions) for query q, document d at position k.
-    """
-    # Validate that clicks <= impressions
-    if (df[clicks_col] > df[imps_col]).any():
-        raise ValueError(f"Found rows where {clicks_col} > {imps_col}. Clicks must be <= impressions.")
-    
-    # Get aggregated data with click and no-click rates
-    df = _get_aggregated_data(df, query_col, doc_col, imps_col, clicks_col)
-    
-    # Merge to create intervention pairs
-    merged_df = df.merge(df, on=[query_col, doc_col], suffixes=["_0", "_1"])
-    
-    # Apply the modified weighting scheme: min{w(q,d,k), w(q,d,k')} / w(q,d,k)
-    # Here w(q,d,k) corresponds to impressions_0 and w(q,d,k') to impressions_1
-    merged_df["weight_0"] = np.minimum(merged_df["impressions_0"], merged_df["impressions_1"]) / merged_df["impressions_0"]
-    merged_df["weight_1"] = np.minimum(merged_df["impressions_0"], merged_df["impressions_1"]) / merged_df["impressions_1"]
-    
-    # Apply the weights to the click and no-click rates
-    merged_df["weighted_c_0"] = merged_df["c_0"] * merged_df["weight_0"]
-    merged_df["weighted_c_1"] = merged_df["c_1"] * merged_df["weight_1"]
-    merged_df["weighted_not_c_0"] = merged_df["not_c_0"] * merged_df["weight_0"]
-    merged_df["weighted_not_c_1"] = merged_df["not_c_1"] * merged_df["weight_1"]
-    
-    # Aggregate by position pairs using the weighted rates
-    df = (
-        merged_df.groupby(["position_0", "position_1"])
-        .agg(
-            c_0=("weighted_c_0", "sum"),
-            c_1=("weighted_c_1", "sum"),
-            not_c_0=("weighted_not_c_0", "sum"),
-            not_c_1=("weighted_not_c_1", "sum"),
-        )
-        .reset_index()
+    """Min-weighting (variance-reduced).  Kept for backward compatibility."""
+    from ultr_bias_toolkit.bias.intervention_harvesting.weighting import weight_min
+
+    return build_intervention_sets_weighted(
+        df, query_col, doc_col, imps_col, clicks_col, weight_fn=weight_min
     )
-    
-    return df
 
 
 def _binary_to_aggregated(
@@ -179,7 +191,7 @@ def _binary_to_aggregated(
     query_col: str,
     doc_col: str,
 ) -> pd.DataFrame:
-    """Convert binary click data to aggregated format"""
+    """Convert binary click data to aggregated format."""
     df = df.copy()
     df["no_click"] = 1 - df["click"]
     df_agg = (
@@ -201,16 +213,11 @@ def _get_aggregated_data(
     imps_col: str,
     clicks_col: str,
 ) -> pd.DataFrame:
-    """
-    Helper function to aggregate data by query, document, and position.
-    Used for testing and by build_intervention_sets_aggregated.
-    """
+    """Aggregate data by (query, document, position) and return raw counts."""
     df = df.copy()
-    
-    # Calculate no-clicks
+
     df["no_clicks"] = df[imps_col] - df[clicks_col]
-    
-    # Group by query, doc, position to handle any remaining aggregation needed
+
     df = (
         df.groupby([query_col, doc_col, "position"])
         .agg(
@@ -220,14 +227,10 @@ def _get_aggregated_data(
         )
         .reset_index()
     )
-    
-    # Calculate click and no-click rates
-    # df["c"] = df["clicks"] / df["impressions"]
-    # df["not_c"] = df["no_clicks"] / df["impressions"]
-    #
+
     df["c"] = df["clicks"]
     df["not_c"] = df["no_clicks"]
-    
+
     return df
 
 

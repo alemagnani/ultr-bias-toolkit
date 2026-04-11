@@ -1,0 +1,245 @@
+%%% -*-BibTeX-*-
+%%% Do NOT edit. File created by BibTeX with style
+%%% ACM-Reference-Format-Journals [18-Jan-2012].
+
+\begin{thebibliography}{17}
+
+%%% ====================================================================
+%%% NOTE TO THE USER: you can override these defaults by providing
+%%% customized versions of any of these macros before the \bibliography
+%%% command.  Each of them MUST provide its own final punctuation,
+%%% except for \shownote{} and \showURL{}.  The latter two
+%%% do not use final punctuation, in order to avoid confusing it with
+%%% the Web address.
+%%%
+%%% To suppress output of a particular field, define its macro to expand
+%%% to an empty string, or better, \unskip, like this:
+%%%
+%%% \newcommand{\showURL}[1]{\unskip}   % LaTeX syntax
+%%%
+%%% \def \showURL #1{\unskip}           % plain TeX syntax
+%%%
+%%% ====================================================================
+
+\ifx \showCODEN    \undefined \def \showCODEN     #1{\unskip}     \fi
+\ifx \showISBNx    \undefined \def \showISBNx     #1{\unskip}     \fi
+\ifx \showISBNxiii \undefined \def \showISBNxiii  #1{\unskip}     \fi
+\ifx \showISSN     \undefined \def \showISSN      #1{\unskip}     \fi
+\ifx \showLCCN     \undefined \def \showLCCN      #1{\unskip}     \fi
+\ifx \shownote     \undefined \def \shownote      #1{#1}          \fi
+\ifx \showarticletitle \undefined \def \showarticletitle #1{#1}   \fi
+\ifx \showURL      \undefined \def \showURL       {\relax}        \fi
+% The following commands are used for tagged output and should be
+% invisible to TeX
+\providecommand\bibfield[2]{#2}
+\providecommand\bibinfo[2]{#2}
+\providecommand\natexlab[1]{#1}
+\providecommand\showeprint[2][]{arXiv:#2}
+
+\bibitem[Agarwal et~al\mbox{.}(2019)]%
+        {agarwal2019estimating}
+\bibfield{author}{\bibinfo{person}{Aman Agarwal}, \bibinfo{person}{Ivan
+  Zaitsev}, \bibinfo{person}{Xuanhui Wang}, \bibinfo{person}{Cheng Li},
+  \bibinfo{person}{Marc Najork}, {and} \bibinfo{person}{Thorsten Joachims}.}
+  \bibinfo{year}{2019}\natexlab{}.
+\newblock \showarticletitle{Estimating Position Bias without Intrusive
+  Interventions}. In \bibinfo{booktitle}{\emph{Proceedings of the 12th ACM
+  International Conference on Web Search and Data Mining (WSDM)}}.
+  \bibinfo{publisher}{ACM}, \bibinfo{pages}{474--482}.
+\newblock
+
+
+\bibitem[Aslanyan and Porwal(2019)]%
+        {aslanyan2019eCommerceBias}
+\bibfield{author}{\bibinfo{person}{Grigor Aslanyan} {and}
+  \bibinfo{person}{Utkarsh Porwal}.} \bibinfo{year}{2019}\natexlab{}.
+\newblock \showarticletitle{Position Bias Estimation for Unbiased
+  Learning-to-Rank in eCommerce Search}. In
+  \bibinfo{booktitle}{\emph{Proceedings of the 26th International Symposium on
+  String Processing and Information Retrieval (SPIRE)}}.
+  \bibinfo{publisher}{Springer}.
+\newblock
+
+
+\bibitem[Bottou et~al\mbox{.}(2013)]%
+        {bottou2013counterfactual}
+\bibfield{author}{\bibinfo{person}{Léon Bottou}, \bibinfo{person}{Jonas
+  Peters}, \bibinfo{person}{Joaquin Quiñonero-Candela},
+  \bibinfo{person}{Denis~X Charles}, \bibinfo{person}{D~Max Chickering},
+  \bibinfo{person}{Elon Portugaly}, \bibinfo{person}{Dipankar Ray},
+  \bibinfo{person}{Patrice Simard}, {and} \bibinfo{person}{Ed Snelson}.}
+  \bibinfo{year}{2013}\natexlab{}.
+\newblock \showarticletitle{Counterfactual reasoning and learning systems: The
+  example of computational advertising}. In \bibinfo{booktitle}{\emph{The
+  Journal of Machine Learning Research}}, Vol.~\bibinfo{volume}{14}.
+  \bibinfo{pages}{3207--3260}.
+\newblock
+
+
+\bibitem[Chuklin et~al\mbox{.}(2015)]%
+        {chuklin2015click}
+\bibfield{author}{\bibinfo{person}{Aleksandr Chuklin}, \bibinfo{person}{Ilya
+  Markov}, {and} \bibinfo{person}{Maarten de Rijke}.}
+  \bibinfo{year}{2015}\natexlab{}.
+\newblock \bibinfo{booktitle}{\emph{Click Models for Web Search}}.
+\newblock \bibinfo{publisher}{Morgan \& Claypool}.
+\newblock
+\showISBNx{9781627056489}
+\href{https://doi.org/10.2200/S00654ED1V01Y201507ICR043}{doi:\nolinkurl{10.2200/S00654ED1V01Y201507ICR043}}
+
+
+\bibitem[Dudík et~al\mbox{.}(2011)]%
+        {dudik2011doubly}
+\bibfield{author}{\bibinfo{person}{Miroslav Dudík}, \bibinfo{person}{John
+  Langford}, {and} \bibinfo{person}{Lihong Li}.}
+  \bibinfo{year}{2011}\natexlab{}.
+\newblock \showarticletitle{Doubly robust policy evaluation and learning}. In
+  \bibinfo{booktitle}{\emph{Proceedings of the 28th International Conference on
+  Machine Learning (ICML)}}. \bibinfo{pages}{1097--1104}.
+\newblock
+
+
+\bibitem[Guo et~al\mbox{.}(2019)]%
+        {pai2020pal}
+\bibfield{author}{\bibinfo{person}{Huifeng Guo}, \bibinfo{person}{Ruiming
+  Tang}, \bibinfo{person}{Yunming Ye}, \bibinfo{person}{Zhenguo Li},
+  \bibinfo{person}{Xiuqiang He}, {and} \bibinfo{person}{Zhenhua Dong}.}
+  \bibinfo{year}{2019}\natexlab{}.
+\newblock \showarticletitle{{PAL}: A Position-Bias Aware Learning Framework for
+  {CTR} Prediction in Live Recommender Systems}. In
+  \bibinfo{booktitle}{\emph{Proceedings of the 13th ACM International
+  Conference on Web Search and Data Mining}}. \bibinfo{pages}{452--460}.
+\newblock
+
+
+\bibitem[Hager et~al\mbox{.}(2024)]%
+        {Hager2024}
+\bibfield{author}{\bibinfo{person}{Philipp Hager}, \bibinfo{person}{Romain
+  Deffayet}, \bibinfo{person}{Jean-Michel Renders}, \bibinfo{person}{Onno
+  Zoeter}, {and} \bibinfo{person}{Maarten de Rijke}.}
+  \bibinfo{year}{2024}\natexlab{}.
+\newblock \showarticletitle{Unbiased Learning to Rank Meets Reality: Lessons
+  from Baidu's Large-Scale Search Dataset}. In
+  \bibinfo{booktitle}{\emph{Proceedings of the 47th International ACM SIGIR
+  Conference on Research and Development in Information Retrieval (SIGIR)}}.
+\newblock
+
+
+\bibitem[Joachims et~al\mbox{.}(2017a)]%
+        {joachims2017unbiased}
+\bibfield{author}{\bibinfo{person}{Thorsten Joachims}, \bibinfo{person}{Adith
+  Swaminathan}, {and} \bibinfo{person}{Tobias Schnabel}.}
+  \bibinfo{year}{2017}\natexlab{a}.
+\newblock \showarticletitle{Unbiased Learning-to-Rank with Biased Feedback}. In
+  \bibinfo{booktitle}{\emph{Proceedings of the 10th ACM International
+  Conference on Web Search and Data Mining (WSDM)}}. \bibinfo{publisher}{ACM},
+  \bibinfo{pages}{781--789}.
+\newblock
+
+
+\bibitem[Joachims et~al\mbox{.}(2017b)]%
+        {Joachims2017}
+\bibfield{author}{\bibinfo{person}{Thorsten Joachims}, \bibinfo{person}{Adith
+  Swaminathan}, {and} \bibinfo{person}{Tobias Schnabel}.}
+  \bibinfo{year}{2017}\natexlab{b}.
+\newblock \showarticletitle{Unbiased Learning-to-Rank with Biased Feedback}. In
+  \bibinfo{booktitle}{\emph{WSDM}}. \bibinfo{pages}{781--789}.
+\newblock
+
+
+\bibitem[Kong(1992)]%
+        {kong1992note}
+\bibfield{author}{\bibinfo{person}{Augustine Kong}.}
+  \bibinfo{year}{1992}\natexlab{}.
+\newblock \showarticletitle{A note on importance sampling using standardized
+  weights}.
+\newblock \bibinfo{journal}{\emph{University of Chicago, Dept. of Statistics,
+  Tech. Rep}}  \bibinfo{volume}{348} (\bibinfo{year}{1992}).
+\newblock
+
+
+\bibitem[Oosterhuis(2023)]%
+        {oosterhuis2023DoublyRobustLTR}
+\bibfield{author}{\bibinfo{person}{Harrie Oosterhuis}.}
+  \bibinfo{year}{2023}\natexlab{}.
+\newblock \showarticletitle{Doubly Robust Estimation for Correcting Position
+  Bias in Click Feedback for Unbiased Learning to Rank}.
+\newblock \bibinfo{journal}{\emph{ACM Transactions on Information Systems}}
+  \bibinfo{volume}{41}, \bibinfo{number}{3} (\bibinfo{year}{2023}).
+\newblock
+\href{https://doi.org/10.1145/3569453}{doi:\nolinkurl{10.1145/3569453}}
+
+
+\bibitem[Richardson et~al\mbox{.}(2007)]%
+        {richardson2007predicting}
+\bibfield{author}{\bibinfo{person}{Matthew Richardson}, \bibinfo{person}{Ewa
+  Dominowska}, {and} \bibinfo{person}{Robert Ragno}.}
+  \bibinfo{year}{2007}\natexlab{}.
+\newblock \showarticletitle{Predicting Clicks: Estimating the Click-Through
+  Rate for New Ads}. In \bibinfo{booktitle}{\emph{Proceedings of the 16th
+  International Conference on World Wide Web}}. \bibinfo{pages}{521--530}.
+\newblock
+
+
+\bibitem[Swaminathan and Joachims(2015a)]%
+        {swaminathan2015CRM}
+\bibfield{author}{\bibinfo{person}{Adith Swaminathan} {and}
+  \bibinfo{person}{Thorsten Joachims}.} \bibinfo{year}{2015}\natexlab{a}.
+\newblock \showarticletitle{Counterfactual Risk Minimization: Learning from
+  Logged Bandit Feedback}. In \bibinfo{booktitle}{\emph{Proceedings of the 32nd
+  International Conference on Machine Learning (ICML)}}.
+  \bibinfo{publisher}{PMLR}, \bibinfo{pages}{814--823}.
+\newblock
+
+
+\bibitem[Swaminathan and Joachims(2015b)]%
+        {swaminathan2015batch}
+\bibfield{author}{\bibinfo{person}{Adith Swaminathan} {and}
+  \bibinfo{person}{Thorsten Joachims}.} \bibinfo{year}{2015}\natexlab{b}.
+\newblock \showarticletitle{The self-normalized estimator for counterfactual
+  learning}. In \bibinfo{booktitle}{\emph{Advances in Neural Information
+  Processing Systems}}. \bibinfo{pages}{3231--3239}.
+\newblock
+
+
+\bibitem[Wang et~al\mbox{.}(2018a)]%
+        {wang2018position}
+\bibfield{author}{\bibinfo{person}{Xuanhui Wang}, \bibinfo{person}{Nadav
+  Golbandi}, \bibinfo{person}{Michael Bendersky}, \bibinfo{person}{Donald
+  Metzler}, {and} \bibinfo{person}{Marc Najork}.}
+  \bibinfo{year}{2018}\natexlab{a}.
+\newblock \showarticletitle{Position Bias Estimation for Unbiased Learning to
+  Rank in Personal Search}. In \bibinfo{booktitle}{\emph{Proceedings of the
+  11th ACM International Conference on Web Search and Data Mining (WSDM)}}.
+  \bibinfo{publisher}{ACM}, \bibinfo{pages}{610--618}.
+\newblock
+
+
+\bibitem[Wang et~al\mbox{.}(2018b)]%
+        {Wang2018}
+\bibfield{author}{\bibinfo{person}{Xuanhui Wang}, \bibinfo{person}{Nadav
+  Golbandi}, \bibinfo{person}{Michael Bendersky}, \bibinfo{person}{Donald
+  Metzler}, {and} \bibinfo{person}{Marc Najork}.}
+  \bibinfo{year}{2018}\natexlab{b}.
+\newblock \showarticletitle{Position Bias Estimation for Unbiased Learning to
+  Rank in Personal Search}. In \bibinfo{booktitle}{\emph{Proceedings of the
+  11th ACM International Conference on Web Search and Data Mining (WSDM)}}.
+  \bibinfo{pages}{610--618}.
+\newblock
+
+
+\bibitem[Zou et~al\mbox{.}(2022)]%
+        {zou2022large}
+\bibfield{author}{\bibinfo{person}{Lixin Zou}, \bibinfo{person}{Xianghui He},
+  \bibinfo{person}{Jian Chen}, \bibinfo{person}{Mingzhe Li},
+  \bibinfo{person}{Ming Chen}, \bibinfo{person}{Sulong Xu},
+  \bibinfo{person}{Zhaochun Ren}, \bibinfo{person}{Maarten de Rijke}, {and}
+  \bibinfo{person}{Dawei Yin}.} \bibinfo{year}{2022}\natexlab{}.
+\newblock \showarticletitle{{BAIDU-ULTR}: Large-Scale Data for Unbiased
+  Learning-to-Rank}. In \bibinfo{booktitle}{\emph{Proceedings of the 45th
+  International ACM SIGIR Conference on Research and Development in Information
+  Retrieval}}. \bibinfo{pages}{2847--2857}.
+\newblock
+
+
+\end{thebibliography}

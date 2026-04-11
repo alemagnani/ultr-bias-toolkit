@@ -1,0 +1,125 @@
+This is BibTeX, Version 0.99e (TeX Live 2026/Arch Linux)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: main.aux
+The style file: ACM-Reference-Format.bst
+Reallocated singl_function (elt_size=8) to 100 items from 50.
+Reallocated singl_function (elt_size=8) to 100 items from 50.
+Reallocated wiz_functions (elt_size=8) to 6000 items from 3000.
+Database file #1: refs.bib
+Repeated entry---line 161 of file refs.bib
+ : @inproceedings{Hager2024
+ :                         ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 208 of file refs.bib
+ : @inproceedings{agarwal2019estimating
+ :                                     ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 216 of file refs.bib
+ : @inproceedings{aslanyan2019eCommerceBias
+ :                                         ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 223 of file refs.bib
+ : @article{bottou2013counterfactual
+ :                                  ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 233 of file refs.bib
+ : @inproceedings{dudik2011doubly
+ :                               ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 241 of file refs.bib
+ : @inproceedings{joachims2017unbiased
+ :                                    ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 249 of file refs.bib
+ : @techreport{kong1992note
+ :                         ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 257 of file refs.bib
+ : @article{oosterhuis2023DoublyRobustLTR
+ :                                       ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 267 of file refs.bib
+ : @inproceedings{swaminathan2015CRM
+ :                                  ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 275 of file refs.bib
+ : @inproceedings{swaminathan2015batch
+ :                                    ,
+I'm skipping whatever remains of this entry
+Reallocated singl_function (elt_size=8) to 100 items from 50.
+Reallocated wiz_functions (elt_size=8) to 9000 items from 6000.
+Reallocated glb_str_ptr (elt_size=8) to 20 items from 10.
+Reallocated global_strs (elt_size=200001) to 20 items from 10.
+Reallocated glb_str_end (elt_size=8) to 20 items from 10.
+Reallocated singl_function (elt_size=8) to 100 items from 50.
+Warning--empty address in agarwal2019estimating
+Warning--empty address in aslanyan2019eCommerceBias
+Warning--page numbers missing in both pages and numpages fields in aslanyan2019eCommerceBias
+Warning--can't use both volume and number fields in bottou2013counterfactual
+Warning--empty publisher in bottou2013counterfactual
+Warning--empty address in bottou2013counterfactual
+Warning--empty address in chuklin2015click
+Warning--empty publisher in dudik2011doubly
+Warning--empty address in dudik2011doubly
+Warning--empty publisher in pai2020pal
+Warning--empty address in pai2020pal
+Warning--empty publisher in Hager2024
+Warning--empty address in Hager2024
+Warning--page numbers missing in both pages and numpages fields in Hager2024
+Warning--empty address in joachims2017unbiased
+Warning--empty publisher in Joachims2017
+Warning--empty address in Joachims2017
+Warning--page numbers missing in both pages and numpages fields in kong1992note
+Warning--page numbers missing in both pages and numpages fields in oosterhuis2023DoublyRobustLTR
+Warning--empty publisher in richardson2007predicting
+Warning--empty address in richardson2007predicting
+Warning--empty address in swaminathan2015CRM
+Warning--empty publisher in swaminathan2015batch
+Warning--empty address in swaminathan2015batch
+Warning--empty address in wang2018position
+Warning--empty publisher in Wang2018
+Warning--empty address in Wang2018
+Warning--empty publisher in zou2022large
+Warning--empty address in zou2022large
+You've used 17 entries,
+            6273 wiz_defined-function locations,
+            1615 strings with 21964 characters,
+and the built_in function-call counts, 20503 in all, are:
+= -- 2239
+> -- 686
+< -- 0
++ -- 239
+- -- 234
+* -- 1452
+:= -- 1970
+add.period$ -- 85
+call.type$ -- 17
+change.case$ -- 136
+chr.to.int$ -- 14
+cite$ -- 46
+duplicate$ -- 1959
+empty$ -- 1364
+format.name$ -- 291
+if$ -- 4900
+int.to.chr$ -- 5
+int.to.str$ -- 1
+missing$ -- 80
+newline$ -- 164
+num.names$ -- 116
+pop$ -- 889
+preamble$ -- 1
+purify$ -- 266
+quote$ -- 0
+skip$ -- 721
+stack$ -- 0
+substring$ -- 1498
+swap$ -- 194
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 449
+warning$ -- 29
+while$ -- 106
+width$ -- 0
+write$ -- 352
+(There were 10 error messages)
