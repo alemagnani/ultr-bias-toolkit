@@ -55,10 +55,13 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Results: PBM Violations}{4}{subsection.5.3}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Variance reduction of harmonic vs.\ original as a function of imbalance ratio, for different traffic splits. Reduction increases monotonically with both split and ratio.}}{4}{figure.caption.5}\protected@file@percent }
 \newlabel{fig:variance_vs_split}{{2}{4}{Variance reduction of harmonic vs.\ original as a function of imbalance ratio, for different traffic splits. Reduction increases monotonically with both split and ratio}{figure.caption.5}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces MSE decomposition (bias$^2$ + variance) under three PBM violation models. Original, min, and harmonic share identical bias$^2$ under all violations, since they are all ratio-unbiased under PBM. Clipped weights introduce additional bias.}}{4}{figure.caption.6}\protected@file@percent }
-\newlabel{fig:pbm_violations}{{3}{4}{MSE decomposition (bias$^2$ + variance) under three PBM violation models. Original, min, and harmonic share identical bias$^2$ under all violations, since they are all ratio-unbiased under PBM. Clipped weights introduce additional bias}{figure.caption.6}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces MSE decomposition under PBM violations (anchor-item imbalance, split 80/20, ratio 50:1). Original and harmonic have comparable bias$^2$---far below clipped---while harmonic achieves 47\% lower variance under trust bias and 22\% lower under position-dependent relevance. Clipped's near-zero variance comes at the cost of $160\times $ higher bias$^2$.}}{4}{table.caption.7}\protected@file@percent }
-\newlabel{tab:pbm_violations}{{2}{4}{MSE decomposition under PBM violations (anchor-item imbalance, split 80/20, ratio 50:1). Original and harmonic have comparable bias$^2$---far below clipped---while harmonic achieves 47\% lower variance under trust bias and 22\% lower under position-dependent relevance. Clipped's near-zero variance comes at the cost of $160\times $ higher bias$^2$}{table.caption.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces MSE decomposition (bias$^2$ + variance) under two PBM violation models. Original, min, and harmonic share comparable bias$^2$ under both violations; harmonic achieves lower variance and thus lower MSE. Clipped weights introduce large additional bias.}}{4}{figure.caption.6}\protected@file@percent }
+\newlabel{fig:pbm_violations}{{3}{4}{MSE decomposition (bias$^2$ + variance) under two PBM violation models. Original, min, and harmonic share comparable bias$^2$ under both violations; harmonic achieves lower variance and thus lower MSE. Clipped weights introduce large additional bias}{figure.caption.6}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces MSE decomposition under two PBM violations (anchor-item imbalance, split 80/20, ratio 50:1). Original and harmonic have comparable bias$^2$---far below clipped---while harmonic achieves 47\% lower variance under trust bias and 22\% lower under position-dependent relevance. Clipped's near-zero variance comes at the cost of $160\times $ higher bias$^2$.}}{4}{table.caption.7}\protected@file@percent }
+\newlabel{tab:pbm_violations}{{2}{4}{MSE decomposition under two PBM violations (anchor-item imbalance, split 80/20, ratio 50:1). Original and harmonic have comparable bias$^2$---far below clipped---while harmonic achieves 47\% lower variance under trust bias and 22\% lower under position-dependent relevance. Clipped's near-zero variance comes at the cost of $160\times $ higher bias$^2$}{table.caption.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Experiment 6: Variance Decomposition Verification}{4}{subsection.5.4}\protected@file@percent }
+\newlabel{sec:exp6}{{5.4}{4}{Experiment 6: Variance Decomposition Verification}{subsection.5.4}{}}
+\citation{chapelle2011yahoo}
 \citation{zou2022large}
 \citation{joachims2017unbiased,wang2018position}
 \citation{Joachims2017}
@@ -73,36 +76,40 @@
 \citation{dudik2011doubly,oosterhuis2023DoublyRobustLTR}
 \citation{kong1992note}
 \citation{oosterhuis2023DoublyRobustLTR}
+\citation{bottou2013counterfactual}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Variance reduction achieved by harmonic vs.\ original across systematic and adversarial mixed-imbalance configurations. Harmonic reduces total variance in 100\% of systematic cases (Cauchy–Schwarz guarantee), and the $D_k \geq 0$ sufficient condition holds in 46.6\% of those cases.}}{5}{figure.caption.8}\protected@file@percent }
+\newlabel{fig:dk_condition}{{4}{5}{Variance reduction achieved by harmonic vs.\ original across systematic and adversarial mixed-imbalance configurations. Harmonic reduces total variance in 100\% of systematic cases (Cauchy–Schwarz guarantee), and the $D_k \geq 0$ sufficient condition holds in 46.6\% of those cases}{figure.caption.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}Experiment 3: Yahoo LTR Semi-Synthetic}{5}{subsection.5.5}\protected@file@percent }
+\newlabel{sec:exp3}{{5.5}{5}{Experiment 3: Yahoo LTR Semi-Synthetic}{subsection.5.5}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Variance and MSE on Yahoo semi-synthetic data (split 80/20). Harmonic consistently outperforms original and min. Clipped achieves near-zero variance but incurs large bias$^2$, giving MSE $\approx 458\times $ higher than harmonic at $r=50$.}}{5}{table.caption.9}\protected@file@percent }
+\newlabel{tab:yahoo_results}{{3}{5}{Variance and MSE on Yahoo semi-synthetic data (split 80/20). Harmonic consistently outperforms original and min. Clipped achieves near-zero variance but incurs large bias$^2$, giving MSE $\approx 458\times $ higher than harmonic at $r=50$}{table.caption.9}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.6}Real-World Dataset: Absence of Impression Imbalance in Baidu-ULTR}{5}{subsection.5.6}\protected@file@percent }
+\newlabel{sec:baidu}{{5.6}{5}{Real-World Dataset: Absence of Impression Imbalance in Baidu-ULTR}{subsection.5.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Related Work and Conclusion}{5}{section.6}\protected@file@percent }
+\newlabel{sec:related_work}{{6}{5}{Related Work and Conclusion}{section.6}{}}
 \citation{agarwal2019estimating}
 \citation{agarwal2019estimating}
 \citation{Hager2024}
 \bibstyle{ACM-Reference-Format}
 \bibdata{refs}
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Variance reduction achieved by harmonic vs.\ original across systematic and adversarial mixed-imbalance configurations. Harmonic reduces total variance in 100\% of systematic cases (Cauchy–Schwarz guarantee), and the $D_k \geq 0$ sufficient condition holds in 46.6\% of those cases.}}{5}{figure.caption.8}\protected@file@percent }
-\newlabel{fig:dk_condition}{{4}{5}{Variance reduction achieved by harmonic vs.\ original across systematic and adversarial mixed-imbalance configurations. Harmonic reduces total variance in 100\% of systematic cases (Cauchy–Schwarz guarantee), and the $D_k \geq 0$ sufficient condition holds in 46.6\% of those cases}{figure.caption.8}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Experiment 6: Variance Decomposition Verification}{5}{subsection.5.4}\protected@file@percent }
-\newlabel{sec:exp6}{{5.4}{5}{Experiment 6: Variance Decomposition Verification}{subsection.5.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}Real-World Dataset: Absence of Impression Imbalance in Baidu-ULTR}{5}{subsection.5.5}\protected@file@percent }
-\newlabel{sec:baidu}{{5.5}{5}{Real-World Dataset: Absence of Impression Imbalance in Baidu-ULTR}{subsection.5.5}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {6}Related Work and Conclusion}{5}{section.6}\protected@file@percent }
-\newlabel{sec:related_work}{{6}{5}{Related Work and Conclusion}{section.6}{}}
 \bibcite{agarwal2019estimating}{{1}{2019}{{Agarwal et~al\mbox  {.}}}{{}}}
 \bibcite{aslanyan2019eCommerceBias}{{2}{2019}{{Aslanyan and Porwal}}{{}}}
 \bibcite{bottou2013counterfactual}{{3}{2013}{{Bottou et~al\mbox  {.}}}{{}}}
-\bibcite{chuklin2015click}{{4}{2015}{{Chuklin et~al\mbox  {.}}}{{}}}
-\bibcite{dudik2011doubly}{{5}{2011}{{Dudík et~al\mbox  {.}}}{{}}}
-\bibcite{pai2020pal}{{6}{2019}{{Guo et~al\mbox  {.}}}{{}}}
-\bibcite{Hager2024}{{7}{2024}{{Hager et~al\mbox  {.}}}{{}}}
-\bibcite{joachims2017unbiased}{{8}{2017a}{{Joachims et~al\mbox  {.}}}{{}}}
-\bibcite{Joachims2017}{{9}{2017b}{{Joachims et~al\mbox  {.}}}{{}}}
-\bibcite{kong1992note}{{10}{1992}{{Kong}}{{}}}
-\bibcite{oosterhuis2023DoublyRobustLTR}{{11}{2023}{{Oosterhuis}}{{}}}
-\bibcite{richardson2007predicting}{{12}{2007}{{Richardson et~al\mbox  {.}}}{{}}}
-\bibcite{swaminathan2015CRM}{{13}{2015a}{{Swaminathan and Joachims}}{{}}}
-\bibcite{swaminathan2015batch}{{14}{2015b}{{Swaminathan and Joachims}}{{}}}
-\bibcite{wang2018position}{{15}{2018a}{{Wang et~al\mbox  {.}}}{{}}}
-\bibcite{Wang2018}{{16}{2018b}{{Wang et~al\mbox  {.}}}{{}}}
-\bibcite{zou2022large}{{17}{2022}{{Zou et~al\mbox  {.}}}{{}}}
+\bibcite{chapelle2011yahoo}{{4}{2011}{{Chapelle and Chang}}{{}}}
+\bibcite{chuklin2015click}{{5}{2015}{{Chuklin et~al\mbox  {.}}}{{}}}
+\bibcite{dudik2011doubly}{{6}{2011}{{Dudík et~al\mbox  {.}}}{{}}}
+\bibcite{pai2020pal}{{7}{2019}{{Guo et~al\mbox  {.}}}{{}}}
+\bibcite{Hager2024}{{8}{2024}{{Hager et~al\mbox  {.}}}{{}}}
+\bibcite{joachims2017unbiased}{{9}{2017a}{{Joachims et~al\mbox  {.}}}{{}}}
+\bibcite{Joachims2017}{{10}{2017b}{{Joachims et~al\mbox  {.}}}{{}}}
+\bibcite{kong1992note}{{11}{1992}{{Kong}}{{}}}
+\bibcite{oosterhuis2023DoublyRobustLTR}{{12}{2023}{{Oosterhuis}}{{}}}
+\bibcite{richardson2007predicting}{{13}{2007}{{Richardson et~al\mbox  {.}}}{{}}}
+\bibcite{swaminathan2015CRM}{{14}{2015a}{{Swaminathan and Joachims}}{{}}}
+\bibcite{swaminathan2015batch}{{15}{2015b}{{Swaminathan and Joachims}}{{}}}
+\bibcite{wang2018position}{{16}{2018a}{{Wang et~al\mbox  {.}}}{{}}}
+\bibcite{Wang2018}{{17}{2018b}{{Wang et~al\mbox  {.}}}{{}}}
+\bibcite{zou2022large}{{18}{2022}{{Zou et~al\mbox  {.}}}{{}}}
 \newlabel{tocindent-1}{0pt}
 \newlabel{tocindent0}{0pt}
 \newlabel{tocindent1}{4.185pt}
@@ -110,6 +117,6 @@
 \newlabel{tocindent3}{18.198pt}
 \newlabel{tocindent4}{0pt}
 \newlabel{tocindent5}{0pt}
-\@writefile{toc}{\contentsline {section}{References}{6}{section*.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{References}{6}{section*.11}\protected@file@percent }
 \newlabel{TotPages}{{6}{6}{}{page.6}{}}
 \gdef \@abspage@last{6}

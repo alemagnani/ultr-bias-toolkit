@@ -58,6 +58,8 @@ Warning--page numbers missing in both pages and numpages fields in aslanyan2019e
 Warning--can't use both volume and number fields in bottou2013counterfactual
 Warning--empty publisher in bottou2013counterfactual
 Warning--empty address in bottou2013counterfactual
+Warning--empty publisher in chapelle2011yahoo
+Warning--empty address in chapelle2011yahoo
 Warning--empty address in chuklin2015click
 Warning--empty publisher in dudik2011doubly
 Warning--empty address in dudik2011doubly
@@ -81,45 +83,45 @@ Warning--empty publisher in Wang2018
 Warning--empty address in Wang2018
 Warning--empty publisher in zou2022large
 Warning--empty address in zou2022large
-You've used 17 entries,
+You've used 18 entries,
             6273 wiz_defined-function locations,
-            1615 strings with 21964 characters,
-and the built_in function-call counts, 20503 in all, are:
-= -- 2239
-> -- 686
+            1620 strings with 22144 characters,
+and the built_in function-call counts, 21660 in all, are:
+= -- 2363
+> -- 717
 < -- 0
-+ -- 239
-- -- 234
-* -- 1452
-:= -- 1970
-add.period$ -- 85
-call.type$ -- 17
-change.case$ -- 136
-chr.to.int$ -- 14
-cite$ -- 46
-duplicate$ -- 1959
-empty$ -- 1364
-format.name$ -- 291
-if$ -- 4900
++ -- 250
+- -- 248
+* -- 1525
+:= -- 2080
+add.period$ -- 90
+call.type$ -- 18
+change.case$ -- 142
+chr.to.int$ -- 15
+cite$ -- 49
+duplicate$ -- 2077
+empty$ -- 1447
+format.name$ -- 309
+if$ -- 5175
 int.to.chr$ -- 5
 int.to.str$ -- 1
-missing$ -- 80
-newline$ -- 164
-num.names$ -- 116
-pop$ -- 889
+missing$ -- 85
+newline$ -- 171
+num.names$ -- 123
+pop$ -- 943
 preamble$ -- 1
-purify$ -- 266
+purify$ -- 280
 quote$ -- 0
-skip$ -- 721
+skip$ -- 765
 stack$ -- 0
-substring$ -- 1498
-swap$ -- 194
+substring$ -- 1581
+swap$ -- 203
 text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 449
-warning$ -- 29
-while$ -- 106
+type$ -- 479
+warning$ -- 31
+while$ -- 116
 width$ -- 0
-write$ -- 352
+write$ -- 371
 (There were 10 error messages)

@@ -2,7 +2,7 @@
 %%% Do NOT edit. File created by BibTeX with style
 %%% ACM-Reference-Format-Journals [18-Jan-2012].
 
-\begin{thebibliography}{17}
+\begin{thebibliography}{18}
 
 %%% ====================================================================
 %%% NOTE TO THE USER: you can override these defaults by providing
@@ -73,6 +73,17 @@
   example of computational advertising}. In \bibinfo{booktitle}{\emph{The
   Journal of Machine Learning Research}}, Vol.~\bibinfo{volume}{14}.
   \bibinfo{pages}{3207--3260}.
+\newblock
+
+
+\bibitem[Chapelle and Chang(2011)]%
+        {chapelle2011yahoo}
+\bibfield{author}{\bibinfo{person}{Olivier Chapelle} {and} \bibinfo{person}{Yi
+  Chang}.} \bibinfo{year}{2011}\natexlab{}.
+\newblock \showarticletitle{Yahoo! Learning to Rank Challenge Overview}. In
+  \bibinfo{booktitle}{\emph{Proceedings of the Learning to Rank Challenge, JMLR
+  Workshop and Conference Proceedings}}, Vol.~\bibinfo{volume}{14}.
+  \bibinfo{pages}{1--24}.
 \newblock
 
 
