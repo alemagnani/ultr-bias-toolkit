@@ -54,7 +54,7 @@
 \begin{document}
 
 \begin{abstract}
-Presentation bias remains a major challenge in learning-to-rank from implicit feedback, as it obscures the true relevance signal. Building upon intervention harvesting \cite{agarwal2019estimating}, which estimates position bias without intrusive randomization, we propose harmonic weighting—a novel weighting scheme for the ratio estimator that retains unbiasedness while significantly reducing variance. We establish an unconditional variance-reduction guarantee via the Cauchy–Schwarz inequality, prove that harmonic weighting is variance-optimal in the symmetric setting, and characterize when variance reduction extends to the asymmetric case via a decomposition theorem. Empirically, we demonstrate variance reductions of up to 55\% on synthetic imbalanced data, confirmed on semi-synthetic data using real relevance labels from the Yahoo LTR dataset. Lower variance translates directly to data efficiency: harmonic achieves the same estimation accuracy as the original estimator with roughly \textbf{half the data}. We also show that all unbiased methods share the same bias under Position-Based Model violations, making lower-variance estimation directly advantageous for mean squared error.
+Presentation bias remains a major challenge in learning-to-rank from implicit feedback, as it obscures the true relevance signal. Building upon intervention harvesting \cite{agarwal2019estimating}, which estimates position bias without intrusive randomization, we propose harmonic weighting—a novel weighting scheme for the ratio estimator that retains unbiasedness while significantly reducing variance. We establish an exact Cauchy–Schwarz guarantee that harmonic always reduces the delta-method variance surrogate $V_k+V_{k'}$, prove that harmonic weighting is variance-optimal in the symmetric setting ($\alpha=\beta$), and characterize when variance reduction extends to the asymmetric case via a decomposition theorem. Empirically, we demonstrate variance reductions of up to 55\% on synthetic imbalanced data, confirmed on semi-synthetic data using real relevance labels from the Yahoo LTR dataset. Lower variance translates directly to data efficiency: harmonic achieves the same estimation accuracy as the original estimator with roughly \textbf{half the data}. We also show that all unbiased methods share the same bias under Position-Based Model violations, making lower-variance estimation directly advantageous for mean squared error.
 \end{abstract}
 
 \maketitle
@@ -68,7 +68,7 @@ Recent advances in counterfactual learning-to-rank have shown that unbiased lear
 
 Intervention harvesting \cite{agarwal2019estimating} avoids explicit randomization by leveraging naturally occurring ranking variations across concurrently deployed rankers. However, the conventional weighting scheme produces high estimator variance when impression counts are imbalanced—a common situation in production A/B-testing environments where some documents accumulate disproportionate traffic at one position.
 
-We propose harmonic weighting, a modified weighting scheme that addresses this critical limitation while retaining unbiasedness. Key contributions: (1) any count-dependent weight preserves ratio-unbiasedness; (2) an unconditional Cauchy–Schwarz guarantee that harmonic always reduces the sum $V_k + V_{k'}$; (3) exact optimality when propensities are equal; (4) up to 55\% variance reduction in synthetic and semi-synthetic (Yahoo LTR) experiments; (5) harmonic requires roughly \textbf{half the data} to match the original estimator's accuracy.
+We propose harmonic weighting, a modified weighting scheme that addresses this critical limitation while retaining unbiasedness. Key contributions: (1) any count-dependent weight preserves ratio-unbiasedness; (2) an exact Cauchy–Schwarz guarantee that harmonic always reduces the variance surrogate $V_k + V_{k'}$, which implies lower $\mathrm{Var}(\hat{R})$ via the delta method; (3) exact optimality when propensities are equal; (4) up to 55\% variance reduction in synthetic and semi-synthetic (Yahoo LTR) experiments; (5) harmonic requires roughly \textbf{half the data} to match the original estimator's accuracy.
 
 \section{Background and Preliminaries}
 \label{sec:background}
@@ -106,7 +106,7 @@ For each interventional set $S_{k,k'}$, we consider a general weighted ratio est
 \begin{equation}
 \hat{R}_{k,k'} = \frac{A}{B} = \frac{\sum_i \omega_i \cdot C_k^i / N_k^i}{\sum_i \omega_i \cdot C_{k'}^i / N_{k'}^i}
 \end{equation}
-where $\omega_i \geq 0$ are non-negative weights that may depend on the observation counts $N_k^i$, $N_{k'}^i$ but not on the click counts. Different choices of $\omega_i$ yield different weighting schemes. The original estimator of \cite{agarwal2019estimating} uses $\omega_i = N_k^i$ (equivalently, each click observation at position $k$ is weighted by $1/N_k^i$). We present a unified framework for analyzing and improving upon this choice.
+where $\omega_i \geq 0$ are non-negative weights that may depend on the observation counts $N_k^i$, $N_{k'}^i$ but not on the click counts. Different choices of $\omega_i$ yield different weighting schemes. The original estimator of \cite{agarwal2019estimating} uses $\omega_i = N_k^i$. Under the ratio form in Eq.~(1), this is equivalently represented by constant pair weights $\omega_i = 1$: the $N_k^i$ factors in numerator and denominator cancel, leaving the same estimator. We present a unified framework for analyzing and improving upon this choice.
 
 \section{Harmonic Weighting}
 \label{sec:harmonic_weight}
@@ -116,7 +116,7 @@ where $\omega_i \geq 0$ are non-negative weights that may depend on the observat
 We consider the following weighting schemes, all of which use weights $\omega_i$ depending only on the observation counts:
 
 \begin{itemize}
-\item \textbf{Original}: $\omega_i = 1$ (constant, equivalent to the original scheme \cite{agarwal2019estimating})
+\item \textbf{Original}: $\omega_i = 1$ (constant; equivalent to \cite{agarwal2019estimating} as explained in Section~\ref{sec:ratio-estimator})
 \item \textbf{Min-weighting}: $\omega_i = \min(N_k^i, N_{k'}^i)$
 \item \textbf{Harmonic weighting} (our proposal):
 \begin{equation}
@@ -133,6 +133,7 @@ We also compare against \textbf{clipped weighting} (subsampling the majority pos
 The following theorem shows that any weight function depending only on observation counts preserves the ratio-unbiasedness property.
 
 \begin{theorem}[Ratio-unbiasedness]
+\label{thm:ratio_unbiased}
 Under the Position-Based Model, for any weights $\omega_i = \omega(N_k^i, N_{k'}^i) \geq 0$ that depend only on the observation counts (not on clicks), the ratio estimator satisfies:
 \[
 \frac{\mathbb{E}[A]}{\mathbb{E}[B]} = \frac{p_k}{p_{k'}}
@@ -179,6 +180,8 @@ V_r(\omega) = \frac{\sum_i \omega_i^2 / N_r^i}{\left(\sum_i \omega_i\right)^2}
 
 The terms $\alpha$ and $\beta$ capture the binomial variance at positions $k$ and $k'$ respectively. Since $p_k$ is typically larger for higher positions (higher examination probability), $\alpha$ tends to be smaller for positions closer to the top.
 
+\noindent\textit{Note on proof structure.} The two theorems below are \textbf{exact} results for the variance surrogate $V_r(\omega)$; their implication for the actual ratio variance $\mathrm{Var}(\hat{R}\mid\mathbf{N})$ follows via the delta-method approximation above.
+
 \subsection{Cauchy–Schwarz Guarantee}
 
 Let $D_r = V_r(\omega^h) - V_r(1)$ denote the change in variance term at position $r$ when switching from original to harmonic weighting.
@@ -221,12 +224,12 @@ Therefore $1/W \leq (1/n^2)\sum_i 1/\omega_i^h$, i.e., $V_k(\omega^h) + V_{k'}(\
 \end{proof}
 
 \begin{remark}
-Theorem~\ref{thm:cs} is an unconditional guarantee: harmonic weighting always reduces the sum of variance terms, regardless of the impression distribution. The bound is tight: equality holds iff $N_k^i / N_{k'}^i$ is identical for all $i$ (no heterogeneity), in which case harmonic reduces to the original estimator.
+Theorem~\ref{thm:cs} is an exact, unconditional guarantee on the variance surrogate $V_k(\omega)+V_{k'}(\omega)$, holding for any impression counts. Via the delta-method approximation in Proposition~\ref{prop:delta_method}, this translates to a reduction in $\mathrm{Var}(\hat{R}\mid\mathbf{N})$ when $\alpha\approx\beta$ (Theorem~\ref{thm:optimality}) and more generally as established by Theorem~\ref{thm:decomp}. The bound is tight: equality holds iff $N_k^i / N_{k'}^i$ is identical for all $i$ (no heterogeneity), in which case harmonic reduces to the original estimator.
 \end{remark}
 
 \subsection{Optimality When $\alpha = \beta$}
 
-When $\alpha = \beta$ (i.e., $p_k = p_{k'}$, as approximately holds for adjacent positions), the conditional variance simplifies to $\alpha \cdot [V_k(\omega) + V_{k'}(\omega)]$, and Theorem~\ref{thm:cs} directly implies harmonic is optimal.
+When $\alpha = \beta$ (i.e., $p_k = p_{k'}$, as holds when adjacent propensities are close---typical under smooth position-bias decay), the conditional variance simplifies to $\alpha \cdot [V_k(\omega) + V_{k'}(\omega)]$, and Theorem~\ref{thm:cs} directly implies harmonic is optimal.
 
 \begin{theorem}[Harmonic optimality]
 \label{thm:optimality}
@@ -262,7 +265,7 @@ The variance-optimal weight for general $\alpha \neq \beta$ is:
 \omega_i^* \propto \frac{N_k^i \cdot N_{k'}^i}{\alpha N_{k'}^i + \beta N_k^i}
 \end{equation}
 
-When $\alpha = \beta$ this reduces to harmonic weighting (Theorem~\ref{thm:optimality}). For non-adjacent positions where $\alpha \neq \beta$, the optimal weight requires knowing the propensities themselves, creating a circular dependency. Harmonic weighting is thus the practical, parameter-free choice: it is optimal at equal propensities and provides unconditional variance reduction via Cauchy–Schwarz at all propensity values.
+When $\alpha = \beta$ this reduces to harmonic weighting (Theorem~\ref{thm:optimality}). For non-adjacent positions where $\alpha \neq \beta$, the optimal weight requires knowing the propensities themselves, creating a circular dependency. Harmonic weighting is thus the practical, parameter-free choice: it is optimal at equal propensities and provides an unconditional reduction of the variance surrogate $V_k + V_{k'}$ via Cauchy–Schwarz at all propensity values.
 
 \begin{remark}[Oracle validation]
 We verified empirically that substituting the true simulation propensities into $\omega_i^*$ yields variance within $\pm 2\%$ of harmonic across all tested configurations. For the AdjacentChain estimator, anchor docs dominate and both weights converge to $\approx N_{k'}^i$ under severe imbalance, so the residual gap from using harmonic instead of the exact optimum is negligible in practice.
@@ -342,7 +345,7 @@ Figure~\ref{fig:variance_reduction} shows variance reduction relative to origina
     \label{fig:pbm_violations}
 \end{figure}
 
-Figure~\ref{fig:pbm_violations} and Table~\ref{tab:pbm_violations} summarize results. Two findings stand out. First, original, min, and harmonic weighting all have \emph{comparable bias$^2$} under each violation model, substantially lower than clipped. This is expected: all three are ratio-unbiased under PBM, and when PBM fails the residual bias is determined by the model mismatch, not by the weight choice within the intervention-harvesting family. Second, because bias is shared, the lower variance of harmonic directly translates into lower MSE: 47\% lower than original under trust bias, 22\% lower under position-dependent relevance.
+Figure~\ref{fig:pbm_violations} and Table~\ref{tab:pbm_violations} summarize results. Two findings stand out. First, original, min, and harmonic weighting all have \emph{comparable bias$^2$} under each violation model, substantially lower than clipped. This is consistent with all three being ratio-unbiased under PBM: when PBM fails, the residual bias within the intervention-harvesting family is determined by the model mismatch rather than the weight choice. Second, because bias is comparable across these three schemes, the lower variance of harmonic directly translates into lower MSE: 47\% lower than original under trust bias, 22\% lower under position-dependent relevance.
 
 \begin{table}[h]
     \small
@@ -463,7 +466,7 @@ Position bias estimation methods broadly fall into three categories: randomized 
 
 \textbf{Randomized interventions} explicitly manipulate result rankings to estimate examination probabilities \cite{joachims2017unbiased, wang2018position}. These approaches guarantee unbiasedness by randomizing item placements, yet they significantly degrade the user experience due to intrusive changes in rankings \cite{Joachims2017}.
 
-\textbf{Joint relevance-propensity models} simultaneously estimate relevance and propensity from observational data using techniques like Expectation-Maximization (EM) \cite{wang2018position, Wang2018}. Extensions such as PAL \cite{pai2020pal} integrate position-bias correction directly into CTR prediction models for recommender systems. While these methods are non-intrusive, they require a parametric relevance model and are not directly comparable to intervention harvesting, which is model-free: it does not require a relevance model and instead relies on the same document appearing at different positions across ranking variants.
+\textbf{Joint relevance-propensity models} simultaneously estimate relevance and propensity from observational data using techniques like Expectation-Maximization (EM) \cite{wang2018position, Wang2018}. Extensions such as PAL \cite{pai2020pal} integrate position-bias correction directly into CTR prediction models for recommender systems. While these methods are non-intrusive, they require a parametric relevance model; empirical comparison against intervention harvesting is therefore methodologically ill-posed, since the two paradigms solve different estimation problems (parametric relevance-and-propensity joint inference vs.\ model-free propensity-only estimation).
 
 \textbf{Intervention harvesting approaches}, originally proposed by \cite{agarwal2019estimating}, leverage natural ranking variations from multiple historical rankers, eliminating explicit randomization. Such methods preserve user experience while producing unbiased propensity estimates without assuming a relevance model. Extensions of this idea include temporal fluctuations in e-commerce search rankings \cite{aslanyan2019eCommerceBias} and policy-aware estimation from bandit logs \cite{oosterhuis2023DoublyRobustLTR}.
 
@@ -471,10 +474,10 @@ Despite advances, propensity estimation remains prone to high variance with impo
 
 Based on the intervention harvesting approach of \cite{agarwal2019estimating}, we proposed harmonic weighting for non-intrusive position bias estimation. Compared to the prior min-weighting heuristic \cite{agarwal2019estimating}, harmonic weighting has a principled theoretical foundation and consistent empirical advantages. Key contributions:
 \begin{itemize}
-  \item A unified ratio estimator framework: any count-dependent weight preserves ratio-unbiasedness (Theorem 1)
-  \item An unconditional Cauchy–Schwarz guarantee: harmonic always reduces $V_k + V_{k'}$ versus original weighting (Theorem 2)
-  \item Harmonic is variance-optimal when $\alpha = \beta$ (Theorem 3), the dominant case for adjacent-position estimators; a decomposition theorem (Theorem 4) characterizes the asymmetric case
-  \item Empirical validation showing up to 55\% variance reduction versus original, and consistently lower variance than min-weighting across all tested configurations; under model violations, all unbiased methods share the same bias, making lower variance directly advantageous for MSE
+  \item A unified ratio estimator framework: any count-dependent weight preserves ratio-unbiasedness (Theorem~\ref{thm:ratio_unbiased})
+  \item An exact Cauchy–Schwarz guarantee: harmonic always reduces the variance surrogate $V_k + V_{k'}$ versus original weighting (Theorem~\ref{thm:cs}); via the delta-method approximation this implies lower $\mathrm{Var}(\hat{R}\mid\mathbf{N})$
+  \item Harmonic is variance-optimal when $\alpha = \beta$ (Theorem~\ref{thm:optimality}), the dominant case for adjacent-position estimators; a decomposition theorem (Theorem~\ref{thm:decomp}) characterizes the asymmetric case
+  \item Empirical validation showing up to 55\% variance reduction versus original, confirmed on Yahoo semi-synthetic and production A/B simulation; under tested PBM violations, original, min, and harmonic share comparable bias, making lower variance directly advantageous for MSE
 \end{itemize}
 
 Our implementation and all experiments presented in this paper will be publicly available after acceptance. The implementation builds upon the unbiased learning-to-rank toolkit by \cite{Hager2024}, which provides a comprehensive framework for position bias estimation and evaluation.
