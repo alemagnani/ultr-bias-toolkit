@@ -28,7 +28,7 @@
 
 
 
-\title{Estimating Position Bias with Reduced Variance without Intrusive Interventions}
+\title{Harmonic Weighting for Variance-Reduced Position Bias Estimation via Intervention Harvesting}
 
 % \author{Alessandro Magnani}
 % \email{almagnan@coupang.com}

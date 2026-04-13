@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.4.11)  12 APR 2026 19:46
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.4.11)  12 APR 2026 19:53
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1087,19 +1087,19 @@ LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/sb/n' will be
 (Font)              scaled to size 6.6pt on input line 167.
 LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/sb/n' will be
 (Font)              scaled to size 5.5pt on input line 167.
-
+LaTeX Font Info:    Font shape `T1/LinuxBiolinumT-TLF/m/n' will be
+(Font)              scaled to size 9.0pt on input line 211.
+LaTeX Font Info:    Font shape `T1/LinuxBiolinumT-TLF/m/n' will be
+(Font)              scaled to size 7.0pt on input line 211.
+[2.2{/usr/share/texmf-dist/fonts/enc/dvips/libertine/lbtn_ncsllp.enc}{/usr/shar
+e/texmf-dist/fonts/enc/dvips/libertine/lbtn_fygcup.enc}]
 Overfull \hbox (9.8513pt too wide) detected at line 216
 \OML/nxlmi/m/it/9 V[]\LMS/ntxsy/m/n/9 π\OT1/LinuxLibertineT-TLF/m/n/9 1\LMS/ntx
 sy/m/n/9 ∫ œ \OML/nxlmi/m/it/9 V[]\LMS/ntxsy/m/n/9 π\OT1/LinuxLibertineT-TLF/m/
 n/9 1\LMS/ntxsy/m/n/9 ∫ \U/ntxmia/m/it/9 = [] [] [] = [] [] [] = [] [] []
  []
 
-LaTeX Font Info:    Font shape `T1/LinuxBiolinumT-TLF/m/n' will be
-(Font)              scaled to size 9.0pt on input line 216.
-LaTeX Font Info:    Font shape `T1/LinuxBiolinumT-TLF/m/n' will be
-(Font)              scaled to size 7.0pt on input line 216.
-[2.2{/usr/share/texmf-dist/fonts/enc/dvips/libertine/lbtn_ncsllp.enc}{/usr/shar
-e/texmf-dist/fonts/enc/dvips/libertine/lbtn_fygcup.enc}]
+
 Overfull \hbox (2.40776pt too wide) in paragraph at lines 223--224
 []\T1/LinuxLibertineT-TLF/m/n/9 (-20) Therefore $\OT1/LinuxLibertineT-TLF/m/n/9
  (-20) 1\LMS/ntxsy/m/n/9 ù\OML/nxlmi/m/it/9 W \LMS/ntxsy/m/n/9 ^^T π\OT1/LinuxL
@@ -1185,7 +1185,8 @@ LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/it' will be
 (Font)              scaled to size 5.5pt on input line 251.
 LaTeX Font Info:    Font shape `T1/LinuxBiolinumT-TLF/m/it' will be
 (Font)              scaled to size 9.0pt on input line 284.
-<../images/exp1_imbalance_sweep/exp1_variance_vs_imbalance.png, id=184, 1011.78
+[3.3]
+<../images/exp1_imbalance_sweep/exp1_variance_vs_imbalance.png, id=201, 1011.78
 pt x 361.35pt>
 File: ../images/exp1_imbalance_sweep/exp1_variance_vs_imbalance.png Graphic fil
 e (type png)
@@ -1208,11 +1209,7 @@ Overfull \hbox (2.86215pt too wide) in paragraph at lines 309--319
  [][] 
  []
 
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-[3.3]
-<../images/exp1_imbalance_sweep/exp1_variance_reduction.png, id=210, 722.7pt x 
+<../images/exp1_imbalance_sweep/exp1_variance_reduction.png, id=208, 722.7pt x 
 433.62pt>
 File: ../images/exp1_imbalance_sweep/exp1_variance_reduction.png Graphic file (
 type png)
@@ -1228,7 +1225,7 @@ Overfull \hbox (1.87193pt too wide) in paragraph at lines 327--328
 
 Class acmart Warning: A possible image without description on input line 330.
 
-<../images/exp1_imbalance_sweep/exp1_variance_vs_split.png, id=211, 1011.78pt x
+<../images/exp1_imbalance_sweep/exp1_variance_vs_split.png, id=209, 1011.78pt x
  361.35pt>
 File: ../images/exp1_imbalance_sweep/exp1_variance_vs_split.png Graphic file (t
 ype png)
@@ -1244,7 +1241,7 @@ Overfull \hbox (1.87193pt too wide) in paragraph at lines 334--335
 
 Class acmart Warning: A possible image without description on input line 337.
 
-<../images/exp2_pbm_violations/exp2_mse_decomposition.png, id=212, 1084.05pt x 
+<../images/exp2_pbm_violations/exp2_mse_decomposition.png, id=210, 1084.05pt x 
 361.35pt>
 File: ../images/exp2_pbm_violations/exp2_mse_decomposition.png Graphic file (ty
 pe png)
@@ -1260,7 +1257,10 @@ Overfull \hbox (1.87193pt too wide) in paragraph at lines 343--344
 
 Class acmart Warning: A possible image without description on input line 346.
 
-<../images/exp4_sample_efficiency/exp4_mse_vs_impressions.png, id=215, 578.16pt
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+<../images/exp4_sample_efficiency/exp4_mse_vs_impressions.png, id=213, 578.16pt
  x 361.35pt>
 File: ../images/exp4_sample_efficiency/exp4_mse_vs_impressions.png Graphic file
  (type png)
@@ -1281,7 +1281,7 @@ Class acmart Warning: A possible image without description on input line 378.
 /exp1_imbalance_sweep/exp1_variance_reduction.png> <../images/exp1_imbalance_sw
 eep/exp1_variance_vs_split.png> <../images/exp2_pbm_violations/exp2_mse_decompo
 sition.png>]
-<../images/exp7_dk_condition/exp7_variance_reduction.png, id=228, 939.51pt x 36
+<../images/exp7_dk_condition/exp7_variance_reduction.png, id=230, 939.51pt x 36
 1.35pt>
 File: ../images/exp7_dk_condition/exp7_variance_reduction.png Graphic file (typ
 e png)
@@ -1303,7 +1303,7 @@ Overfull \hbox (12.18108pt too wide) in paragraph at lines 397--398
 (Fig-ure []6[]). The Cauchy^^USchwarz
  []
 
-<../images/exp3_yahoo/exp3_variance_vs_imbalance.png, id=233, 1011.78pt x 361.3
+<../images/exp3_yahoo/exp3_variance_vs_imbalance.png, id=235, 1011.78pt x 361.3
 5pt>
 File: ../images/exp3_yahoo/exp3_variance_vs_imbalance.png Graphic file (type pn
 g)
@@ -1319,7 +1319,10 @@ Overfull \hbox (1.87193pt too wide) in paragraph at lines 423--424
 
 Class acmart Warning: A possible image without description on input line 426.
 
-<../images/exp5_production/exp5_ratio_distribution.png, id=236, 867.24pt x 289.
+[5.5 <../images/exp4_sample_efficiency/exp4_mse_vs_impressions.png> <../images/
+exp7_dk_condition/exp7_variance_reduction.png> <../images/exp3_yahoo/exp3_varia
+nce_vs_imbalance.png>]
+<../images/exp5_production/exp5_ratio_distribution.png, id=249, 867.24pt x 289.
 08pt>
 File: ../images/exp5_production/exp5_ratio_distribution.png Graphic file (type 
 png)
@@ -1335,10 +1338,10 @@ Overfull \hbox (1.87193pt too wide) in paragraph at lines 437--438
 
 Class acmart Warning: A possible image without description on input line 440.
 
-[5.5 <../images/exp4_sample_efficiency/exp4_mse_vs_impressions.png> <../images/
-exp7_dk_condition/exp7_variance_reduction.png> <../images/exp3_yahoo/exp3_varia
-nce_vs_imbalance.png>] [6.6 <../images/exp5_production/exp5_ratio_distribution.
-png>] (./main.bbl
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [6.6 <../images/exp5_production/exp5_ratio_distribution.png>] (./main.bbl
 LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/sb/n' will be
 (Font)              scaled to size 7.3pt on input line 99.
 )
@@ -1363,6 +1366,10 @@ Class acmart Warning: ACM keywords are mandatory for papers over two pages.
 
 Class acmart Warning: CCS concepts are mandatory for papers over two pages.
 
+
+Package balance Warning: You have called \balance in second column
+(balance)                Columns might not be balanced.
+
 (/usr/share/texmf-dist/tex/generic/stringenc/se-pdfdoc.def
 File: se-pdfdoc.def 2019/11/29 v1.12 stringenc: PDFDocEncoding
 )
@@ -1373,17 +1380,21 @@ File: se-utf8.def 2019/11/29 v1.12 stringenc: UTF-8
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
  ***********
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
 Package rerunfilecheck Info: File `main.out' has not changed.
 (rerunfilecheck)             Checksum: 948F3B519A9508E144B12E99E58FFC46;5496.
  ) 
 Here is how much of TeX's memory you used:
- 21750 strings out of 469515
- 354233 string characters out of 5470807
- 837171 words of memory out of 5000000
+ 21761 strings out of 469515
+ 354497 string characters out of 5470807
+ 832542 words of memory out of 5000000
  49178 multiletter control sequences out of 15000+600000
- 858298 words of font info for 541 fonts, out of 8000000 for 9000
+ 859423 words of font info for 548 fonts, out of 8000000 for 9000
  175 hyphenation exceptions out of 8191
- 90i,13n,131p,1262b,646s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 90i,13n,131p,1262b,638s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texmf-dist/fonts/type1/public/newtx/LibertineMathMI.pfb></usr/sha
 re/texmf-dist/fonts/type1/public/newtx/LibertineMathMI5.pfb></usr/share/texmf-d
 ist/fonts/type1/public/newtx/LibertineMathMI7.pfb></usr/share/texmf-dist/fonts/
@@ -1399,10 +1410,10 @@ xmf-dist/fonts/type1/public/libertine/LinLibertineTZ.pfb></usr/share/texmf-dist
 sr/share/texmf-dist/fonts/type1/public/newtx/txmiaX.pfb></usr/share/texmf-dist/
 fonts/type1/public/newtx/txsym.pfb></usr/share/texmf-dist/fonts/type1/public/ne
 wtx/txsys.pfb>
-Output written on main.pdf (7 pages, 1282035 bytes).
+Output written on main.pdf (7 pages, 1283174 bytes).
 PDF statistics:
- 409 PDF objects out of 1000 (max. 8388607)
- 338 compressed objects within 4 object streams
+ 410 PDF objects out of 1000 (max. 8388607)
+ 339 compressed objects within 4 object streams
  81 named destinations out of 1000 (max. 500000)
  127241 words of extra memory for PDF output out of 128383 (max. 10000000)
 
