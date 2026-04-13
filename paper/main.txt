@@ -54,7 +54,7 @@
 \begin{document}
 
 \begin{abstract}
-Presentation bias remains a major challenge in learning-to-rank from implicit feedback, as it obscures the true relevance signal. Building upon intervention harvesting \cite{agarwal2019estimating}, which estimates position bias without intrusive randomization, we propose harmonic weighting—a novel weighting scheme for the ratio estimator that retains unbiasedness while significantly reducing variance. We establish an exact Cauchy–Schwarz guarantee that harmonic always reduces the delta-method variance surrogate $V_k+V_{k'}$, prove that harmonic weighting is variance-optimal in the symmetric setting ($\alpha=\beta$), and characterize when variance reduction extends to the asymmetric case via a decomposition theorem. Empirically, we demonstrate variance reductions of up to 55\% on synthetic imbalanced data, confirmed on semi-synthetic data using real relevance labels from the Yahoo LTR dataset. Lower variance translates directly to data efficiency: harmonic achieves the same estimation accuracy as the original estimator with roughly \textbf{half the data}. We also show that all unbiased methods share the same bias under Position-Based Model violations, making lower-variance estimation directly advantageous for mean squared error.
+Presentation bias remains a major challenge in learning-to-rank from implicit feedback, as it obscures the true relevance signal. Building upon intervention harvesting \cite{agarwal2019estimating}, which estimates position bias without intrusive randomization, we propose harmonic weighting—a novel weighting scheme for the ratio estimator that retains unbiasedness while significantly reducing variance. We establish an exact Cauchy–Schwarz guarantee that harmonic always reduces the delta-method variance surrogate $V_k+V_{k'}$, prove that harmonic is variance-optimal in the symmetric setting ($\alpha=\beta$), and derive the exact asymmetric optimum---a generalized harmonic weight that unconditionally beats original weighting for any propensity values, with harmonic as its parameter-free special case. Empirically, we demonstrate variance reductions of up to 55\% on synthetic imbalanced data, confirmed on semi-synthetic data using real relevance labels from the Yahoo LTR dataset. Lower variance translates directly to data efficiency: harmonic achieves the same estimation accuracy as the original estimator with roughly \textbf{half the data}. We also show that all unbiased methods share the same bias under Position-Based Model violations, making lower-variance estimation directly advantageous for mean squared error.
 \end{abstract}
 
 \maketitle
@@ -180,8 +180,6 @@ V_r(\omega) = \frac{\sum_i \omega_i^2 / N_r^i}{\left(\sum_i \omega_i\right)^2}
 
 The terms $\alpha$ and $\beta$ capture the binomial variance at positions $k$ and $k'$ respectively. Since $p_k$ is typically larger for higher positions (higher examination probability), $\alpha$ tends to be smaller for positions closer to the top.
 
-\noindent\textit{Note on proof structure.} The two theorems below are \textbf{exact} results for the variance surrogate $V_r(\omega)$; their implication for the actual ratio variance $\mathrm{Var}(\hat{R}\mid\mathbf{N})$ follows via the delta-method approximation above.
-
 \subsection{Cauchy–Schwarz Guarantee}
 
 Let $D_r = V_r(\omega^h) - V_r(1)$ denote the change in variance term at position $r$ when switching from original to harmonic weighting.
@@ -240,35 +238,49 @@ Among all weight functions $\omega_i = f(N_k^i, N_{k'}^i)$ with $f$ symmetric (i
 When $\alpha = \beta$, conditional variance is proportional to $V_k(\omega) + V_{k'}(\omega)$. As shown in the proof of Theorem~\ref{thm:cs}, $V_k(\omega) + V_{k'}(\omega) = \frac{\sum_i \omega_i^2(1/N_k^i + 1/N_{k'}^i)}{(\sum_i \omega_i)^2}$. By Cauchy–Schwarz applied to vectors $(\omega_i \sqrt{1/N_k^i + 1/N_{k'}^i})$ and $(1/\sqrt{1/N_k^i + 1/N_{k'}^i})$, the minimum of this expression subject to any positive scaling is achieved when $\omega_i \propto 1/\sqrt{1/N_k^i + 1/N_{k'}^i}$. But $1/\sqrt{1/N_k^i + 1/N_{k'}^i} = \sqrt{N_k^i N_{k'}^i/(N_k^i+N_{k'}^i)} = \sqrt{\omega_i^h}$, which gives $\omega_i \propto \omega_i^h$. Since the ratio estimator is scale-invariant in $\omega$, harmonic weighting is optimal.
 \end{proof}
 
-\subsection{Variance Decomposition for Asymmetric Case}
+\subsection{Exact Asymmetric Optimum}
+\label{sec:asymmetric_optimum}
 
-When $\alpha \neq \beta$ (positions with very different propensities), we use the following decomposition to characterize when harmonic weighting reduces the total variance:
+For general $\alpha \neq \beta$, define $s_i = \alpha/N_k^i + \beta/N_{k'}^i$. Note that
+$\alpha V_k(\omega)+\beta V_{k'}(\omega) = \frac{\sum_i s_i \omega_i^2}{(\sum_i \omega_i)^2}$.
 
-\begin{theorem}[Variance decomposition]
-\label{thm:decomp}
-The total variance change from original to harmonic satisfies:
+\begin{theorem}[Exact asymmetric optimum]
+\label{thm:asymmetric}
+For any non-negative weights $\omega$ and any fixed counts $\{N_k^i, N_{k'}^i\}$:
 \[
-\alpha D_k + \beta D_{k'} = \underbrace{\beta(D_k + D_{k'})}_{\leq 0 \text{ always}} \underbrace{- (\beta - \alpha) D_k}_{(\leq 0 \text{ if } D_k \geq 0)}
+\alpha V_k(\omega) + \beta V_{k'}(\omega) \;\geq\; \frac{1}{\displaystyle\sum_i 1/s_i},
 \]
+with equality iff $\omega_i \propto 1/s_i = N_k^i N_{k'}^i / (\alpha N_{k'}^i + \beta N_k^i)$.
 \end{theorem}
 
-The first term is always non-positive by Theorem~\ref{thm:cs}. The second term is non-positive when $D_k \geq 0$ (harmonic increases $V_k$ relative to original), which holds empirically in the systematic imbalance regime; empirical verification is in Experiment~5.
+\begin{proof}
+By Cauchy–Schwarz applied to $(\sqrt{s_i}\,\omega_i)$ and $(1/\sqrt{s_i})$:
+$(\sum_i \omega_i)^2 \leq (\sum_i s_i \omega_i^2)(\sum_i 1/s_i)$.
+Dividing both sides by $(\sum_i \omega_i)^2 \cdot \sum_i 1/s_i$ gives the bound; equality holds iff $\omega_i \propto 1/s_i$.
+\end{proof}
 
-\begin{remark}
-Even when $D_k < 0$ (harmonic decreases $V_k$ more aggressively), the total variance change is still typically negative because the first term dominates. This is confirmed experimentally in Section~\ref{sec:exp5}.
-\end{remark}
+\begin{corollary}[Unconditional improvement over original]
+\label{cor:beats_original}
+$\;\alpha V_k(\omega^*) + \beta V_{k'}(\omega^*) \leq \alpha V_k(1) + \beta V_{k'}(1)$ for all counts.
+\end{corollary}
 
-\subsection{Relationship to Optimal Weights}
+\begin{proof}
+$\alpha V_k(1)+\beta V_{k'}(1) = (1/n^2)\sum_i s_i$. Cauchy–Schwarz gives $n^2 \leq (\sum_i s_i)(\sum_i 1/s_i)$, hence $(1/n^2)\sum_i s_i \geq 1/\sum_i(1/s_i)$.
+\end{proof}
 
-The variance-optimal weight for general $\alpha \neq \beta$ is:
-\begin{equation}
-\omega_i^* \propto \frac{N_k^i \cdot N_{k'}^i}{\alpha N_{k'}^i + \beta N_k^i}
-\end{equation}
+\begin{corollary}[Harmonic as the $\alpha=\beta$ special case]
+\label{cor:harmonic_special}
+When $\alpha = \beta$, $\;\omega_i^*$ reduces to harmonic weighting.
+\end{corollary}
 
-When $\alpha = \beta$ this reduces to harmonic weighting (Theorem~\ref{thm:optimality}). For non-adjacent positions where $\alpha \neq \beta$, the optimal weight requires knowing the propensities themselves, creating a circular dependency. Harmonic weighting is thus the practical, parameter-free choice: it is optimal at equal propensities and provides an unconditional reduction of the variance surrogate $V_k + V_{k'}$ via Cauchy–Schwarz at all propensity values.
+\begin{proof}
+When $\alpha=\beta$, $s_i = \alpha(N_k^i+N_{k'}^i)/(N_k^i N_{k'}^i)$, so $1/s_i \propto N_k^i N_{k'}^i/(N_k^i+N_{k'}^i) = \omega_i^h$.
+\end{proof}
+
+Together, Theorem~\ref{thm:asymmetric} and its corollaries give a complete picture: $\omega_i^*$ is the exact optimum for any $(\alpha,\beta)$, unconditionally beats original weighting, and reduces to harmonic when propensities are equal. Since $\omega_i^*$ requires the unknown propensities, harmonic is the practical parameter-free choice—exact at $\alpha=\beta$ and guaranteed to reduce $V_k+V_{k'}$ via Theorem~\ref{thm:cs} at any propensity values.
 
 \begin{remark}[Oracle validation]
-We verified empirically that substituting the true simulation propensities into $\omega_i^*$ yields variance within $\pm 2\%$ of harmonic across all tested configurations. For the AdjacentChain estimator, anchor docs dominate and both weights converge to $\approx N_{k'}^i$ under severe imbalance, so the residual gap from using harmonic instead of the exact optimum is negligible in practice.
+We verified empirically that substituting the true simulation propensities into $\omega_i^*$ yields variance within $\pm 2\%$ of harmonic across all tested configurations. For the AdjacentChain estimator, anchor docs dominate and both weights converge to $\approx N_{k'}^i$ under severe imbalance, so the residual gap is negligible in practice.
 \end{remark}
 
 \section{Synthetic Experiments}
@@ -384,18 +396,6 @@ At $b=5$, harmonic achieves the same MSE as original at $b \approx 10$—a \text
 At higher data volume the relative gap widens: at $b=50$, harmonic reduces MSE by \textbf{55.8\%}.
 Clipped weighting's MSE is flat ($\approx 0.041$) regardless of data volume, confirming that its error is bias-dominated and no amount of additional data can correct it.
 
-\subsection{Experiment 5: Variance Decomposition Verification}
-\label{sec:exp5}
-
-\begin{figure}[t!]
-    \centering
-    \includegraphics[width=0.48\textwidth]{../images/exp7_dk_condition/exp7_variance_reduction.png}
-    \caption{Variance reduction achieved by harmonic vs.\ original across systematic and adversarial mixed-imbalance configurations. Harmonic reduces total variance in 100\% of systematic cases (Cauchy–Schwarz guarantee), and the $D_k \geq 0$ sufficient condition holds in 46.6\% of those cases.}
-    \label{fig:dk_condition}
-\end{figure}
-
-We verify Theorem~\ref{thm:decomp} empirically across 189 systematic and 63 adversarial mixed-imbalance configurations (Figure~\ref{fig:dk_condition}). The Cauchy–Schwarz condition $D_k + D_{k'} \leq 0$ holds in 100\% of cases (0 violations), confirming Theorem~\ref{thm:cs}; total variance change $\alpha D_k + \beta D_{k'} \leq 0$ also holds in 100\% of systematic cases. The sufficient condition $D_k \geq 0$ holds in 46.6\% of cases, confirming it is not necessary.
-
 \subsection{Experiment 3: Yahoo LTR Semi-Synthetic}
 \label{sec:exp3}
 
@@ -476,13 +476,13 @@ Based on the intervention harvesting approach of \cite{agarwal2019estimating}, w
 \begin{itemize}
   \item A unified ratio estimator framework: any count-dependent weight preserves ratio-unbiasedness (Theorem~\ref{thm:ratio_unbiased})
   \item An exact Cauchy–Schwarz guarantee: harmonic always reduces the variance surrogate $V_k + V_{k'}$ versus original weighting (Theorem~\ref{thm:cs}); via the delta-method approximation this implies lower $\mathrm{Var}(\hat{R}\mid\mathbf{N})$
-  \item Harmonic is variance-optimal when $\alpha = \beta$ (Theorem~\ref{thm:optimality}), the dominant case for adjacent-position estimators; a decomposition theorem (Theorem~\ref{thm:decomp}) characterizes the asymmetric case
+  \item Complete asymmetric theory: the exact optimum $\omega_i^* \propto N_k^i N_{k'}^i/(\alpha N_{k'}^i+\beta N_k^i)$ unconditionally beats original for any $(\alpha,\beta)$ (Theorem~\ref{thm:asymmetric}, Corollary~\ref{cor:beats_original}); harmonic is its parameter-free $\alpha=\beta$ special case (Corollary~\ref{cor:harmonic_special}), making it the natural practical choice
   \item Empirical validation showing up to 55\% variance reduction versus original, confirmed on Yahoo semi-synthetic and production A/B simulation; under tested PBM violations, original, min, and harmonic share comparable bias, making lower variance directly advantageous for MSE
 \end{itemize}
 
 Our implementation and all experiments presented in this paper will be publicly available after acceptance. The implementation builds upon the unbiased learning-to-rank toolkit by \cite{Hager2024}, which provides a comprehensive framework for position bias estimation and evaluation.
 
-Several directions remain open. First, the Cauchy–Schwarz guarantee covers the per-pair ratio $\hat{R}_{k,k'}$; extending the variance analysis to the full AdjacentChain product estimator requires bounding error propagation through the chain. Second, the optimal weight $\omega_i^*$ depends on the unknown propensities; data-adaptive estimation of $\alpha/\beta$ from held-out data could close the remaining 2\% gap versus the oracle. Third, applying harmonic weighting to non-adjacent interventional sets (where $\alpha \neq \beta$ is more pronounced) and to doubly robust LTR objectives are natural extensions.
+Several directions remain open. First, the Cauchy–Schwarz guarantee covers the per-pair ratio $\hat{R}_{k,k'}$; extending the variance analysis to the full AdjacentChain product estimator requires bounding error propagation through the chain. Second, Theorem~\ref{thm:asymmetric} motivates a natural two-stage adaptive refinement: use harmonic to obtain preliminary propensity estimates $\hat{p}_k$, compute $\hat{\alpha},\hat{\beta}$, then form plug-in weights $\hat{\omega}_i^* \propto N_k^i N_{k'}^i / (\hat{\alpha}N_{k'}^i + \hat{\beta}N_k^i)$ on held-out data; the held-out construction preserves count-only weighting and asymptotically approaches the oracle optimum. Third, applying the asymmetric optimum to non-adjacent interventional sets and doubly robust LTR objectives are natural extensions.
 
 
 
