@@ -222,7 +222,7 @@ Therefore $1/W \leq (1/n^2)\sum_i 1/\omega_i^h$, i.e., $V_k(\omega^h) + V_{k'}(\
 \end{proof}
 
 \begin{remark}
-Theorem~\ref{thm:cs} is an exact, unconditional guarantee on the variance surrogate $V_k(\omega)+V_{k'}(\omega)$, holding for any impression counts. Via the delta-method approximation in Proposition~\ref{prop:delta_method}, this translates to a reduction in $\mathrm{Var}(\hat{R}\mid\mathbf{N})$ when $\alpha\approx\beta$ (Theorem~\ref{thm:optimality}), and more generally via the exact asymmetric characterisation in Theorem~\ref{thm:asymmetric}. The bound is tight: equality holds iff $N_k^i / N_{k'}^i$ is identical for all $i$ (no heterogeneity), in which case harmonic reduces to the original estimator.
+Theorem~\ref{thm:cs} is an exact, unconditional guarantee on the variance surrogate $V_k(\omega)+V_{k'}(\omega)$, holding for any impression counts. Via the delta-method approximation in Proposition~\ref{prop:delta_method}, this translates to a reduction in $\mathrm{Var}(\hat{R}\mid\mathbf{N})$ when $\alpha\approx\beta$ (Theorem~\ref{thm:optimality}); for the asymmetric case, Theorem~\ref{thm:asymmetric} provides the oracle benchmark against which harmonic is compared in Remark~\ref{rem:oracle}. The bound is tight: equality holds iff $N_k^i / N_{k'}^i$ is identical for all $i$ (no heterogeneity), in which case harmonic reduces to the original estimator.
 \end{remark}
 
 \subsection{Optimality When $\alpha = \beta$}
@@ -256,7 +256,7 @@ The oracle minimiser is:
 \label{thm:asymmetric}
 For any non-negative weights $\omega$ and any fixed counts $\{N_k^i, N_{k'}^i\}$:
 \[
-\alpha V_k(\omega) + \beta V_{k'}(\omega) \;\geq\; \frac{1}{\displaystyle\sum_i 1/s_i},
+\alpha V_k(\omega) + \beta V_{k'}(\omega) \;\geq\; \left(\sum_i s_i^{-1}\right)^{-1},
 \]
 with equality iff $\omega_i \propto \omega_i^*$.
 \end{theorem}
@@ -491,7 +491,7 @@ We have presented harmonic weighting as a drop-in replacement for the weighting 
 
 Our implementation and all experiments presented in this paper will be publicly available after acceptance. The implementation builds upon the unbiased learning-to-rank toolkit by \cite{Hager2024}, which provides a comprehensive framework for position bias estimation and evaluation.
 
-Several directions remain open. First, the Cauchy–Schwarz guarantee covers the per-pair ratio $\hat{R}_{k,k'}$; extending the variance analysis to the full AdjacentChain product estimator requires bounding error propagation through the chain. Second, Theorem~\ref{thm:asymmetric} motivates a natural two-stage adaptive refinement: use harmonic to obtain preliminary propensity estimates $\hat{p}_k$, compute $\hat{\alpha},\hat{\beta}$, then form plug-in weights $\hat{\omega}_i^* \propto N_k^i N_{k'}^i / (\hat{\alpha}N_{k'}^i + \hat{\beta}N_k^i)$ on held-out data; the held-out construction preserves count-only weighting and asymptotically approaches the oracle optimum. Third, applying the asymmetric optimum to non-adjacent interventional sets and doubly robust LTR objectives are natural extensions.
+Several directions remain open. First, the Cauchy–Schwarz guarantee covers the per-pair ratio $\hat{R}_{k,k'}$; extending the variance analysis to the full AdjacentChain product estimator requires bounding error propagation through the chain. Second, Theorem~\ref{thm:asymmetric} motivates a natural two-stage adaptive refinement: use harmonic to obtain preliminary propensity estimates $\hat{p}_k$, compute $\hat{\alpha},\hat{\beta}$, then form plug-in weights $\hat{\omega}_i^* \propto N_k^i N_{k'}^i / (\hat{\alpha}N_{k'}^i + \hat{\beta}N_k^i)$ on held-out data; the held-out construction preserves count-only weighting and should approach the oracle optimum as the preliminary propensity estimates improve. Third, applying the asymmetric optimum to non-adjacent interventional sets and doubly robust LTR objectives are natural extensions.
 
 
 
