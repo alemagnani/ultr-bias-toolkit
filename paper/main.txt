@@ -126,7 +126,7 @@ We consider the following weighting schemes, all of which use weights $\omega_i$
 
 The harmonic weight $\omega_i^h$ is the harmonic mean of $N_k^i$ and $N_{k'}^i$ up to a factor of $1/2$. It balances the contribution of each document pair by downweighting pairs with extreme impression imbalances.
 
-We also compare against \textbf{clipped weighting} (subsampling the majority position when $N_k^i/N_{k'}^i > \tau$) \cite{bottou2013counterfactual}, which breaks ratio-unbiasedness and serves as a biased lower-variance reference.
+We also compare against \textbf{clipped weighting} (subsampling the majority position when $N_k^i/N_{k'}^i > \tau$, \cite{bottou2013counterfactual}), which breaks ratio-unbiasedness and serves as a biased lower-variance reference.
 
 \subsection{Ratio-Unbiasedness}
 
@@ -210,7 +210,7 @@ V_k(\omega^h) + V_{k'}(\omega^h) = \frac{\sum_i \omega_i^h}{(\sum_i \omega_i^h)^
 
 For the original estimator with $\omega_i = 1$:
 \[
-V_k(1) + V_{k'}(1) = \frac{1}{n^2}\sum_i \left(\frac{1}{N_k^i} + \frac{1}{N_{k'}^i}\right) = \frac{1}{n^2}\sum_i \frac{N_k^i + N_{k'}^i}{N_k^i N_{k'}^i} = \frac{1}{n^2}\sum_i \frac{1}{\omega_i^h}
+V_k(1) + V_{k'}(1) = \frac{1}{n^2}\sum_i \left(\frac{1}{N_k^i} + \frac{1}{N_{k'}^i}\right) = \frac{1}{n^2}\sum_i \frac{1}{\omega_i^h}
 \]
 
 Since $W = \sum_i \omega_i^h$ and $\sum_i 1/\omega_i^h$, by the Cauchy–Schwarz inequality:
@@ -218,11 +218,11 @@ Since $W = \sum_i \omega_i^h$ and $\sum_i 1/\omega_i^h$, by the Cauchy–Schwarz
 n^2 \leq \left(\sum_i \omega_i^h\right)\left(\sum_i \frac{1}{\omega_i^h}\right) = W \cdot \sum_i \frac{1}{\omega_i^h}
 \]
 
-Therefore $1/W \leq (1/n^2)\sum_i 1/\omega_i^h$, i.e., $V_k(\omega^h) + V_{k'}(\omega^h) \leq V_k(1) + V_{k'}(1)$, which gives $D_k + D_{k'} \leq 0$.
+Therefore $1/W \leq (1/n^2)\sum_i 1/\omega_i^h$, i.e., $V_k(\omega^h) + V_{k'}(\omega^h) \leq V_k(1) + V_{k'}(1)$, giving $D_k + D_{k'} \leq 0$.
 \end{proof}
 
 \begin{remark}
-Theorem~\ref{thm:cs} is an exact, unconditional guarantee on the variance surrogate $V_k(\omega)+V_{k'}(\omega)$, holding for any impression counts. Via the delta-method approximation in Proposition~\ref{prop:delta_method}, this translates to a reduction in $\mathrm{Var}(\hat{R}\mid\mathbf{N})$ when $\alpha\approx\beta$ (Theorem~\ref{thm:optimality}) and more generally as established by Theorem~\ref{thm:decomp}. The bound is tight: equality holds iff $N_k^i / N_{k'}^i$ is identical for all $i$ (no heterogeneity), in which case harmonic reduces to the original estimator.
+Theorem~\ref{thm:cs} is an exact, unconditional guarantee on the variance surrogate $V_k(\omega)+V_{k'}(\omega)$, holding for any impression counts. Via the delta-method approximation in Proposition~\ref{prop:delta_method}, this translates to a reduction in $\mathrm{Var}(\hat{R}\mid\mathbf{N})$ when $\alpha\approx\beta$ (Theorem~\ref{thm:optimality}), and more generally via the exact asymmetric characterisation in Theorem~\ref{thm:asymmetric}. The bound is tight: equality holds iff $N_k^i / N_{k'}^i$ is identical for all $i$ (no heterogeneity), in which case harmonic reduces to the original estimator.
 \end{remark}
 
 \subsection{Optimality When $\alpha = \beta$}
@@ -235,7 +235,9 @@ Among all weight functions $\omega_i = f(N_k^i, N_{k'}^i)$ with $f$ symmetric (i
 \end{theorem}
 
 \begin{proof}
-When $\alpha = \beta$, conditional variance is proportional to $V_k(\omega) + V_{k'}(\omega)$. As shown in the proof of Theorem~\ref{thm:cs}, $V_k(\omega) + V_{k'}(\omega) = \frac{\sum_i \omega_i^2(1/N_k^i + 1/N_{k'}^i)}{(\sum_i \omega_i)^2}$. By Cauchy–Schwarz applied to vectors $(\omega_i \sqrt{1/N_k^i + 1/N_{k'}^i})$ and $(1/\sqrt{1/N_k^i + 1/N_{k'}^i})$, the minimum of this expression subject to any positive scaling is achieved when $\omega_i \propto 1/\sqrt{1/N_k^i + 1/N_{k'}^i}$. But $1/\sqrt{1/N_k^i + 1/N_{k'}^i} = \sqrt{N_k^i N_{k'}^i/(N_k^i+N_{k'}^i)} = \sqrt{\omega_i^h}$, which gives $\omega_i \propto \omega_i^h$. Since the ratio estimator is scale-invariant in $\omega$, harmonic weighting is optimal.
+When $\alpha = \beta$, variance is proportional to $V_k(\omega) + V_{k'}(\omega) = \frac{\sum_i \omega_i^2(1/N_k^i + 1/N_{k'}^i)}{(\sum_i \omega_i)^2}$.
+By Cauchy–Schwarz the minimum is achieved when $\omega_i \propto 1/\sqrt{1/N_k^i + 1/N_{k'}^i} = \sqrt{\omega_i^h}$,
+giving $\omega_i \propto \omega_i^h$. Scale-invariance of the ratio estimator completes the proof.
 \end{proof}
 
 \subsection{Exact Asymmetric Optimum}
@@ -243,6 +245,11 @@ When $\alpha = \beta$, conditional variance is proportional to $V_k(\omega) + V_
 
 For general $\alpha \neq \beta$, define $s_i = \alpha/N_k^i + \beta/N_{k'}^i$. Note that
 $\alpha V_k(\omega)+\beta V_{k'}(\omega) = \frac{\sum_i s_i \omega_i^2}{(\sum_i \omega_i)^2}$.
+The exact minimiser is:
+\begin{equation}
+\label{eq:omega_star}
+\omega_i^* \propto \frac{1}{s_i} = \frac{N_k^i N_{k'}^i}{\alpha N_{k'}^i + \beta N_k^i}
+\end{equation}
 
 \begin{theorem}[Exact asymmetric optimum]
 \label{thm:asymmetric}
@@ -250,7 +257,7 @@ For any non-negative weights $\omega$ and any fixed counts $\{N_k^i, N_{k'}^i\}$
 \[
 \alpha V_k(\omega) + \beta V_{k'}(\omega) \;\geq\; \frac{1}{\displaystyle\sum_i 1/s_i},
 \]
-with equality iff $\omega_i \propto 1/s_i = N_k^i N_{k'}^i / (\alpha N_{k'}^i + \beta N_k^i)$.
+with equality iff $\omega_i \propto \omega_i^*$.
 \end{theorem}
 
 \begin{proof}
@@ -476,7 +483,7 @@ Based on the intervention harvesting approach of \cite{agarwal2019estimating}, w
 \begin{itemize}
   \item A unified ratio estimator framework: any count-dependent weight preserves ratio-unbiasedness (Theorem~\ref{thm:ratio_unbiased})
   \item An exact Cauchy–Schwarz guarantee: harmonic always reduces the variance surrogate $V_k + V_{k'}$ versus original weighting (Theorem~\ref{thm:cs}); via the delta-method approximation this implies lower $\mathrm{Var}(\hat{R}\mid\mathbf{N})$
-  \item Complete asymmetric theory: the exact optimum $\omega_i^* \propto N_k^i N_{k'}^i/(\alpha N_{k'}^i+\beta N_k^i)$ unconditionally beats original for any $(\alpha,\beta)$ (Theorem~\ref{thm:asymmetric}, Corollary~\ref{cor:beats_original}); harmonic is its parameter-free $\alpha=\beta$ special case (Corollary~\ref{cor:harmonic_special}), making it the natural practical choice
+  \item Complete asymmetric theory: exact optimum $\omega_i^*$ (Eq.~\ref{eq:omega_star}) unconditionally beats original weighting (Theorem~\ref{thm:asymmetric}, Corollary~\ref{cor:beats_original}); harmonic is its $\alpha{=}\beta$ special case (Corollary~\ref{cor:harmonic_special})
   \item Empirical validation showing up to 55\% variance reduction versus original, confirmed on Yahoo semi-synthetic and production A/B simulation; under tested PBM violations, original, min, and harmonic share comparable bias, making lower variance directly advantageous for MSE
 \end{itemize}
 

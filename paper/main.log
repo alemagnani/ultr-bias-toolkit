@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.4.11)  12 APR 2026 23:33
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.4.11)  12 APR 2026 23:41
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -978,11 +978,6 @@ LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/b/n' will be
 (Font)              scaled to size 9.0pt on input line 60.
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/b/n' will be
 (Font)              scaled to size 10.95pt on input line 60.
-
-
-Package natbib Warning: Citation `agarwal2019estimating' on page 1 undefined on
- input line 60.
-
 LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/m/n' will be
 (Font)              scaled to size 9.0pt on input line 60.
 Package microtype Info: Loading generic protrusion settings for font family
@@ -1003,6 +998,7 @@ LaTeX Font Info:    Font shape `LMX/ntxexx/m/n' will be
 (Font)              scaled to size 9.0pt on input line 60.
 LaTeX Font Info:    Font shape `LMX/ntxexx/m/n' will be
 (Font)              scaled to size 6.6pt on input line 60.
+
 (/usr/share/texmf-dist/tex/latex/microtype/mt-msa.cfg
 File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
 )
@@ -1063,71 +1059,18 @@ LaTeX Font Info:    Font shape `U/ntxexa/m/n' will be
 (Font)              scaled to size 8.0pt on input line 60.
 LaTeX Font Info:    Font shape `U/ntxexa/m/n' will be
 (Font)              scaled to size 6.0pt on input line 60.
-
-
-Package natbib Warning: Citation `joachims2017unbiased' on page 1 undefined on 
-input line 65.
-
-
-Package natbib Warning: Citation `joachims2017unbiased' on page 1 undefined on 
-input line 65.
-
-
-Package natbib Warning: Citation `wang2018position' on page 1 undefined on inpu
-t line 65.
-
-
-Package natbib Warning: Citation `joachims2017unbiased' on page 1 undefined on 
-input line 67.
-
-
-Package natbib Warning: Citation `wang2018position' on page 1 undefined on inpu
-t line 67.
-
-
-Package natbib Warning: Citation `agarwal2019estimating' on page 1 undefined on
- input line 69.
-
-
-Package natbib Warning: Citation `agarwal2019estimating' on page 1 undefined on
- input line 79.
-
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/n' will be
 (Font)              scaled to size 6.6pt on input line 79.
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/n' will be
 (Font)              scaled to size 5.5pt on input line 79.
-
-Package natbib Warning: Citation `richardson2007predicting' on page 1 undefined
- on input line 79.
-
-
-Package natbib Warning: Citation `chuklin2015click' on page 1 undefined on inpu
-t line 79.
-
-
-Package natbib Warning: Citation `agarwal2019estimating' on page 1 undefined on
- input line 91.
-
-[1.1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}{/usr/share/texmf-dist/f
-onts/enc/dvips/libertine/lbtn_25tcsq.enc}{/usr/share/texmf-dist/fonts/enc/dvips
-/libertine/lbtn_76gpa5.enc}
+ [1.1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}{/usr/share/texmf-dist/
+fonts/enc/dvips/libertine/lbtn_25tcsq.enc}{/usr/share/texmf-dist/fonts/enc/dvip
+s/libertine/lbtn_76gpa5.enc}
 
 {/usr/share/texmf-dist/fonts/enc/dvips/libertine/lbtn_nh77jq.enc}{/usr/share/te
 xmf-dist/fonts/enc/dvips/libertine/lbtn_7grukw.enc}{/usr/share/texmf-dist/fonts
 /enc/dvips/libertine/lbtn_naooyc.enc}{/usr/share/texmf-dist/fonts/enc/dvips/lib
 ertine/lbtn_oexx6f.enc}]
-
-Package natbib Warning: Citation `agarwal2019estimating' on page 2 undefined on
- input line 109.
-
-
-Package natbib Warning: Citation `agarwal2019estimating' on page 2 undefined on
- input line 119.
-
-
-Package natbib Warning: Citation `bottou2013counterfactual' on page 2 undefined
- on input line 129.
-
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/it' will be
 (Font)              scaled to size 9.0pt on input line 135.
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/sc' will be
@@ -1138,19 +1081,12 @@ LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/sb/n' will be
 (Font)              scaled to size 6.6pt on input line 167.
 LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/sb/n' will be
 (Font)              scaled to size 5.5pt on input line 167.
-
-Overfull \hbox (9.8513pt too wide) detected at line 214
-\OML/nxlmi/m/it/9 V[]\LMS/ntxsy/m/n/9 π\OT1/LinuxLibertineT-TLF/m/n/9 1\LMS/ntx
-sy/m/n/9 ∫ œ \OML/nxlmi/m/it/9 V[]\LMS/ntxsy/m/n/9 π\OT1/LinuxLibertineT-TLF/m/
-n/9 1\LMS/ntxsy/m/n/9 ∫ \U/ntxmia/m/it/9 = [] [] [] = [] [] [] = [] [] []
- []
-
 LaTeX Font Info:    Font shape `T1/LinuxBiolinumT-TLF/m/n' will be
 (Font)              scaled to size 9.0pt on input line 214.
 LaTeX Font Info:    Font shape `T1/LinuxBiolinumT-TLF/m/n' will be
 (Font)              scaled to size 7.0pt on input line 214.
-[2.2{/usr/share/texmf-dist/fonts/enc/dvips/libertine/lbtn_ncsllp.enc}{/usr/shar
-e/texmf-dist/fonts/enc/dvips/libertine/lbtn_fygcup.enc}]
+ [2.2{/usr/share/texmf-dist/fonts/enc/dvips/libertine/lbtn_ncsllp.enc}{/usr/sha
+re/texmf-dist/fonts/enc/dvips/libertine/lbtn_fygcup.enc}]
 Overfull \hbox (2.40776pt too wide) in paragraph at lines 221--222
 []\T1/LinuxLibertineT-TLF/m/n/9 (-20) Therefore $\OT1/LinuxLibertineT-TLF/m/n/9
  (-20) 1\LMS/ntxsy/m/n/9 ù\OML/nxlmi/m/it/9 W \LMS/ntxsy/m/n/9 ^^T π\OT1/LinuxL
@@ -1162,9 +1098,6 @@ LMS/ntxsy/m/n/9 π\OML/nxlmi/m/it/9 ![]\LMS/ntxsy/m/n/9 ∫ ^^T \OML/nxlmi/m/it/9
 V[]\LMS/ntxsy/m/n/9 π\OT1/LinuxLibertineT-TLF/m/n/9 (-20) 1\LMS/ntxsy/m/n/9 ∫ œ
 
  []
-
-
-LaTeX Warning: Reference `thm:decomp' on page 3 undefined on input line 225.
 
 LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/m/n' will be
 (Font)              scaled to size 10.95pt on input line 228.
@@ -1220,43 +1153,28 @@ Package hyperref Warning: Token not allowed in a PDF string (Unicode):
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
 (hyperref)                removing `math shift' on input line 228.
 
-
-Overfull \hbox (1.12192pt too wide) in paragraph at lines 238--239
-\OT1/LinuxLibertineT-TLF/m/n/9 (-20) 1\LMS/ntxsy/m/n/9 ù[]$\T1/LinuxLibertineT-
-TLF/m/n/9 (-20) . But $\OT1/LinuxLibertineT-TLF/m/n/9 (-20) 1\LMS/ntxsy/m/n/9 ù
-[] \U/ntxmia/m/it/9 = [] =
- []
-
-
-Package natbib Warning: Citation `agarwal2019estimating' on page 3 undefined on
- input line 291.
-
 LaTeX Font Info:    Font shape `T1/LinuxBiolinumT-TLF/m/it' will be
-(Font)              scaled to size 9.0pt on input line 296.
-
-Package natbib Warning: Citation `agarwal2019estimating' on page 3 undefined on
- input line 303.
-
-<../images/exp1_imbalance_sweep/exp1_variance_vs_imbalance.png, id=153, 1011.78
+(Font)              scaled to size 9.0pt on input line 303.
+<../images/exp1_imbalance_sweep/exp1_variance_vs_imbalance.png, id=175, 1011.78
 pt x 361.35pt>
 File: ../images/exp1_imbalance_sweep/exp1_variance_vs_imbalance.png Graphic fil
 e (type png)
 <use ../images/exp1_imbalance_sweep/exp1_variance_vs_imbalance.png>
 Package pdftex.def Info: ../images/exp1_imbalance_sweep/exp1_variance_vs_imbala
-nce.png  used on input line 313.
+nce.png  used on input line 320.
 (pdftex.def)             Requested size: 243.01942pt x 86.79193pt.
 
-Overfull \hbox (1.87193pt too wide) in paragraph at lines 313--314
+Overfull \hbox (1.87193pt too wide) in paragraph at lines 320--321
  [][] 
  []
 
 
-Class acmart Warning: A possible image without description on input line 316.
+Class acmart Warning: A possible image without description on input line 323.
 
 LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/sb/n' will be
-(Font)              scaled to size 6.0pt on input line 321.
+(Font)              scaled to size 6.0pt on input line 328.
 
-Overfull \hbox (2.86215pt too wide) in paragraph at lines 321--331
+Overfull \hbox (2.86215pt too wide) in paragraph at lines 328--338
  [][] 
  []
 
@@ -1264,30 +1182,14 @@ Overfull \hbox (2.86215pt too wide) in paragraph at lines 321--331
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 [3.3]
-<../images/exp1_imbalance_sweep/exp1_variance_reduction.png, id=178, 722.7pt x 
+<../images/exp1_imbalance_sweep/exp1_variance_reduction.png, id=201, 722.7pt x 
 433.62pt>
 File: ../images/exp1_imbalance_sweep/exp1_variance_reduction.png Graphic file (
 type png)
 <use ../images/exp1_imbalance_sweep/exp1_variance_reduction.png>
 Package pdftex.def Info: ../images/exp1_imbalance_sweep/exp1_variance_reduction
-.png  used on input line 339.
+.png  used on input line 346.
 (pdftex.def)             Requested size: 243.01942pt x 145.8078pt.
-
-Overfull \hbox (1.87193pt too wide) in paragraph at lines 339--340
- [][] 
- []
-
-
-Class acmart Warning: A possible image without description on input line 342.
-
-<../images/exp1_imbalance_sweep/exp1_variance_vs_split.png, id=179, 1011.78pt x
- 361.35pt>
-File: ../images/exp1_imbalance_sweep/exp1_variance_vs_split.png Graphic file (t
-ype png)
-<use ../images/exp1_imbalance_sweep/exp1_variance_vs_split.png>
-Package pdftex.def Info: ../images/exp1_imbalance_sweep/exp1_variance_vs_split.
-png  used on input line 346.
-(pdftex.def)             Requested size: 243.01942pt x 86.79193pt.
 
 Overfull \hbox (1.87193pt too wide) in paragraph at lines 346--347
  [][] 
@@ -1296,185 +1198,97 @@ Overfull \hbox (1.87193pt too wide) in paragraph at lines 346--347
 
 Class acmart Warning: A possible image without description on input line 349.
 
-<../images/exp2_pbm_violations/exp2_mse_decomposition.png, id=180, 1084.05pt x 
+<../images/exp1_imbalance_sweep/exp1_variance_vs_split.png, id=202, 1011.78pt x
+ 361.35pt>
+File: ../images/exp1_imbalance_sweep/exp1_variance_vs_split.png Graphic file (t
+ype png)
+<use ../images/exp1_imbalance_sweep/exp1_variance_vs_split.png>
+Package pdftex.def Info: ../images/exp1_imbalance_sweep/exp1_variance_vs_split.
+png  used on input line 353.
+(pdftex.def)             Requested size: 243.01942pt x 86.79193pt.
+
+Overfull \hbox (1.87193pt too wide) in paragraph at lines 353--354
+ [][] 
+ []
+
+
+Class acmart Warning: A possible image without description on input line 356.
+
+<../images/exp2_pbm_violations/exp2_mse_decomposition.png, id=203, 1084.05pt x 
 361.35pt>
 File: ../images/exp2_pbm_violations/exp2_mse_decomposition.png Graphic file (ty
 pe png)
 <use ../images/exp2_pbm_violations/exp2_mse_decomposition.png>
 Package pdftex.def Info: ../images/exp2_pbm_violations/exp2_mse_decomposition.p
-ng  used on input line 355.
+ng  used on input line 362.
 (pdftex.def)             Requested size: 243.01942pt x 81.00249pt.
 
-Overfull \hbox (1.87193pt too wide) in paragraph at lines 355--356
+Overfull \hbox (1.87193pt too wide) in paragraph at lines 362--363
  [][] 
  []
 
 
-Class acmart Warning: A possible image without description on input line 358.
+Class acmart Warning: A possible image without description on input line 365.
 
-<../images/exp4_sample_efficiency/exp4_mse_vs_impressions.png, id=183, 578.16pt
+<../images/exp4_sample_efficiency/exp4_mse_vs_impressions.png, id=206, 578.16pt
  x 361.35pt>
 File: ../images/exp4_sample_efficiency/exp4_mse_vs_impressions.png Graphic file
  (type png)
 <use ../images/exp4_sample_efficiency/exp4_mse_vs_impressions.png>
 Package pdftex.def Info: ../images/exp4_sample_efficiency/exp4_mse_vs_impressio
-ns.png  used on input line 387.
+ns.png  used on input line 394.
 (pdftex.def)             Requested size: 232.8991pt x 145.55748pt.
 
-Underfull \hbox (badness 1546) in paragraph at lines 388--388
+Underfull \hbox (badness 1546) in paragraph at lines 395--395
 \T1/LinuxLibertineT-TLF/b/n/9 (+20) the same MSE as orig-i-nal with roughly hal
 f the data.
  []
 
 
-Class acmart Warning: A possible image without description on input line 390.
+Class acmart Warning: A possible image without description on input line 397.
 
 [4.4 <../images/exp1_imbalance_sweep/exp1_variance_vs_imbalance.png> <../images
 /exp1_imbalance_sweep/exp1_variance_reduction.png> <../images/exp1_imbalance_sw
 eep/exp1_variance_vs_split.png> <../images/exp2_pbm_violations/exp2_mse_decompo
 sition.png>]
-
-Package natbib Warning: Citation `chapelle2011yahoo' on page 5 undefined on inp
-ut line 402.
-
-<../images/exp3_yahoo/exp3_variance_vs_imbalance.png, id=196, 1011.78pt x 361.3
+<../images/exp3_yahoo/exp3_variance_vs_imbalance.png, id=220, 1011.78pt x 361.3
 5pt>
 File: ../images/exp3_yahoo/exp3_variance_vs_imbalance.png Graphic file (type pn
 g)
 <use ../images/exp3_yahoo/exp3_variance_vs_imbalance.png>
 Package pdftex.def Info: ../images/exp3_yahoo/exp3_variance_vs_imbalance.png  u
-sed on input line 423.
+sed on input line 430.
 (pdftex.def)             Requested size: 243.01942pt x 86.79193pt.
 
-Overfull \hbox (1.87193pt too wide) in paragraph at lines 423--424
+Overfull \hbox (1.87193pt too wide) in paragraph at lines 430--431
  [][] 
  []
 
 
-Class acmart Warning: A possible image without description on input line 426.
+Class acmart Warning: A possible image without description on input line 433.
 
-<../images/exp5_production/exp5_ratio_distribution.png, id=199, 867.24pt x 289.
+<../images/exp5_production/exp5_ratio_distribution.png, id=223, 867.24pt x 289.
 08pt>
 File: ../images/exp5_production/exp5_ratio_distribution.png Graphic file (type 
 png)
 <use ../images/exp5_production/exp5_ratio_distribution.png>
 Package pdftex.def Info: ../images/exp5_production/exp5_ratio_distribution.png 
- used on input line 437.
+ used on input line 444.
 (pdftex.def)             Requested size: 243.01942pt x 81.00359pt.
 
-Overfull \hbox (1.87193pt too wide) in paragraph at lines 437--438
+Overfull \hbox (1.87193pt too wide) in paragraph at lines 444--445
  [][] 
  []
 
 
-Class acmart Warning: A possible image without description on input line 440.
-
-
-Package natbib Warning: Citation `zou2022large' on page 5 undefined on input li
-ne 448.
+Class acmart Warning: A possible image without description on input line 447.
 
 [5.5 <../images/exp4_sample_efficiency/exp4_mse_vs_impressions.png> <../images/
 exp3_yahoo/exp3_variance_vs_imbalance.png> <../images/exp5_production/exp5_rati
-o_distribution.png>]
-
-Package natbib Warning: Citation `joachims2017unbiased' on page 6 undefined on 
-input line 467.
-
-
-Package natbib Warning: Citation `wang2018position' on page 6 undefined on inpu
-t line 467.
-
-
-Package natbib Warning: Citation `Joachims2017' on page 6 undefined on input li
-ne 467.
-
-
-Package natbib Warning: Citation `wang2018position' on page 6 undefined on inpu
-t line 469.
-
-
-Package natbib Warning: Citation `Wang2018' on page 6 undefined on input line 4
-69.
-
-
-Package natbib Warning: Citation `pai2020pal' on page 6 undefined on input line
- 469.
-
-
-Package natbib Warning: Citation `agarwal2019estimating' on page 6 undefined on
- input line 471.
-
-
-Package natbib Warning: Citation `aslanyan2019eCommerceBias' on page 6 undefine
-d on input line 471.
-
-
-Package natbib Warning: Citation `oosterhuis2023DoublyRobustLTR' on page 6 unde
-fined on input line 471.
-
-
-Package natbib Warning: Citation `swaminathan2015CRM' on page 6 undefined on in
-put line 473.
-
-
-Package natbib Warning: Citation `bottou2013counterfactual' on page 6 undefined
- on input line 473.
-
-
-Package natbib Warning: Citation `swaminathan2015batch' on page 6 undefined on 
-input line 473.
-
-
-Package natbib Warning: Citation `dudik2011doubly' on page 6 undefined on input
- line 473.
-
-
-Package natbib Warning: Citation `oosterhuis2023DoublyRobustLTR' on page 6 unde
-fined on input line 473.
-
-
-Package natbib Warning: Citation `kong1992note' on page 6 undefined on input li
-ne 473.
-
-
-Package natbib Warning: Citation `oosterhuis2023DoublyRobustLTR' on page 6 unde
-fined on input line 473.
-
-
-Package natbib Warning: Citation `bottou2013counterfactual' on page 6 undefined
- on input line 473.
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
-
-Package natbib Warning: Citation `agarwal2019estimating' on page 6 undefined on
- input line 475.
-
-
-Package natbib Warning: Citation `agarwal2019estimating' on page 6 undefined on
- input line 475.
-
-
-Overfull \hbox (34.17874pt too wide) in paragraph at lines 479--480
-[]\T1/LinuxLibertineT-TLF/m/n/9 (-20) Complete asym-met-ric the-ory: the ex-act
- op-ti-mum $\OML/nxlmi/m/it/9 ![] \LMS/ntxsy/m/n/9 / \OML/nxlmi/m/it/9 N[]N[]\L
-MS/ntxsy/m/n/9 ùπ\OML/nxlmi/m/it/9 N[] \LMS/ntxsy/m/n/9 œ
- []
-
-
-Package natbib Warning: Citation `Hager2024' on page 6 undefined on input line 
-483.
-
-(./main.bbl
-
-Package natbib Warning: Empty `thebibliography' environment on input line 39.
-
-)
-
-Package natbib Warning: There were undefined citations.
-
+o_distribution.png>] (./main.bbl
+LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/sb/n' will be
+(Font)              scaled to size 7.3pt on input line 99.
+ [6.6])
 
 Class acmart Warning: Some images may lack descriptions.
 (acmart)              ACM is committed to complying with the upcoming US ADA ht
@@ -1497,34 +1311,30 @@ Class acmart Warning: ACM keywords are mandatory for papers over two pages.
 Class acmart Warning: CCS concepts are mandatory for papers over two pages.
 
 
-Package balance Warning: You have called \balance in second column
-(balance)                Columns might not be balanced.
+Overfull \vbox (1.333pt too high) has occurred while \output is active []
+
 
 (/usr/share/texmf-dist/tex/generic/stringenc/se-pdfdoc.def
 File: se-pdfdoc.def 2019/11/29 v1.12 stringenc: PDFDocEncoding
 )
 (/usr/share/texmf-dist/tex/generic/stringenc/se-utf8.def
 File: se-utf8.def 2019/11/29 v1.12 stringenc: UTF-8
-) [6.6] (./main.aux)
+) [7.7] (./main.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
  ***********
-
-
-LaTeX Warning: There were undefined references.
-
 Package rerunfilecheck Info: File `main.out' has not changed.
 (rerunfilecheck)             Checksum: FE5DD2668D0D4274530973EDCD7BB129;4817.
  ) 
 Here is how much of TeX's memory you used:
- 21600 strings out of 469515
- 350367 string characters out of 5470807
- 836968 words of memory out of 5000000
- 49096 multiletter control sequences out of 15000+600000
- 841322 words of font info for 511 fonts, out of 8000000 for 9000
+ 21722 strings out of 469515
+ 353297 string characters out of 5470807
+ 834461 words of memory out of 5000000
+ 49169 multiletter control sequences out of 15000+600000
+ 846413 words of font info for 530 fonts, out of 8000000 for 9000
  175 hyphenation exceptions out of 8191
- 90i,13n,131p,1346b,638s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 90i,13n,131p,1346b,710s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texmf-dist/fonts/type1/public/newtx/LibertineMathMI.pfb></usr/sha
 re/texmf-dist/fonts/type1/public/newtx/LibertineMathMI5.pfb></usr/share/texmf-d
 ist/fonts/type1/public/newtx/LibertineMathMI7.pfb></usr/share/texmf-dist/fonts/
@@ -1539,10 +1349,10 @@ xmf-dist/fonts/type1/public/libertine/LinLibertineTZ.pfb></usr/share/texmf-dist
 /newtx/txexs.pfb></usr/share/texmf-dist/fonts/type1/public/newtx/txmiaX.pfb></u
 sr/share/texmf-dist/fonts/type1/public/newtx/txsym.pfb></usr/share/texmf-dist/f
 onts/type1/public/newtx/txsys.pfb>
-Output written on main.pdf (6 pages, 1165221 bytes).
+Output written on main.pdf (7 pages, 1175274 bytes).
 PDF statistics:
- 321 PDF objects out of 1000 (max. 8388607)
- 256 compressed objects within 3 object streams
- 59 named destinations out of 1000 (max. 500000)
- 116980 words of extra memory for PDF output out of 128383 (max. 10000000)
+ 393 PDF objects out of 1000 (max. 8388607)
+ 326 compressed objects within 4 object streams
+ 79 named destinations out of 1000 (max. 500000)
+ 121076 words of extra memory for PDF output out of 128383 (max. 10000000)
 
