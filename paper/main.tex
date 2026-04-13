@@ -54,7 +54,7 @@
 \begin{document}
 
 \begin{abstract}
-Presentation bias remains a major challenge in learning-to-rank from implicit feedback, as it obscures the true relevance signal. We extend the intervention harvesting estimator of Agarwal et al.~\cite{agarwal2019estimating}—which estimates position bias from naturally occurring ranking variations without intrusive randomization—with a single principled modification: replacing their weighting scheme with \emph{harmonic weighting}. This drop-in replacement retains full ratio-unbiasedness while significantly reducing estimator variance. We establish an exact Cauchy–Schwarz guarantee that harmonic always reduces the delta-method variance surrogate $V_k+V_{k'}$, prove that harmonic is variance-optimal in the symmetric setting ($\alpha=\beta$), and derive the exact asymmetric optimum---a generalized harmonic weight that unconditionally beats original weighting for any propensity values, with harmonic as its parameter-free special case. Empirically, we demonstrate variance reductions of up to 55\% on synthetic imbalanced data, confirmed on semi-synthetic data using real relevance labels from the Yahoo LTR dataset. Lower variance translates directly to data efficiency: harmonic achieves the same estimation accuracy as the original estimator with roughly \textbf{half the data}. We also show that all unbiased methods share the same bias under Position-Based Model violations, making lower-variance estimation directly advantageous for mean squared error.
+Presentation bias remains a major challenge in learning-to-rank from implicit feedback, as it obscures the true relevance signal. We extend the intervention harvesting estimator of Agarwal et al.~\cite{agarwal2019estimating}—which estimates position bias from naturally occurring ranking variations without intrusive randomization—with a single principled modification: replacing their weighting scheme with \emph{harmonic weighting}. This drop-in replacement retains full ratio-unbiasedness while significantly reducing estimator variance. We establish an exact Cauchy–Schwarz guarantee that harmonic always reduces the delta-method variance surrogate $V_k+V_{k'}$, prove that harmonic is variance-optimal in the symmetric setting ($\alpha=\beta$), and derive the exact oracle optimum for the asymmetric case---which motivates harmonic as a parameter-free approximation and recovers it exactly when $\alpha=\beta$. Empirically, we demonstrate variance reductions of up to 55\% on synthetic imbalanced data, confirmed on semi-synthetic data using real relevance labels from the Yahoo LTR dataset. Lower variance translates directly to data efficiency: harmonic achieves the same estimation accuracy as the original estimator with roughly \textbf{half the data}. We also show that original, min, and harmonic exhibit comparable bias under tested Position-Based Model violations, making lower-variance estimation directly advantageous for mean squared error.
 \end{abstract}
 
 \maketitle
@@ -68,7 +68,7 @@ Recent advances in counterfactual learning-to-rank have shown that unbiased lear
 
 Intervention harvesting \cite{agarwal2019estimating} avoids explicit randomization by leveraging naturally occurring ranking variations across concurrently deployed rankers. However, their weighting scheme produces high estimator variance when impression counts are imbalanced—a common situation in production A/B-testing environments where some documents accumulate disproportionate traffic at one position.
 
-\textbf{This paper directly extends Agarwal et al.~\cite{agarwal2019estimating}.} We keep their entire framework—PBM model, interventional sets, ratio estimator, AdjacentChain aggregation—and propose a single modification: replacing their weighting scheme with harmonic weighting. Key contributions: (1) any count-dependent weight preserves ratio-unbiasedness; (2) an exact Cauchy–Schwarz guarantee that harmonic always reduces the variance surrogate $V_k + V_{k'}$, which implies lower $\mathrm{Var}(\hat{R})$ via the delta method; (3) exact optimality when propensities are equal; (4) up to 55\% variance reduction in synthetic and semi-synthetic (Yahoo LTR) experiments; (5) harmonic requires roughly \textbf{half the data} to match the original estimator's accuracy.
+\textbf{This paper directly extends Agarwal et al.~\cite{agarwal2019estimating}.} We keep their entire framework—PBM model, interventional sets, ratio estimator, AdjacentChain aggregation—and propose a single modification: replacing their weighting scheme with harmonic weighting. Key contributions: (1) any count-dependent weight preserves ratio-unbiasedness; (2) an exact Cauchy–Schwarz guarantee that harmonic always reduces the variance surrogate $V_k + V_{k'}$, yielding lower approximate ratio variance under the delta-method expansion; (3) exact optimality when propensities are equal; (4) up to 55\% variance reduction in synthetic and semi-synthetic (Yahoo LTR) experiments; (5) harmonic requires roughly \textbf{half the data} to match the original estimator's accuracy.
 
 \section{Background and Preliminaries}
 \label{sec:background}
@@ -240,12 +240,13 @@ By Cauchy–Schwarz the minimum is achieved when $\omega_i \propto 1/\sqrt{1/N_k
 giving $\omega_i \propto \omega_i^h$. Scale-invariance of the ratio estimator completes the proof.
 \end{proof}
 
-\subsection{Exact Asymmetric Optimum}
+\subsection{Oracle Asymmetric Characterization}
 \label{sec:asymmetric_optimum}
 
-For general $\alpha \neq \beta$, define $s_i = \alpha/N_k^i + \beta/N_{k'}^i$. Note that
-$\alpha V_k(\omega)+\beta V_{k'}(\omega) = \frac{\sum_i s_i \omega_i^2}{(\sum_i \omega_i)^2}$.
-The exact minimiser is:
+For general $\alpha \neq \beta$, we characterize the exact oracle optimum of the surrogate $\alpha V_k(\omega)+\beta V_{k'}(\omega)$. This benchmark motivates harmonic as a practical parameter-free approximation: it is infeasible to deploy directly because $\alpha,\beta$ depend on the unknown propensities, but it provides theoretical grounding for why harmonic works well in practice.
+
+Define $s_i = \alpha/N_k^i + \beta/N_{k'}^i$, so $\alpha V_k(\omega)+\beta V_{k'}(\omega) = \frac{\sum_i s_i \omega_i^2}{(\sum_i \omega_i)^2}$.
+The oracle minimiser is:
 \begin{equation}
 \label{eq:omega_star}
 \omega_i^* \propto \frac{1}{s_i} = \frac{N_k^i N_{k'}^i}{\alpha N_{k'}^i + \beta N_k^i}
@@ -284,9 +285,10 @@ When $\alpha = \beta$, $\;\omega_i^*$ reduces to harmonic weighting.
 When $\alpha=\beta$, $s_i = \alpha(N_k^i+N_{k'}^i)/(N_k^i N_{k'}^i)$, so $1/s_i \propto N_k^i N_{k'}^i/(N_k^i+N_{k'}^i) = \omega_i^h$.
 \end{proof}
 
-Together, Theorem~\ref{thm:asymmetric} and its corollaries give a complete picture: $\omega_i^*$ is the exact optimum for any $(\alpha,\beta)$, unconditionally beats original weighting, and reduces to harmonic when propensities are equal. Since $\omega_i^*$ requires the unknown propensities, harmonic is the practical parameter-free choice—exact at $\alpha=\beta$ and guaranteed to reduce $V_k+V_{k'}$ via Theorem~\ref{thm:cs} at any propensity values.
+Together, Theorem~\ref{thm:asymmetric} and its corollaries characterize the oracle: $\omega_i^*$ is the exact surrogate optimum for any $(\alpha,\beta)$ and unconditionally beats original weighting. Since $\omega_i^*$ requires the unknown propensities, it is not deployable directly. Harmonic weighting is the practical parameter-free choice: exact at $\alpha=\beta$ (Corollary~\ref{cor:harmonic_special}) and with an unconditional $V_k+V_{k'}$ guarantee (Theorem~\ref{thm:cs}) for any propensity values. The oracle serves as a theoretical benchmark; Remark~\ref{rem:oracle} shows it tracks harmonic to within $\pm2\%$ empirically.
 
 \begin{remark}[Oracle validation]
+\label{rem:oracle}
 We verified empirically that substituting the true simulation propensities into $\omega_i^*$ yields variance within $\pm 2\%$ of harmonic across all tested configurations. For the AdjacentChain estimator, anchor docs dominate and both weights converge to $\approx N_{k'}^i$ under severe imbalance, so the residual gap is negligible in practice.
 \end{remark}
 
@@ -482,8 +484,8 @@ Despite advances, propensity estimation remains prone to high variance with impo
 We have presented harmonic weighting as a drop-in replacement for the weighting scheme in the intervention harvesting estimator of Agarwal et al.~\cite{agarwal2019estimating}, keeping their framework—PBM model, interventional sets, ratio estimator, AdjacentChain—entirely intact. Compared to their original weighting and the min-weighting heuristic also proposed in \cite{agarwal2019estimating}, harmonic weighting has a principled theoretical foundation and consistent empirical advantages. Key contributions:
 \begin{itemize}
   \item A unified ratio estimator framework: any count-dependent weight preserves ratio-unbiasedness (Theorem~\ref{thm:ratio_unbiased})
-  \item An exact Cauchy–Schwarz guarantee: harmonic always reduces the variance surrogate $V_k + V_{k'}$ versus original weighting (Theorem~\ref{thm:cs}); via the delta-method approximation this implies lower $\mathrm{Var}(\hat{R}\mid\mathbf{N})$
-  \item Complete asymmetric theory: exact optimum $\omega_i^*$ (Eq.~\ref{eq:omega_star}) unconditionally beats original weighting (Theorem~\ref{thm:asymmetric}, Corollary~\ref{cor:beats_original}); harmonic is its $\alpha{=}\beta$ special case (Corollary~\ref{cor:harmonic_special})
+  \item An exact Cauchy–Schwarz guarantee: harmonic always reduces the variance surrogate $V_k + V_{k'}$ (Theorem~\ref{thm:cs}), yielding lower approximate ratio variance under the delta-method expansion
+  \item Oracle asymmetric characterization: exact surrogate-optimal weight $\omega_i^*$ (Eq.~\ref{eq:omega_star}) unconditionally beats original (Theorem~\ref{thm:asymmetric}, Corollary~\ref{cor:beats_original}); harmonic is its $\alpha{=}\beta$ special case (Corollary~\ref{cor:harmonic_special}), motivating it as the parameter-free practical choice
   \item Empirical validation showing up to 55\% variance reduction versus original, confirmed on Yahoo semi-synthetic and production A/B simulation; under tested PBM violations, original, min, and harmonic share comparable bias, making lower variance directly advantageous for MSE
 \end{itemize}
 
