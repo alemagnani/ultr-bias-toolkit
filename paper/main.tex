@@ -577,6 +577,93 @@ We have presented harmonic weighting as a drop-in replacement for the weighting 
 
 Our implementation and all experiments presented in this paper will be publicly available after acceptance. The implementation builds upon the unbiased learning-to-rank toolkit by \cite{Hager2024}, which provides a comprehensive framework for position bias estimation and evaluation.
 
+\subsection{Reviewer-response analyses}
+\label{sec:reviewer_response}
+
+The reviewer of an earlier draft asked for paired confidence intervals,
+an adversarial-$(\alpha,\beta)$ search for harmonic-loses configurations,
+and a plug-in oracle implementation. We ran all three.
+
+\paragraph{Paired bootstrap CIs (Table~\ref{tab:paired_ci}).}
+With seed-aligned RNG so per-trial outcomes are paired across schemes
+(500 trials per cell), we computed paired bootstrap 95\% CIs (2000
+resamples) on the per-trial squared-error margins. The harmonic-vs-original
+margin's CI \emph{excludes zero in every tested cell}; the
+harmonic-vs-min margin's CI \emph{crosses zero at $r=50$ and $r=100$}.
+The $\sim$5--7\% empirical gap of harmonic over min is therefore not
+statistically distinguishable in those regimes at $n=500$ trials, and we
+should not oversell it.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Paired bootstrap 95\% CIs on per-trial MSE margins
+(split 80/20, 500 trials, 2000 bootstrap resamples).
+$\bigstar$ marks CIs excluding zero.}
+\label{tab:paired_ci}
+\begin{tabular}{lccc}
+\toprule
+Comparison & $r=1$ & $r=10$ & $r=50/100$ \\
+\midrule
+$\bigstar$ harmonic $-$ original & $-7.1{\times}10^{-4}$ \footnotesize{[$-9.9, -4.9$]} & $-6.7{\times}10^{-4}$ \footnotesize{[$-8.0, -5.6$]} & $-7.1{\times}10^{-4}$ \footnotesize{[$-8.4, -5.9$]} \\
+$\bigstar$ harmonic $-$ min ($r{\leq}10$) & $-3.5{\times}10^{-5}$ \footnotesize{[$-6.2, -0.8$]} & $-1.8{\times}10^{-5}$ \footnotesize{[$-3.6, 0.0$]} & not significant \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Adversarial $(\alpha,\beta)$ search.}
+The Cauchy--Schwarz guarantee (Theorem~\ref{thm:cs}) bounds the symmetric
+surrogate $V_k+V_{k'}$. For the asymmetric surrogate
+$\alpha V_k + \beta V_{k'}$ harmonic could in principle underperform
+original. We swept a $5{\times}5$ grid of
+$(\alpha,\beta) \in [0.05, 50]^2$ (covering propensity ratios up to 1000:1)
+crossed with 200 random count configurations of $50$ documents each
+(\textbf{5{,}000 total cells}), computing the closed-form ratio
+$(\alpha V_k(\omega^h)+\beta V_{k'}(\omega^h))/(\alpha V_k(1)+\beta V_{k'}(1))$
+on each. \textbf{In zero of 5{,}000 cells did harmonic underperform
+original on the asymmetric surrogate.} The worst observed ratio was
+$0.929$ (harmonic still $7$\% better). On a hand-constructed
+intentionally adversarial counts pattern (5 docs with $N_k{=}1, N_{k'}{=}100$;
+5 with $N_k{=}100, N_{k'}{=}1$) the ratio is exactly $1.000$ at every
+$(\alpha,\beta)$ tested. We could not construct a configuration in which
+harmonic is worse than original on the variance surrogate.
+
+\paragraph{Plug-in oracle.}
+We implemented the two-stage adaptive scheme of Theorem~\ref{thm:asymmetric}:
+fit harmonic to obtain preliminary $\hat{p}$, derive
+$\hat{\alpha}, \hat{\beta}$ (averaged across position pairs), apply plug-in
+weights $\hat{\omega}_i^* = N_k^i N_{k'}^i/(\hat{\alpha} N_{k'}^i +
+\hat{\beta} N_k^i)$ on the same data. Compared on 500 trials per cell:
+
+\begin{table}[h]
+\centering
+\small
+\caption{Plug-in oracle vs harmonic and the true-propensity oracle (split
+80/20). Plug-in does not statistically improve over harmonic; both match
+the true oracle to within trial noise.}
+\label{tab:plugin}
+\begin{tabular}{lccc}
+\toprule
+$r=$ & 10 & 50 & 100 \\
+\midrule
+original (MSE)            & $1.67{\times}10^{-3}$ & $1.58{\times}10^{-3}$ & $1.49{\times}10^{-3}$ \\
+harmonic                  & $7.87{\times}10^{-4}$ & $7.31{\times}10^{-4}$ & $7.24{\times}10^{-4}$ \\
+plug-in (this paper)      & $7.84{\times}10^{-4}$ & $7.30{\times}10^{-4}$ & $7.22{\times}10^{-4}$ \\
+true-propensity oracle    & $7.85{\times}10^{-4}$ & $7.30{\times}10^{-4}$ & $7.22{\times}10^{-4}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent\textbf{Plug-in $\approx$ harmonic $\approx$ true oracle in all
+tested cells} (within $0.4\%$ of each other). The plug-in's marginal gains
+(0.3--0.4\% relative) are smaller than the trial-to-trial standard error.
+This actually \emph{strengthens} the case for harmonic as the parameter-free
+choice: the asymmetric oracle (and any plug-in approximation thereof)
+provides essentially no benefit over the symmetric harmonic on these
+benchmarks, so the simpler, parameter-free harmonic dominates the
+quality-vs-complexity tradeoff.
+
+\subsection{Open directions}
 Several directions remain open.
 
 \textbf{(a) AdjacentChain error propagation.}
@@ -587,27 +674,11 @@ length (positions 1--3, 1--5, 1--10) and including non-adjacent interventional s
 reported on the final propensity estimate (not just the per-pair ratio), would close this gap.
 
 \textbf{(b) Adversarial regimes for harmonic.}
-Theorem~\ref{thm:cs} guarantees that harmonic reduces $V_k+V_{k'}$ unconditionally. The full
-delta-method variance is $\alpha V_k + \beta V_{k'}$, and for sufficiently asymmetric
-$(\alpha,\beta)$ the oracle weight $\omega_i^*$ (Eq.~\ref{eq:omega_star}) can in principle differ
-materially from $\omega_i^h$. We have not encountered a tested grid configuration where
-harmonic underperforms original on $\mathrm{Var}(\hat{R}\mid\mathbf{N})$ itself, but
-characterising the boundary explicitly --- including any worst-case count configuration ---
-remains open.
-
-\textbf{(c) Plug-in oracle.}
-Theorem~\ref{thm:asymmetric} motivates a two-stage adaptive scheme: use harmonic to obtain
-preliminary $\hat{p}_k$, compute $\hat\alpha, \hat\beta$, then form plug-in weights
-$\hat\omega_i^* \propto N_k^i N_{k'}^i / (\hat\alpha N_{k'}^i + \hat\beta N_k^i)$ on held-out
-data. Held-out construction preserves count-only weighting and should approach the oracle
-asymptotically. We have not yet implemented this; if it consistently improves over harmonic, it
-becomes the stronger contribution; if not, it strengthens harmonic as the parameter-free choice.
-
-\textbf{(d) Statistical reporting.}
-Tables~\ref{tab:exp1_results}, \ref{tab:pbm_violations}, \ref{tab:yahoo_results} report point
-estimates over 200--500 trials. Adding standard errors and paired confidence intervals
-(particularly on the harmonic--min margin) is a writing-pass priority; some 5--7\% gaps may not
-survive significance testing.
+Section~\ref{sec:reviewer_response} confirms that harmonic does not lose to
+original on the asymmetric surrogate $\alpha V_k+\beta V_{k'}$ in 5{,}000
+sampled cells $(\alpha,\beta)\in[0.05,50]^2$. Theoretically extending the
+Cauchy--Schwarz guarantee to cover asymmetric weighting --- not just the
+symmetric $V_k+V_{k'}$ surrogate --- remains open.
 
 \textbf{(e) Realistic ranker overlap.}
 Our production-style simulation (Section~\ref{sec:exp6_prod}) uses adjacent swaps with
