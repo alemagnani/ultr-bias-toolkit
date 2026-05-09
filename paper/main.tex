@@ -54,7 +54,11 @@
 \begin{document}
 
 \begin{abstract}
-Presentation bias remains a major challenge in learning-to-rank from implicit feedback, as it obscures the true relevance signal. We extend the intervention harvesting estimator of Agarwal et al.~\cite{agarwal2019estimating}—which estimates position bias from naturally occurring ranking variations without intrusive randomization—with a single principled modification: replacing their weighting scheme with \emph{harmonic weighting}. This drop-in replacement retains full ratio-unbiasedness while significantly reducing estimator variance. We establish an exact Cauchy–Schwarz guarantee that harmonic always reduces the delta-method variance surrogate $V_k+V_{k'}$, prove that harmonic is variance-optimal in the symmetric setting ($\alpha=\beta$), and derive the exact oracle optimum for the asymmetric case---which motivates harmonic as a parameter-free approximation and recovers it exactly when $\alpha=\beta$. Empirically, we demonstrate variance reductions of up to 55\% on synthetic imbalanced data, confirmed on semi-synthetic data using real relevance labels from the Yahoo LTR dataset. Lower variance translates directly to data efficiency: harmonic achieves the same estimation accuracy as the original estimator with roughly \textbf{half the data}. We also show that original, min, and harmonic exhibit comparable bias under tested Position-Based Model violations, making lower-variance estimation directly advantageous for mean squared error.
+Presentation bias remains a major challenge in learning-to-rank from implicit feedback, as it obscures the true relevance signal. We extend the intervention harvesting estimator of Agarwal et al.~\cite{agarwal2019estimating}---which estimates position bias from naturally occurring ranking variations without intrusive randomization---with a single principled modification: replacing their weighting scheme with \emph{harmonic weighting}. This drop-in replacement retains the same ratio-of-expectations property (the sense in which the original estimator is ``ratio-unbiased'') while reducing the delta-method variance surrogate $V_k+V_{k'}$ unconditionally and the empirical MSE substantially in tested regimes. We establish an exact Cauchy–Schwarz guarantee that harmonic always reduces the delta-method variance surrogate $V_k+V_{k'}$, prove that harmonic is variance-optimal in the symmetric setting ($\alpha=\beta$), and derive the exact oracle optimum for the asymmetric case---which motivates harmonic as a parameter-free approximation and recovers it exactly when $\alpha=\beta$. Empirically, we observe variance reductions up to $\sim$55\% in synthetic imbalanced regimes
+in our tested grid, mirrored on semi-synthetic data that uses real Yahoo LTR relevance labels
+with simulated clicks. In one tested configuration (ratio 50:1, traffic split 80/20) harmonic
+achieves the same MSE as original with roughly half the data; we report this as a single
+data-efficiency point, not a global claim. We also show that original, min, and harmonic exhibit comparable bias under tested Position-Based Model violations, making lower-variance estimation directly advantageous for mean squared error.
 \end{abstract}
 
 \maketitle
@@ -66,7 +70,7 @@ Position bias—where higher-ranked results receive disproportionate user attent
 
 Recent advances in counterfactual learning-to-rank have shown that unbiased learning is possible when examination propensities are known \cite{joachims2017unbiased}. Estimating these propensities accurately remains challenging: traditional approaches rely on explicit randomized interventions that degrade user experience \cite{wang2018position}.
 
-Intervention harvesting \cite{agarwal2019estimating} avoids explicit randomization by leveraging naturally occurring ranking variations across concurrently deployed rankers. However, their weighting scheme produces high estimator variance when impression counts are imbalanced—a common situation in production A/B-testing environments where some documents accumulate disproportionate traffic at one position.
+Intervention harvesting \cite{agarwal2019estimating} avoids explicit randomization by leveraging naturally occurring ranking variations across concurrently deployed rankers. However, their weighting scheme can produce high estimator variance when impression counts are imbalanced --- a common situation in production traffic where some documents accumulate disproportionate traffic at one position relative to another (e.g.\ anchor items in A/B-tested rankers).
 
 \textbf{This paper directly extends Agarwal et al.~\cite{agarwal2019estimating}.} We keep their entire framework—PBM model, interventional sets, ratio estimator, AdjacentChain aggregation—and propose a single modification: replacing their weighting scheme with harmonic weighting. Key contributions: (1) any count-dependent weight preserves ratio-unbiasedness; (2) an exact Cauchy–Schwarz guarantee that harmonic always reduces the variance surrogate $V_k + V_{k'}$, yielding lower approximate ratio variance under the delta-method expansion; (3) exact optimality when propensities are equal; (4) up to 55\% variance reduction in synthetic and semi-synthetic (Yahoo LTR) experiments; (5) harmonic requires roughly \textbf{half the data} to match the original estimator's accuracy.
 
@@ -106,7 +110,10 @@ Agarwal et al.~\cite{agarwal2019estimating} propose the following weighted ratio
 \begin{equation}
 \hat{R}_{k,k'} = \frac{A}{B} = \frac{\sum_i \omega_i \cdot C_k^i / N_k^i}{\sum_i \omega_i \cdot C_{k'}^i / N_{k'}^i}
 \end{equation}
-where $\omega_i \geq 0$ may depend on observation counts $N_k^i$, $N_{k'}^i$ but not on clicks. Their original choice is $\omega_i = N_k^i$; under the ratio form above this is equivalently represented by constant weights $\omega_i = 1$ (the $N_k^i$ factors cancel). We adopt this estimator exactly and analyse alternative choices of $\omega_i$.
+where $\omega_i \geq 0$ may depend on observation counts $N_k^i$, $N_{k'}^i$ but not on clicks.
+We refer to $\omega_i = c$ (any positive constant; the constant cancels in the ratio) as the
+\emph{original / uniform} weighting. We adopt this estimator family exactly and analyse alternative
+choices of $\omega_i$.
 
 \section{Harmonic Weighting}
 \label{sec:harmonic_weight}
@@ -116,7 +123,7 @@ where $\omega_i \geq 0$ may depend on observation counts $N_k^i$, $N_{k'}^i$ but
 We consider the following weighting schemes, all of which use weights $\omega_i$ depending only on the observation counts:
 
 \begin{itemize}
-\item \textbf{Original}: $\omega_i = 1$ (constant; equivalent to \cite{agarwal2019estimating} as explained in Section~\ref{sec:ratio-estimator})
+\item \textbf{Original / uniform}: $\omega_i = 1$ (constant), the baseline of \cite{agarwal2019estimating}
 \item \textbf{Min-weighting}: $\omega_i = \min(N_k^i, N_{k'}^i)$
 \item \textbf{Harmonic weighting} (our proposal):
 \begin{equation}
@@ -126,19 +133,34 @@ We consider the following weighting schemes, all of which use weights $\omega_i$
 
 The harmonic weight $\omega_i^h$ is the harmonic mean of $N_k^i$ and $N_{k'}^i$ up to a factor of $1/2$. It balances the contribution of each document pair by downweighting pairs with extreme impression imbalances.
 
-We also compare against \textbf{clipped weighting} (subsampling the majority position when $N_k^i/N_{k'}^i > \tau$, \cite{bottou2013counterfactual}), which breaks ratio-unbiasedness and serves as a biased lower-variance reference.
+We also compare against \textbf{clipped weighting} (subsampling the majority position when
+$N_k^i/N_{k'}^i > \tau$, \cite{bottou2013counterfactual}). Clipping is \emph{not} a count-only
+reweighting in the sense of Theorem~\ref{thm:ratio_unbiased}: it modifies the impressions
+$N^i$ and clicks $C^i$ themselves by discarding a position-asymmetric subset, breaking the
+per-position binomial structure that the theorem relies on. We include it as a biased
+lower-variance reference, not as a counterexample to Theorem~\ref{thm:ratio_unbiased}.
 
 \subsection{Ratio-Unbiasedness}
 
-The following theorem shows that any weight function depending only on observation counts preserves the ratio-unbiasedness property.
+The following theorem shows that any weight function depending only on observation counts preserves the
+\emph{ratio-of-expectations} equality $\mathbb{E}[A]/\mathbb{E}[B] = p_k/p_{k'}$.
+We emphasise up-front that this is \textbf{not} the same as the unbiasedness of the random
+estimator $\hat{R}_{k,k'} = A/B$: in general $\mathbb{E}[A/B] \neq \mathbb{E}[A]/\mathbb{E}[B]$,
+and the gap is exactly the bias of $\hat{R}_{k,k'}$ as a random ratio.
+Following \cite{agarwal2019estimating} we use ``ratio-unbiasedness'' as shorthand for the
+ratio-of-expectations property; it justifies the estimator asymptotically (since the random ratio
+converges to the deterministic one as the interventional set grows) but does not give an
+unbiased finite-sample estimator.
 
-\begin{theorem}[Ratio-unbiasedness]
+\begin{theorem}[Ratio-unbiasedness, in the ratio-of-expectations sense]
 \label{thm:ratio_unbiased}
-Under the Position-Based Model, for any weights $\omega_i = \omega(N_k^i, N_{k'}^i) \geq 0$ that depend only on the observation counts (not on clicks), the ratio estimator satisfies:
+Under the Position-Based Model, for any weights $\omega_i = \omega(N_k^i, N_{k'}^i) \geq 0$ that
+depend only on the observation counts (not on clicks), the ratio estimator satisfies:
 \[
 \frac{\mathbb{E}[A]}{\mathbb{E}[B]} = \frac{p_k}{p_{k'}}
 \]
-provided $\mathbb{E}[B] \neq 0$.
+provided $\mathbb{E}[B] \neq 0$. Equivalently, $\hat{R}_{k,k'}$ converges in probability to
+$p_k/p_{k'}$ as the interventional set $|S_{k,k'}|$ grows under standard regularity conditions.
 \end{theorem}
 
 \begin{proof}
@@ -157,7 +179,14 @@ By the same argument, $\mathbb{E}[B] = p_{k'} \sum_{(q,d)} \textrm{rel}(q,d) \cd
 Taking the ratio and canceling the common factor (which is positive) yields $\mathbb{E}[A]/\mathbb{E}[B] = p_k/p_{k'}$.
 \end{proof}
 
-This theorem applies to original, min, and harmonic weighting. Clipped weighting violates this condition as it makes $\omega_i$ implicitly depend on which position has larger counts, breaking the symmetry required for unbiasedness.
+The theorem applies to original, min, and harmonic weighting. Clipped weighting falls outside
+its scope: clipping subsamples the impression set asymmetrically, so the resulting $C_k^i, N_k^i$
+no longer carry the per-position binomial structure on which the proof depends. (Concretely,
+the proof step $\mathbb{E}[C_k^i \mid N_k^i, N_{k'}^i] = N_k^i p_k \mathrm{rel}(q,d)$ would be
+replaced by $\mathbb{E}[\tilde C_k^i \mid \tilde N_k^i, \tilde N_{k'}^i] = \tilde N_k^i p_k
+\mathrm{rel}(q,d)$ for the post-clip $(\tilde C, \tilde N)$, but the asymmetric selection rule
+makes $\tilde N_k^i \neq N_k^i$ in a way that does not commute with the symmetric ratio of
+expectations.)
 
 \section{Variance Reduction Analysis}
 \label{sec:variance_reduction}
@@ -235,9 +264,20 @@ Among all weight functions $\omega_i = f(N_k^i, N_{k'}^i)$ with $f$ symmetric (i
 \end{theorem}
 
 \begin{proof}
-When $\alpha = \beta$, variance is proportional to $V_k(\omega) + V_{k'}(\omega) = \frac{\sum_i \omega_i^2(1/N_k^i + 1/N_{k'}^i)}{(\sum_i \omega_i)^2}$.
-By Cauchy–Schwarz the minimum is achieved when $\omega_i \propto 1/\sqrt{1/N_k^i + 1/N_{k'}^i} = \sqrt{\omega_i^h}$,
-giving $\omega_i \propto \omega_i^h$. Scale-invariance of the ratio estimator completes the proof.
+When $\alpha = \beta$, the variance surrogate is proportional to
+$V_k(\omega)+V_{k'}(\omega)=\frac{\sum_i a_i\omega_i^2}{(\sum_i \omega_i)^2}$
+with $a_i := 1/N_k^i+1/N_{k'}^i > 0$. Set $u_i = \omega_i\sqrt{a_i}$ and
+$v_i = 1/\sqrt{a_i}$, so $\sum_i \omega_i = \sum_i u_i v_i$ and
+$\sum_i a_i\omega_i^2 = \sum_i u_i^2$. Cauchy--Schwarz gives
+$(\sum_i u_i v_i)^2 \leq (\sum_i u_i^2)(\sum_i v_i^2)$, hence
+\[
+\frac{\sum_i a_i\omega_i^2}{(\sum_i \omega_i)^2}
+\;\geq\;\frac{1}{\sum_i v_i^2}\;=\;\frac{1}{\sum_i 1/a_i},
+\]
+with equality iff $u_i \propto v_i$, i.e., $\omega_i \propto 1/a_i$.
+Substituting $a_i = 1/N_k^i+1/N_{k'}^i$ gives
+$\omega_i \propto N_k^i N_{k'}^i/(N_k^i+N_{k'}^i) = \omega_i^h$.
+Scale-invariance of the ratio estimator completes the proof.
 \end{proof}
 
 \subsection{Oracle Asymmetric Characterization}
@@ -341,7 +381,19 @@ Figure~\ref{fig:variance_vs_imbalance} shows variance as a function of imbalance
     \label{tab:exp1_results}
 \end{table}
 
-Figure~\ref{fig:variance_reduction} shows variance reduction relative to original across all splits and ratios. At split $s=0.80$, ratio $r=100$, harmonic reduces variance by \textbf{43.6\%} versus original and by 5\% versus min. Crucially, harmonic never hurts: even at ratio $r=1$ (no systematic imbalance), it reduces variance by \textbf{32.7\%} because per-document count heterogeneity across queries remains—harmonic down-weights low-count documents, a benefit the uniform original weighting misses entirely. Reduction increases with traffic split, reaching \textbf{54\%} at $s=0.90$, $r=50$. Figure~\ref{fig:variance_vs_split} further shows this trend across all splits. The harmonic–min gap is consistent but modest ($\sim$5--7\%), reflecting that both schemes efficiently downweight the majority position when imbalance is severe; the advantage of harmonic lies in its principled optimality guarantee (Theorem~\ref{thm:optimality}) rather than a large empirical margin over min.
+Figure~\ref{fig:variance_reduction} shows variance reduction relative to original across all
+splits and ratios in the tested grid. At split $s=0.80$, ratio $r=100$, harmonic reduces
+variance by \textbf{43.6\%} versus original and by $\sim$5\% versus min. Even at ratio $r=1$
+(no systematic imbalance) we observe a $\sim 33\%$ variance reduction because per-document
+count heterogeneity across queries remains. We have not encountered a tested configuration in
+which harmonic increases the delta-method surrogate $V_k+V_{k'}$ over original (consistent with
+Theorem~\ref{thm:cs}), but we caution that the reported MSE depends on the full delta-method
+expansion --- adversarial $(\alpha,\beta)$ regimes outside our tested grid are an open question.
+Reduction increases with traffic split, reaching $\sim$54\% at $s=0.90$, $r=50$.
+Figure~\ref{fig:variance_vs_split} shows this trend across all splits. The harmonic--min gap is
+consistent but modest ($\sim$5--7\%); the contribution of harmonic is the principled derivation
+(Theorem~\ref{thm:optimality}) and the unconditional surrogate guarantee
+(Theorem~\ref{thm:cs}), not a large empirical margin over min.
 
 \begin{figure}[t!]
     \centering
@@ -388,7 +440,7 @@ Figure~\ref{fig:pbm_violations} and Table~\ref{tab:pbm_violations} summarize res
     \label{tab:pbm_violations}
 \end{table}
 
-\subsection{Experiment 4: Sample Efficiency}
+\subsection{Experiment 3: Sample Efficiency}
 \label{sec:exp4}
 
 \begin{figure}[t!]
@@ -398,14 +450,19 @@ Figure~\ref{fig:pbm_violations} and Table~\ref{tab:pbm_violations} summarize res
     \label{fig:sample_efficiency}
 \end{figure}
 
-A key practical claim is that lower variance translates directly to lower data requirements.
-Figure~\ref{fig:sample_efficiency} sweeps data volume (base impressions per document, $b \in [2, 100]$) at fixed imbalance ratio 50:1 and traffic split 80/20.
-MSE decreases monotonically for unbiased methods.
-At $b=5$, harmonic achieves the same MSE as original at $b \approx 10$—a \textbf{2$\times$ data reduction} to reach equivalent accuracy.
-At higher data volume the relative gap widens: at $b=50$, harmonic reduces MSE by \textbf{55.8\%}.
-Clipped weighting's MSE is flat ($\approx 0.041$) regardless of data volume, confirming that its error is bias-dominated and no amount of additional data can correct it.
+Lower variance should translate to lower data requirements. We test this on a single point
+of the imbalance grid (ratio 50:1, traffic split 80/20) by sweeping data volume
+(base impressions per document, $b \in [2, 100]$). Figure~\ref{fig:sample_efficiency} shows
+MSE decreasing monotonically for the ratio-unbiased schemes. At $b=5$, harmonic
+achieves the same MSE as original at $b \approx 10$, i.e.\ roughly a $2\times$ data reduction
+in this single configuration. At higher data volume the relative gap widens: at $b=50$,
+harmonic reduces MSE by $\sim$56\%. Clipped weighting's MSE is flat ($\approx 0.041$)
+regardless of data volume, confirming bias-domination. We caution that the
+``data-efficiency factor'' depends on $(s, r, \eta)$ and is reported here for one cell of the
+grid; characterising it as a function of all three would require a heatmap-style sweep that we
+flag as future work.
 
-\subsection{Experiment 3: Yahoo LTR Semi-Synthetic}
+\subsection{Experiment 4: Yahoo LTR Semi-Synthetic}
 \label{sec:exp3}
 
 To verify that results hold beyond uniform-random relevance, we repeat the imbalance sweep using \emph{real} relevance labels from the Yahoo Learning to Rank Challenge dataset (Set~1) \cite{chapelle2011yahoo}. We use the 6,936 test-set queries with graded relevance $g \in \{0,1,2,3,4\}$; continuous relevance is computed as $\mathrm{rel}(q,d) = (2^g - 1)/15$, following the standard NDCG formulation. Click probabilities follow PBM: $P(C=1|q,d,k) = p_k \cdot \mathrm{rel}(q,d)$. All other simulation parameters (anchor-item model, $M=10$, $\eta=1$, 200 trials) match Experiment~1.
@@ -434,9 +491,16 @@ To verify that results hold beyond uniform-random relevance, we repeat the imbal
     \label{fig:yahoo_variance}
 \end{figure}
 
-The results (Table~\ref{tab:yahoo_results} and Figure~\ref{fig:yahoo_variance}) confirm that harmonic weighting reduces variance by \textbf{39.5\%} versus original at ratio $r=50$, consistent with the fully synthetic results in Experiment~1 ($\sim$44\%). Harmonic reduces variance at every tested ratio, including $r=1$ (38.3\%), confirming no downside in the balanced regime. The relative ordering of all schemes is identical to the fully synthetic setting, confirming that variance reduction is driven by impression imbalance and not by the choice of relevance distribution.
+The results (Table~\ref{tab:yahoo_results} and Figure~\ref{fig:yahoo_variance}) show harmonic
+weighting reducing variance by $\sim$40\% versus original at ratio $r=50$, consistent with the
+fully synthetic results in Experiment~1. Harmonic reduces variance at every tested ratio,
+including $r=1$. The relative ordering of all schemes is identical to the fully synthetic
+setting, suggesting that variance reduction is driven by impression imbalance and is not
+sensitive to the relevance distribution. \textbf{We emphasise that this experiment is
+semi-synthetic --- relevance labels are real, but clicks are simulated under a clean PBM with
+the same anchor-item imbalance model as Experiment~1. It is not a real-log validation.}
 
-\subsection{Experiment 6: Production A/B Testing Simulation}
+\subsection{Experiment 5: Production-style Traffic Simulation}
 \label{sec:exp6_prod}
 
 A natural concern is whether anchor-item impression imbalance is realistic or synthetic. We simulate $K=5$ concurrent rankers: a default ranker (fraction $\alpha_0$ of traffic) shows each document at its natural position; treatment rankers independently swap adjacent pairs with probability 0.5. We compare uniform traffic (5$\times$20\%) against a production configuration (80\%\,+\,4$\times$5\%).
@@ -450,32 +514,51 @@ A natural concern is whether anchor-item impression imbalance is realistic or sy
 
 Under uniform traffic, 58.9\% of adjacent pairs fall in $[0.5, 2.0]$ and only 0.4\% exceed~10---consistent with Baidu-ULTR (Section~\ref{sec:baidu}). Under the production configuration, only 18.5\% remain in $[0.5, 2.0]$ and 16.7\% exceed~10. Harmonic weighting reduces MSE by \textbf{17.2\%} in the production configuration vs.\ 6.3\% under uniform, confirming that the benefit scales directly with traffic-induced imbalance.
 
-\subsection{Real-World Dataset: Absence of Impression Imbalance in Baidu-ULTR}
+\subsection{Public dataset analysis: Baidu-ULTR}
 \label{sec:baidu}
 
-A natural question is whether public benchmarks exhibit the impression imbalance that motivates our method.
-We analysed the Baidu-ULTR dataset \cite{zou2022large} (train split, 14.5\,M rows, 12.3\,M unique $(q,d,\mathrm{pos})$ cells), which is the most widely used public click log for ULTR research.
-We aggregated individual impressions to $(q, d, \mathrm{pos})$ cells and computed the following statistics:
+A natural question is whether public benchmarks exhibit the impression imbalance that motivates
+our method. We analysed the Baidu-ULTR dataset \cite{zou2022large} (train split, 14.5\,M rows,
+12.3\,M unique $(q,d,\mathrm{pos})$ cells), the most widely used public click log for ULTR
+research. Aggregating individual impressions to $(q, d, \mathrm{pos})$ cells gives:
 
 \begin{itemize}
-  \item \textbf{94.1\%} of $(q, d, \mathrm{pos})$ cells have $N = 1$ impression; \textbf{98.7\%} have $N \leq 3$ (mean 1.16).
-  \item Only \textbf{4.3\%} of $(q, d)$ pairs appear at two or more distinct positions---the minimum requirement for any intervention harvesting estimator.
-  \item Among the 454\,K adjacent-pair items that do qualify, the impression ratio $N_k / N_{k+1}$ is tightly concentrated near~1: \textbf{78.4\%} of pairs fall within $[0.5, 2.0]$, the median ratio is~1.0, and only 0.8\% exceed 10.
+  \item \textbf{94.1\%} of $(q, d, \mathrm{pos})$ cells have $N = 1$ impression; \textbf{98.7\%}
+    have $N \leq 3$ (mean 1.16).
+  \item Only \textbf{4.3\%} of $(q, d)$ pairs appear at two or more distinct positions.
+  \item Among the 454\,K qualifying adjacent-pair items, the impression ratio $N_k / N_{k+1}$
+    is tightly concentrated near~1: \textbf{78.4\%} of pairs fall within $[0.5, 2.0]$, median
+    ratio $\approx 1.0$, only 0.8\% exceed 10.
 \end{itemize}
 
-\noindent
-These statistics confirm that Baidu-ULTR does not exhibit the systematic impression imbalance our method addresses.
-Harmonic weighting offers no advantage over original in this regime: when $N_k \approx N_{k'}$, all $\omega_i^h = N_k N_{k'} / (N_k + N_{k'}) \approx N_k / 2$, and the ratio estimator reduces to the original.
-The method is primarily relevant to production A/B-testing systems with proprietary logs where anchor documents accumulate disproportionate traffic at one position, as modelled in Experiments~\ref{sec:exp1}--\ref{sec:exp2}.
+\paragraph{Why this is a property of the released dataset, not of production logs.}
+The published Baidu-ULTR release has been deduplicated and aggregated for distribution: per-row
+impressions are not preserved, and 94\% of cells appear with $N=1$ because the release is
+effectively a deduplicated query-document-position trace. A ranker deployed in production rarely
+shows a given $(q,d)$ at the same position only once; production click logs without
+post-hoc deduplication routinely accumulate dozens to hundreds of impressions on the same
+$(q,d,\mathrm{pos})$, with the count distribution highly imbalanced across positions because
+of A/B-testing traffic splits and ranker-policy heterogeneity. The conditions that make
+weighting matter ---heterogeneous $N_k^i$ across documents, with anchor items concentrating
+traffic at one position--- are erased by the dataset's pre-release aggregation, not absent
+from the underlying click stream. This is therefore a limitation of \emph{this public dataset
+as released}, not of the method's applicability to real production logs.
+
+\paragraph{Implications for our analysis.}
+Public click logs that preserve raw per-impression counts (or reasonable aggregations of them)
+are needed to validate harmonic on real data. We hope the present paper motivates such releases.
+In the meantime, the production A/B-testing simulation (Section~\ref{sec:exp6_prod}) and the
+semi-synthetic Yahoo experiment (Section~\ref{sec:exp3}) are the closest available proxies:
+neither is a real production log, and we mark them as such throughout.
 
 \section{Related Work and Conclusion}
 \label{sec:related_work}
 
 Position bias estimation methods broadly fall into three categories: randomized interventions, joint relevance-propensity models, and intervention harvesting.
 
-\textbf{Randomized interventions} explicitly manipulate result rankings to estimate examination probabilities \cite{joachims2017unbiased, wang2018position}. These approaches guarantee unbiasedness by randomizing item placements, yet they significantly degrade the user experience due to intrusive changes in rankings \cite{Joachims2017}.
+\textbf{Randomized interventions} explicitly manipulate result rankings to estimate examination probabilities \cite{joachims2017unbiased, wang2018position}. These approaches guarantee unbiasedness by randomizing item placements, yet they significantly degrade the user experience due to intrusive changes in rankings \cite{joachims2017unbiased}.
 
-\textbf{Joint relevance-propensity models} simultaneously estimate relevance and propensity from observational data using techniques like Expectation-Maximization (EM) \cite{wang2018position, Wang2018}. Extensions such as PAL \cite{pai2020pal} integrate position-bias correction directly into CTR prediction models for recommender systems. While these methods are non-intrusive, they require a parametric relevance model; empirical comparison against intervention harvesting is therefore methodologically ill-posed, since the two paradigms solve different estimation problems (parametric relevance-and-propensity joint inference vs.\ model-free propensity-only estimation).
+\textbf{Joint relevance-propensity models} simultaneously estimate relevance and propensity from observational data using techniques like Expectation-Maximization (EM) \cite{wang2018position, wang2018position}. Extensions such as PAL \cite{pai2020pal} integrate position-bias correction directly into CTR prediction models for recommender systems. While these methods are non-intrusive, they require a parametric relevance model; empirical comparison against intervention harvesting is therefore methodologically ill-posed, since the two paradigms solve different estimation problems (parametric relevance-and-propensity joint inference vs.\ model-free propensity-only estimation).
 
 \textbf{Intervention harvesting approaches}, originally proposed by \cite{agarwal2019estimating}, leverage natural ranking variations from multiple historical rankers, eliminating explicit randomization. Such methods preserve user experience while producing unbiased propensity estimates without assuming a relevance model. Extensions of this idea include temporal fluctuations in e-commerce search rankings \cite{aslanyan2019eCommerceBias} and policy-aware estimation from bandit logs \cite{oosterhuis2023DoublyRobustLTR}.
 
@@ -486,12 +569,55 @@ We have presented harmonic weighting as a drop-in replacement for the weighting 
   \item A unified ratio estimator framework: any count-dependent weight preserves ratio-unbiasedness (Theorem~\ref{thm:ratio_unbiased})
   \item An exact Cauchy–Schwarz guarantee: harmonic always reduces the variance surrogate $V_k + V_{k'}$ (Theorem~\ref{thm:cs}), yielding lower approximate ratio variance under the delta-method expansion
   \item Oracle asymmetric characterization: exact surrogate-optimal weight $\omega_i^*$ (Eq.~\ref{eq:omega_star}) unconditionally beats original (Theorem~\ref{thm:asymmetric}, Corollary~\ref{cor:beats_original}); harmonic is its $\alpha{=}\beta$ special case (Corollary~\ref{cor:harmonic_special}), motivating it as the parameter-free practical choice
-  \item Empirical validation showing up to 55\% variance reduction versus original, confirmed on Yahoo semi-synthetic and production A/B simulation; under tested PBM violations, original, min, and harmonic share comparable bias, making lower variance directly advantageous for MSE
+  \item Empirical observations of up to $\sim$55\% variance reduction versus original in our
+        tested $(s, r)$ grid, mirrored on Yahoo semi-synthetic data and a production-style
+        traffic simulation; under tested PBM violations, original, min, and harmonic share
+        comparable bias, so the lower variance translates into lower MSE within these regimes
 \end{itemize}
 
 Our implementation and all experiments presented in this paper will be publicly available after acceptance. The implementation builds upon the unbiased learning-to-rank toolkit by \cite{Hager2024}, which provides a comprehensive framework for position bias estimation and evaluation.
 
-Several directions remain open. First, the Cauchy–Schwarz guarantee covers the per-pair ratio $\hat{R}_{k,k'}$; extending the variance analysis to the full AdjacentChain product estimator requires bounding error propagation through the chain. Second, Theorem~\ref{thm:asymmetric} motivates a natural two-stage adaptive refinement: use harmonic to obtain preliminary propensity estimates $\hat{p}_k$, compute $\hat{\alpha},\hat{\beta}$, then form plug-in weights $\hat{\omega}_i^* \propto N_k^i N_{k'}^i / (\hat{\alpha}N_{k'}^i + \hat{\beta}N_k^i)$ on held-out data; the held-out construction preserves count-only weighting and should approach the oracle optimum as the preliminary propensity estimates improve. Third, applying the asymmetric optimum to non-adjacent interventional sets and doubly robust LTR objectives are natural extensions.
+Several directions remain open.
+
+\textbf{(a) AdjacentChain error propagation.}
+Our theory covers the per-pair ratio $\hat{R}_{k,k'}$. The deployed AdjacentChain estimator
+multiplies $M-1$ such ratios to recover absolute propensities, and chain-length sensitivity is
+not directly characterised by Theorem~\ref{thm:cs}. An empirical study varying chain
+length (positions 1--3, 1--5, 1--10) and including non-adjacent interventional sets, with MSE
+reported on the final propensity estimate (not just the per-pair ratio), would close this gap.
+
+\textbf{(b) Adversarial regimes for harmonic.}
+Theorem~\ref{thm:cs} guarantees that harmonic reduces $V_k+V_{k'}$ unconditionally. The full
+delta-method variance is $\alpha V_k + \beta V_{k'}$, and for sufficiently asymmetric
+$(\alpha,\beta)$ the oracle weight $\omega_i^*$ (Eq.~\ref{eq:omega_star}) can in principle differ
+materially from $\omega_i^h$. We have not encountered a tested grid configuration where
+harmonic underperforms original on $\mathrm{Var}(\hat{R}\mid\mathbf{N})$ itself, but
+characterising the boundary explicitly --- including any worst-case count configuration ---
+remains open.
+
+\textbf{(c) Plug-in oracle.}
+Theorem~\ref{thm:asymmetric} motivates a two-stage adaptive scheme: use harmonic to obtain
+preliminary $\hat{p}_k$, compute $\hat\alpha, \hat\beta$, then form plug-in weights
+$\hat\omega_i^* \propto N_k^i N_{k'}^i / (\hat\alpha N_{k'}^i + \hat\beta N_k^i)$ on held-out
+data. Held-out construction preserves count-only weighting and should approach the oracle
+asymptotically. We have not yet implemented this; if it consistently improves over harmonic, it
+becomes the stronger contribution; if not, it strengthens harmonic as the parameter-free choice.
+
+\textbf{(d) Statistical reporting.}
+Tables~\ref{tab:exp1_results}, \ref{tab:pbm_violations}, \ref{tab:yahoo_results} report point
+estimates over 200--500 trials. Adding standard errors and paired confidence intervals
+(particularly on the harmonic--min margin) is a writing-pass priority; some 5--7\% gaps may not
+survive significance testing.
+
+\textbf{(e) Realistic ranker overlap.}
+Our production-style simulation (Section~\ref{sec:exp6_prod}) uses adjacent swaps with
+probability 0.5. More realistic experiments would use correlated-score perturbations or
+learned-ranker variations; this is straightforward future work.
+
+\textbf{(f) Real production-log validation.}
+The most important missing piece is validation on a click log that preserves per-impression
+counts (the deduplicated Baidu-ULTR release does not, see Section~\ref{sec:baidu}). We hope this
+work motivates such releases.
 
 
 

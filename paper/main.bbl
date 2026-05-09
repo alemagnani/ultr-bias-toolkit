@@ -2,7 +2,7 @@
 %%% Do NOT edit. File created by BibTeX with style
 %%% ACM-Reference-Format-Journals [18-Jan-2012].
 
-\begin{thebibliography}{18}
+\begin{thebibliography}{16}
 
 %%% ====================================================================
 %%% NOTE TO THE USER: you can override these defaults by providing
@@ -136,25 +136,15 @@
 \newblock
 
 
-\bibitem[Joachims et~al\mbox{.}(2017a)]%
+\bibitem[Joachims et~al\mbox{.}(2017)]%
         {joachims2017unbiased}
 \bibfield{author}{\bibinfo{person}{Thorsten Joachims}, \bibinfo{person}{Adith
   Swaminathan}, {and} \bibinfo{person}{Tobias Schnabel}.}
-  \bibinfo{year}{2017}\natexlab{a}.
+  \bibinfo{year}{2017}\natexlab{}.
 \newblock \showarticletitle{Unbiased Learning-to-Rank with Biased Feedback}. In
   \bibinfo{booktitle}{\emph{Proceedings of the 10th ACM International
   Conference on Web Search and Data Mining (WSDM)}}. \bibinfo{publisher}{ACM},
   \bibinfo{pages}{781--789}.
-\newblock
-
-
-\bibitem[Joachims et~al\mbox{.}(2017b)]%
-        {Joachims2017}
-\bibfield{author}{\bibinfo{person}{Thorsten Joachims}, \bibinfo{person}{Adith
-  Swaminathan}, {and} \bibinfo{person}{Tobias Schnabel}.}
-  \bibinfo{year}{2017}\natexlab{b}.
-\newblock \showarticletitle{Unbiased Learning-to-Rank with Biased Feedback}. In
-  \bibinfo{booktitle}{\emph{WSDM}}. \bibinfo{pages}{781--789}.
 \newblock
 
 
@@ -213,29 +203,16 @@
 \newblock
 
 
-\bibitem[Wang et~al\mbox{.}(2018a)]%
+\bibitem[Wang et~al\mbox{.}(2018)]%
         {wang2018position}
 \bibfield{author}{\bibinfo{person}{Xuanhui Wang}, \bibinfo{person}{Nadav
   Golbandi}, \bibinfo{person}{Michael Bendersky}, \bibinfo{person}{Donald
   Metzler}, {and} \bibinfo{person}{Marc Najork}.}
-  \bibinfo{year}{2018}\natexlab{a}.
+  \bibinfo{year}{2018}\natexlab{}.
 \newblock \showarticletitle{Position Bias Estimation for Unbiased Learning to
   Rank in Personal Search}. In \bibinfo{booktitle}{\emph{Proceedings of the
   11th ACM International Conference on Web Search and Data Mining (WSDM)}}.
   \bibinfo{publisher}{ACM}, \bibinfo{pages}{610--618}.
-\newblock
-
-
-\bibitem[Wang et~al\mbox{.}(2018b)]%
-        {Wang2018}
-\bibfield{author}{\bibinfo{person}{Xuanhui Wang}, \bibinfo{person}{Nadav
-  Golbandi}, \bibinfo{person}{Michael Bendersky}, \bibinfo{person}{Donald
-  Metzler}, {and} \bibinfo{person}{Marc Najork}.}
-  \bibinfo{year}{2018}\natexlab{b}.
-\newblock \showarticletitle{Position Bias Estimation for Unbiased Learning to
-  Rank in Personal Search}. In \bibinfo{booktitle}{\emph{Proceedings of the
-  11th ACM International Conference on Web Search and Data Mining (WSDM)}}.
-  \bibinfo{pages}{610--618}.
 \newblock
 
 

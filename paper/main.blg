@@ -6,46 +6,6 @@ Reallocated singl_function (elt_size=8) to 100 items from 50.
 Reallocated singl_function (elt_size=8) to 100 items from 50.
 Reallocated wiz_functions (elt_size=8) to 6000 items from 3000.
 Database file #1: refs.bib
-Repeated entry---line 161 of file refs.bib
- : @inproceedings{Hager2024
- :                         ,
-I'm skipping whatever remains of this entry
-Repeated entry---line 208 of file refs.bib
- : @inproceedings{agarwal2019estimating
- :                                     ,
-I'm skipping whatever remains of this entry
-Repeated entry---line 216 of file refs.bib
- : @inproceedings{aslanyan2019eCommerceBias
- :                                         ,
-I'm skipping whatever remains of this entry
-Repeated entry---line 223 of file refs.bib
- : @article{bottou2013counterfactual
- :                                  ,
-I'm skipping whatever remains of this entry
-Repeated entry---line 233 of file refs.bib
- : @inproceedings{dudik2011doubly
- :                               ,
-I'm skipping whatever remains of this entry
-Repeated entry---line 241 of file refs.bib
- : @inproceedings{joachims2017unbiased
- :                                    ,
-I'm skipping whatever remains of this entry
-Repeated entry---line 249 of file refs.bib
- : @techreport{kong1992note
- :                         ,
-I'm skipping whatever remains of this entry
-Repeated entry---line 257 of file refs.bib
- : @article{oosterhuis2023DoublyRobustLTR
- :                                       ,
-I'm skipping whatever remains of this entry
-Repeated entry---line 267 of file refs.bib
- : @inproceedings{swaminathan2015CRM
- :                                  ,
-I'm skipping whatever remains of this entry
-Repeated entry---line 275 of file refs.bib
- : @inproceedings{swaminathan2015batch
- :                                    ,
-I'm skipping whatever remains of this entry
 Reallocated singl_function (elt_size=8) to 100 items from 50.
 Reallocated wiz_functions (elt_size=8) to 9000 items from 6000.
 Reallocated glb_str_ptr (elt_size=8) to 20 items from 10.
@@ -69,8 +29,6 @@ Warning--empty publisher in Hager2024
 Warning--empty address in Hager2024
 Warning--page numbers missing in both pages and numpages fields in Hager2024
 Warning--empty address in joachims2017unbiased
-Warning--empty publisher in Joachims2017
-Warning--empty address in Joachims2017
 Warning--page numbers missing in both pages and numpages fields in kong1992note
 Warning--page numbers missing in both pages and numpages fields in oosterhuis2023DoublyRobustLTR
 Warning--empty publisher in richardson2007predicting
@@ -79,49 +37,47 @@ Warning--empty address in swaminathan2015CRM
 Warning--empty publisher in swaminathan2015batch
 Warning--empty address in swaminathan2015batch
 Warning--empty address in wang2018position
-Warning--empty publisher in Wang2018
-Warning--empty address in Wang2018
 Warning--empty publisher in zou2022large
 Warning--empty address in zou2022large
-You've used 18 entries,
+You've used 16 entries,
             6273 wiz_defined-function locations,
-            1620 strings with 22144 characters,
-and the built_in function-call counts, 21660 in all, are:
-= -- 2363
-> -- 717
+            1613 strings with 21953 characters,
+and the built_in function-call counts, 19274 in all, are:
+= -- 2117
+> -- 641
 < -- 0
-+ -- 250
-- -- 248
-* -- 1525
-:= -- 2080
-add.period$ -- 90
-call.type$ -- 18
-change.case$ -- 142
++ -- 222
+- -- 224
+* -- 1357
+:= -- 1854
+add.period$ -- 80
+call.type$ -- 16
+change.case$ -- 126
 chr.to.int$ -- 15
-cite$ -- 49
-duplicate$ -- 2077
-empty$ -- 1447
-format.name$ -- 309
-if$ -- 5175
-int.to.chr$ -- 5
+cite$ -- 43
+duplicate$ -- 1839
+empty$ -- 1281
+format.name$ -- 279
+if$ -- 4599
+int.to.chr$ -- 3
 int.to.str$ -- 1
-missing$ -- 85
-newline$ -- 171
-num.names$ -- 123
-pop$ -- 943
+missing$ -- 75
+newline$ -- 157
+num.names$ -- 111
+pop$ -- 829
 preamble$ -- 1
-purify$ -- 280
+purify$ -- 252
 quote$ -- 0
-skip$ -- 765
+skip$ -- 681
 stack$ -- 0
-substring$ -- 1581
-swap$ -- 203
+substring$ -- 1397
+swap$ -- 177
 text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 479
-warning$ -- 31
-while$ -- 116
+type$ -- 431
+warning$ -- 27
+while$ -- 104
 width$ -- 0
-write$ -- 371
-(There were 10 error messages)
+write$ -- 335
+(There were 27 warnings)
