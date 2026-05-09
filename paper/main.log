@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.4.11)  12 APR 2026 23:57
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.4.11)  9 MAY 2026 15:08
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1159,7 +1159,7 @@ Package hyperref Warning: Token not allowed in a PDF string (Unicode):
 LaTeX Font Info:    Font shape `T1/LinuxBiolinumT-TLF/m/it' will be
 (Font)              scaled to size 9.0pt on input line 305.
 [3.3]
-<../images/exp1_imbalance_sweep/exp1_variance_vs_imbalance.png, id=193, 1011.78
+<../images/exp1_imbalance_sweep/exp1_variance_vs_imbalance.png, id=194, 1011.78
 pt x 361.35pt>
 File: ../images/exp1_imbalance_sweep/exp1_variance_vs_imbalance.png Graphic fil
 e (type png)
@@ -1182,7 +1182,7 @@ Overfull \hbox (2.86215pt too wide) in paragraph at lines 330--340
  [][] 
  []
 
-<../images/exp1_imbalance_sweep/exp1_variance_reduction.png, id=200, 722.7pt x 
+<../images/exp1_imbalance_sweep/exp1_variance_reduction.png, id=201, 722.7pt x 
 433.62pt>
 File: ../images/exp1_imbalance_sweep/exp1_variance_reduction.png Graphic file (
 type png)
@@ -1198,7 +1198,7 @@ Overfull \hbox (1.87193pt too wide) in paragraph at lines 348--349
 
 Class acmart Warning: A possible image without description on input line 351.
 
-<../images/exp1_imbalance_sweep/exp1_variance_vs_split.png, id=201, 1011.78pt x
+<../images/exp1_imbalance_sweep/exp1_variance_vs_split.png, id=202, 1011.78pt x
  361.35pt>
 File: ../images/exp1_imbalance_sweep/exp1_variance_vs_split.png Graphic file (t
 ype png)
@@ -1214,7 +1214,7 @@ Overfull \hbox (1.87193pt too wide) in paragraph at lines 355--356
 
 Class acmart Warning: A possible image without description on input line 358.
 
-<../images/exp2_pbm_violations/exp2_mse_decomposition.png, id=202, 1084.05pt x 
+<../images/exp2_pbm_violations/exp2_mse_decomposition.png, id=203, 1084.05pt x 
 361.35pt>
 File: ../images/exp2_pbm_violations/exp2_mse_decomposition.png Graphic file (ty
 pe png)
@@ -1234,7 +1234,7 @@ Class acmart Warning: A possible image without description on input line 367.
 /exp1_imbalance_sweep/exp1_variance_reduction.png> <../images/exp1_imbalance_sw
 eep/exp1_variance_vs_split.png> <../images/exp2_pbm_violations/exp2_mse_decompo
 sition.png>]
-<../images/exp4_sample_efficiency/exp4_mse_vs_impressions.png, id=220, 578.16pt
+<../images/exp4_sample_efficiency/exp4_mse_vs_impressions.png, id=221, 578.16pt
  x 361.35pt>
 File: ../images/exp4_sample_efficiency/exp4_mse_vs_impressions.png Graphic file
  (type png)
@@ -1251,7 +1251,7 @@ f the data.
 
 Class acmart Warning: A possible image without description on input line 399.
 
-<../images/exp3_yahoo/exp3_variance_vs_imbalance.png, id=223, 1011.78pt x 361.3
+<../images/exp3_yahoo/exp3_variance_vs_imbalance.png, id=224, 1011.78pt x 361.3
 5pt>
 File: ../images/exp3_yahoo/exp3_variance_vs_imbalance.png Graphic file (type pn
 g)
@@ -1267,7 +1267,7 @@ Overfull \hbox (1.87193pt too wide) in paragraph at lines 432--433
 
 Class acmart Warning: A possible image without description on input line 435.
 
-<../images/exp5_production/exp5_ratio_distribution.png, id=226, 867.24pt x 289.
+<../images/exp5_production/exp5_ratio_distribution.png, id=227, 867.24pt x 289.
 08pt>
 File: ../images/exp5_production/exp5_ratio_distribution.png Graphic file (type 
 png)
@@ -1310,10 +1310,6 @@ Class acmart Warning: ACM keywords are mandatory for papers over two pages.
 
 Class acmart Warning: CCS concepts are mandatory for papers over two pages.
 
-
-Overfull \vbox (1.119pt too high) has occurred while \output is active []
-
-
 (/usr/share/texmf-dist/tex/generic/stringenc/se-pdfdoc.def
 File: se-pdfdoc.def 2019/11/29 v1.12 stringenc: PDFDocEncoding
 )
@@ -1330,7 +1326,7 @@ Package rerunfilecheck Info: File `main.out' has not changed.
 Here is how much of TeX's memory you used:
  21729 strings out of 469515
  353459 string characters out of 5470807
- 836661 words of memory out of 5000000
+ 837733 words of memory out of 5000000
  49170 multiletter control sequences out of 15000+600000
  846959 words of font info for 534 fonts, out of 8000000 for 9000
  175 hyphenation exceptions out of 8191
@@ -1349,10 +1345,10 @@ xmf-dist/fonts/type1/public/libertine/LinLibertineTZ.pfb></usr/share/texmf-dist
 /newtx/txexs.pfb></usr/share/texmf-dist/fonts/type1/public/newtx/txmiaX.pfb></u
 sr/share/texmf-dist/fonts/type1/public/newtx/txsym.pfb></usr/share/texmf-dist/f
 onts/type1/public/newtx/txsys.pfb>
-Output written on main.pdf (7 pages, 1176070 bytes).
+Output written on main.pdf (7 pages, 1176427 bytes).
 PDF statistics:
- 396 PDF objects out of 1000 (max. 8388607)
- 329 compressed objects within 4 object streams
+ 397 PDF objects out of 1000 (max. 8388607)
+ 330 compressed objects within 4 object streams
  79 named destinations out of 1000 (max. 500000)
  121076 words of extra memory for PDF output out of 128383 (max. 10000000)
 
