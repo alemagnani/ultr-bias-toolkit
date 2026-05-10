@@ -3,3 +3,13 @@
 
 *.pyc
 dist/
+
+# Local-only large artifacts
+data/
+.claude/
+texput.log
+paper/main.aux
+paper/main.log
+paper/main.bbl
+paper/main.blg
+paper/main.out

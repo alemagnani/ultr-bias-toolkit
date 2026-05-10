@@ -32,7 +32,7 @@ from ultr_bias_toolkit.bias.intervention_harvesting.adjacent_chain import Adjace
 # ---------------------------------------------------------------------------
 NUM_POSITIONS = 10
 ETA = 1.0
-NUM_TRIALS = 500
+NUM_TRIALS = 5000
 NUM_QUERIES = 1          # single query with many (doc, position) pairs
 NUM_DOCS = 50            # docs shown at both positions in each adjacent pair
 RESULTS_DIR = "images/exp1_imbalance_sweep"

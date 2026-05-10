@@ -36,7 +36,7 @@ from ultr_bias_toolkit.bias.intervention_harvesting.adjacent_chain import Adjace
 # ---------------------------------------------------------------------------
 NUM_POSITIONS = 10
 ETA = 1.0
-NUM_TRIALS = 500
+NUM_TRIALS = 5000
 NUM_DOCS = 50
 BASE_IMPRESSIONS = 20
 IMBALANCE_RATIO = 50.0   # N_k / N_kp for anchor docs

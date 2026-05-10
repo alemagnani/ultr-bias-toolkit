@@ -54,11 +54,31 @@
 \begin{document}
 
 \begin{abstract}
-Presentation bias remains a major challenge in learning-to-rank from implicit feedback, as it obscures the true relevance signal. We extend the intervention harvesting estimator of Agarwal et al.~\cite{agarwal2019estimating}---which estimates position bias from naturally occurring ranking variations without intrusive randomization---with a single principled modification: replacing their weighting scheme with \emph{harmonic weighting}. This drop-in replacement retains the same ratio-of-expectations property (the sense in which the original estimator is ``ratio-unbiased'') while reducing the delta-method variance surrogate $V_k+V_{k'}$ unconditionally and the empirical MSE substantially in tested regimes. We establish an exact Cauchy–Schwarz guarantee that harmonic always reduces the delta-method variance surrogate $V_k+V_{k'}$, prove that harmonic is variance-optimal in the symmetric setting ($\alpha=\beta$), and derive the exact oracle optimum for the asymmetric case---which motivates harmonic as a parameter-free approximation and recovers it exactly when $\alpha=\beta$. Empirically, we observe variance reductions up to $\sim$55\% in synthetic imbalanced regimes
-in our tested grid, mirrored on semi-synthetic data that uses real Yahoo LTR relevance labels
-with simulated clicks. In one tested configuration (ratio 50:1, traffic split 80/20) harmonic
-achieves the same MSE as original with roughly half the data; we report this as a single
-data-efficiency point, not a global claim. We also show that original, min, and harmonic exhibit comparable bias under tested Position-Based Model violations, making lower-variance estimation directly advantageous for mean squared error.
+Presentation bias remains a major challenge in learning-to-rank from implicit feedback,
+as it obscures the true relevance signal. We extend the intervention harvesting estimator
+of Agarwal et al.~\cite{agarwal2019estimating} --- which estimates position bias from
+naturally occurring ranking variations without intrusive randomization --- with a single
+principled modification: replacing their weighting scheme with \emph{harmonic weighting}.
+This drop-in replacement retains the same ratio-of-expectations property and reduces both
+the symmetric delta-method variance surrogate $V_k+V_{k'}$ (unconditionally, by an exact
+Cauchy--Schwarz argument) and the empirical MSE in tested regimes. Harmonic is the
+$\alpha = \beta$ special case of an exact oracle weight $\omega_i^* \propto N_k^i N_{k'}^i /
+(\alpha N_{k'}^i + \beta N_k^i)$ which we derive as a benchmark. The asymmetric analogue of
+the Cauchy--Schwarz bound does \emph{not} hold unconditionally --- we exhibit closed-form
+counterexamples --- but we show empirically that all realistic regimes we tested (synthetic,
+semi-synthetic, and real) avoid the failure pattern. Empirically, harmonic reduces MSE by up to $\sim 55\%$ versus uniform on synthetic
+imbalanced data and semi-synthetic Yahoo LTR data (where ground truth is available).
+On the full KDD Cup 2012 Track 2 sponsored-search log (235\,M impressions, 4.6\,M
+interventional $(q,\mathrm{ad})$ pairs at the $(1,2)$ pair), where ground-truth
+propensities are unknown, the variance \emph{surrogate} $V_k+V_{k+1}$ --- a
+deterministic algebraic functional of the observed counts that
+Theorem~\ref{thm:cs} bounds --- is reduced by $73$--$79\%$ versus uniform. Under Position-Based Model
+violations (trust, cascade, and position-dependent relevance), original, min, and harmonic
+have comparable bias, so the lower variance translates into lower MSE. The empirical gap
+between harmonic and the closely related min-weighting heuristic of \cite{agarwal2019estimating}
+is small ($\sim 5$--$7\%$) and not statistically distinguishable in the most-imbalanced
+regimes, so the contribution lies in the principled derivation and the unconditional
+symmetric guarantee, not in a large empirical margin over min.
 \end{abstract}
 
 \maketitle
@@ -72,7 +92,22 @@ Recent advances in counterfactual learning-to-rank have shown that unbiased lear
 
 Intervention harvesting \cite{agarwal2019estimating} avoids explicit randomization by leveraging naturally occurring ranking variations across concurrently deployed rankers. However, their weighting scheme can produce high estimator variance when impression counts are imbalanced --- a common situation in production traffic where some documents accumulate disproportionate traffic at one position relative to another (e.g.\ anchor items in A/B-tested rankers).
 
-\textbf{This paper directly extends Agarwal et al.~\cite{agarwal2019estimating}.} We keep their entire framework—PBM model, interventional sets, ratio estimator, AdjacentChain aggregation—and propose a single modification: replacing their weighting scheme with harmonic weighting. Key contributions: (1) any count-dependent weight preserves ratio-unbiasedness; (2) an exact Cauchy–Schwarz guarantee that harmonic always reduces the variance surrogate $V_k + V_{k'}$, yielding lower approximate ratio variance under the delta-method expansion; (3) exact optimality when propensities are equal; (4) up to 55\% variance reduction in synthetic and semi-synthetic (Yahoo LTR) experiments; (5) harmonic requires roughly \textbf{half the data} to match the original estimator's accuracy.
+\textbf{This paper directly extends Agarwal et al.~\cite{agarwal2019estimating}.} We keep
+their entire framework — PBM model, interventional sets, ratio estimator, AdjacentChain
+aggregation — and propose a single modification: replacing their weighting scheme with
+harmonic weighting. Key contributions: (1) any count-dependent weight preserves
+ratio-unbiasedness (Theorem~\ref{thm:ratio_unbiased}); (2) an exact unconditional
+Cauchy--Schwarz guarantee that harmonic reduces the symmetric variance surrogate
+$V_k+V_{k'}$ (Theorem~\ref{thm:cs}), with optimality at $\alpha=\beta$
+(Theorem~\ref{thm:optimality}); (3) the exact oracle weight $\omega^*$ for the asymmetric
+case (Theorem~\ref{thm:asymmetric}), of which harmonic is the parameter-free
+$\alpha=\beta$ special case; (4) explicit counterexamples showing the asymmetric
+Cauchy--Schwarz bound \emph{fails} under degenerate count patterns, and structural
+arguments that those patterns do not arise in realistic distributions; (5) MSE
+reduction up to $\sim 55\%$ on synthetic and semi-synthetic data (with ground
+truth), and a $73$--$79\%$ reduction of the variance \emph{surrogate} $V_k+V_{k+1}$
+on the real KDD Cup 2012 Track 2 sponsored-search log (where ground truth is
+unavailable; bootstrap-std behaves differently at scale, see Section~\ref{sec:kdd2012}).
 
 \section{Background and Preliminaries}
 \label{sec:background}
@@ -164,19 +199,21 @@ $p_k/p_{k'}$ as the interventional set $|S_{k,k'}|$ grows under standard regular
 \end{theorem}
 
 \begin{proof}
-Since $\omega_i$ is independent of $C_k^i$ given $N_k^i, N_{k'}^i$, conditioning on counts:
+By definition $S_{k,k'}$ contains only pairs with $N_k^i, N_{k'}^i \geq 1$, so
+$1/N_k^i$ and $1/N_{k'}^i$ are well-defined on the conditioning event. Apply the
+tower property by first conditioning on the counts:
 \begin{align*}
-\mathbb{E}[A] &= \mathbb{E}\left[\sum_i \omega_i \frac{C_k^i}{N_k^i}\right] = \sum_{(q,d)} \mathbb{E}\left[\omega_i \cdot \frac{\mathbb{E}[C_k^i | N_k^i, N_{k'}^i]}{N_k^i}\right]
+\mathbb{E}[A] &= \sum_{(q,d) \in S_{k,k'}} \mathbb{E}\!\left[\omega_i \cdot \frac{\mathbb{E}[C_k^i \mid N_k^i, N_{k'}^i]}{N_k^i}\right],
 \end{align*}
-
-Under PBM, $\mathbb{E}[C_k^i | N_k^i, N_{k'}^i] = N_k^i \cdot p_k \cdot \textrm{rel}(q,d)$, so the $N_k^i$ terms cancel:
+where we used that $\omega_i = \omega(N_k^i, N_{k'}^i)$ is measurable w.r.t.\ the
+counts. Under PBM, $C_k^i \mid N_k^i, N_{k'}^i \sim \mathrm{Binomial}(N_k^i, p_k\,\textrm{rel}(q,d))$,
+so $\mathbb{E}[C_k^i \mid N_k^i, N_{k'}^i] = N_k^i \cdot p_k \cdot \textrm{rel}(q,d)$, and
+the $N_k^i$ terms cancel:
 \begin{align*}
-\mathbb{E}[A] &= p_k \sum_{(q,d)} \textrm{rel}(q,d) \cdot \mathbb{E}[\omega_i]
+\mathbb{E}[A] &= p_k \sum_{(q,d)} \textrm{rel}(q,d) \cdot \mathbb{E}[\omega_i].
 \end{align*}
-
-By the same argument, $\mathbb{E}[B] = p_{k'} \sum_{(q,d)} \textrm{rel}(q,d) \cdot \mathbb{E}[\omega_i]$.
-
-Taking the ratio and canceling the common factor (which is positive) yields $\mathbb{E}[A]/\mathbb{E}[B] = p_k/p_{k'}$.
+By the same argument $\mathbb{E}[B] = p_{k'} \sum_{(q,d)} \textrm{rel}(q,d) \cdot \mathbb{E}[\omega_i]$, and
+the common factor cancels in the ratio.
 \end{proof}
 
 The theorem applies to original, min, and harmonic weighting. Clipped weighting falls outside
@@ -260,7 +297,11 @@ When $\alpha = \beta$ (i.e., $p_k = p_{k'}$, as holds when adjacent propensities
 
 \begin{theorem}[Harmonic optimality]
 \label{thm:optimality}
-Among all weight functions $\omega_i = f(N_k^i, N_{k'}^i)$ with $f$ symmetric (i.e., $f(a,b) = f(b,a)$), when $\alpha = \beta$, harmonic weighting minimizes the conditional variance $\mathrm{Var}(\hat{R} \mid \mathbf{N})$.
+Among all non-negative weights $\omega_i \geq 0$ depending arbitrarily on the
+counts, when $\alpha = \beta$, harmonic weighting minimises the conditional
+variance surrogate $\alpha[V_k(\omega)+V_{k'}(\omega)]$ in
+Proposition~\ref{prop:delta_method} (and hence the delta-method approximation
+to $\mathrm{Var}(\hat{R} \mid \mathbf{N})$).
 \end{theorem}
 
 \begin{proof}
@@ -347,9 +388,10 @@ We simulate the anchor-item model common in production systems: a fraction $s$ (
 \subsubsection{Experiment 2: PBM Violations}
 \label{sec:exp2}
 
-We test robustness to model misspecification under two violation models:
+We test robustness to model misspecification under three violation models:
 \begin{itemize}
 \item \textbf{Trust bias}: $\mathrm{Pr}(C=1|q,d,k) = p_k \cdot \mathrm{rel}(q,d) + \epsilon_k \cdot (1 - \mathrm{rel}(q,d))$, where $\epsilon_k$ is a position-dependent trust effect \cite{agarwal2019estimating}
+\item \textbf{Cascade}: examination at position $k$ requires no click at any prior position, so $\mathrm{Pr}(E=1|k)$ depends on $\mathrm{rel}(q,d')$ for $d'$ above $d$ — a structural violation of PBM's position-only assumption \cite{craswell2008experimental}
 \item \textbf{Position-dependent relevance}: $\mathrm{Pr}(C=1|q,d,k) = p_k \cdot \mathrm{rel}(q,d,k)$ where relevance varies with position
 \end{itemize}
 
@@ -418,7 +460,7 @@ consistent but modest ($\sim$5--7\%); the contribution of harmonic is the princi
     \label{fig:pbm_violations}
 \end{figure}
 
-Figure~\ref{fig:pbm_violations} and Table~\ref{tab:pbm_violations} summarize results. Two findings stand out. First, original, min, and harmonic weighting all have \emph{comparable bias$^2$} under each violation model, substantially lower than clipped. This is consistent with all three being ratio-unbiased under PBM: when PBM fails, the residual bias within the intervention-harvesting family is determined by the model mismatch rather than the weight choice. Second, because bias is comparable across these three schemes, the lower variance of harmonic directly translates into lower MSE: 47\% lower than original under trust bias, 22\% lower under position-dependent relevance.
+Figure~\ref{fig:pbm_violations} and Table~\ref{tab:pbm_violations} summarize results. Three findings stand out. First, original, min, and harmonic weighting all have \emph{comparable bias$^2$} within each violation model, substantially lower than clipped. This is consistent with all three being ratio-unbiased under PBM: when PBM fails, the residual bias within the intervention-harvesting family is determined by the model mismatch rather than the weight choice. Second, because bias is comparable across these three schemes, harmonic's lower variance translates into lower MSE: 44\% lower than original under trust bias, 47\% lower under cascade, and 9\% lower under position-dependent relevance. Third, the cascade model is the hardest setting we tested: all three schemes incur bias$^2 \approx 0.011$ from the structural mismatch (cascade's history-dependent examination cannot be captured by any per-position propensity), so the variance edge no longer dominates total MSE — harmonic and min trade essentially identical MSE.
 
 \begin{table}[h]
     \small
@@ -427,16 +469,31 @@ Figure~\ref{fig:pbm_violations} and Table~\ref{tab:pbm_violations} summarize res
         \toprule
         Model & Scheme & MSE & Variance & Bias$^2$ \\
         \midrule
-        \multirow{3}{*}{Trust}     & Original    & 0.00486 & 0.00485 & 7.5e-6 \\
-                                    & Harmonic    & 0.00259 & 0.00259 & 2.7e-6 \\
+        \multirow{4}{*}{Trust}     & Original    & 0.00487 & 0.00486 & 1.0e-5 \\
+                                    & Min         & 0.00298 & 0.00297 & 2.0e-5 \\
+                                    & Harmonic    & 0.00272 & 0.00272 & 0.0    \\
                                     & Clipped$_5$ & 0.04152 & 2.0e-5  & 0.04150 \\
         \addlinespace
-        \multirow{3}{*}{Pos.-dep.} & Original    & 0.03442 & 0.03335 & 0.00107 \\
-                                    & Harmonic    & 0.02684 & 0.02592 & 0.00092 \\
-                                    & Clipped$_5$ & 0.04090 & 7.5e-4  & 0.04015 \\
+        \multirow{4}{*}{Cascade}   & Original    & 0.01376 & 0.00276 & 0.01100 \\
+                                    & Min         & 0.01242 & 0.00171 & 0.01071 \\
+                                    & Harmonic    & 0.01252 & 0.00147 & 0.01105 \\
+                                    & Clipped$_5$ & 0.04596 & 1.0e-5  & 0.04595 \\
+        \addlinespace
+        \multirow{4}{*}{Pos.-dep.} & Original    & 0.04086 & 0.03973 & 0.00113 \\
+                                    & Min         & 0.03896 & 0.03770 & 0.00127 \\
+                                    & Harmonic    & 0.03724 & 0.03613 & 0.00111 \\
+                                    & Clipped$_5$ & 0.04105 & 0.00108 & 0.03997 \\
         \bottomrule
     \end{tabular}
-    \caption{MSE decomposition under two PBM violations (anchor-item imbalance, split 80/20, ratio 50:1). Original and harmonic have comparable bias$^2$---far below clipped---while harmonic achieves 47\% lower variance under trust bias and 22\% lower under position-dependent relevance. Clipped's near-zero variance comes at the cost of $160\times$ higher bias$^2$.}
+    \caption{MSE decomposition under three PBM violations (anchor-item imbalance,
+        split 80/20, ratio 50:1, 5{,}000 trials). Original, min and harmonic have
+        comparable bias$^2$ within each model — well below clipped — while harmonic
+        achieves the lowest variance in every case (44\% lower than original on trust,
+        47\% lower on cascade, 9\% lower on position-dependent relevance). Under the
+        cascade model, all three ratio-unbiased schemes incur substantial bias
+        ($\sim 0.011$) because cascade's history-dependent examination structurally
+        violates PBM, but harmonic's variance edge still puts it competitive on
+        total MSE.}
     \label{tab:pbm_violations}
 \end{table}
 
@@ -450,17 +507,29 @@ Figure~\ref{fig:pbm_violations} and Table~\ref{tab:pbm_violations} summarize res
     \label{fig:sample_efficiency}
 \end{figure}
 
-Lower variance should translate to lower data requirements. We test this on a single point
-of the imbalance grid (ratio 50:1, traffic split 80/20) by sweeping data volume
-(base impressions per document, $b \in [2, 100]$). Figure~\ref{fig:sample_efficiency} shows
-MSE decreasing monotonically for the ratio-unbiased schemes. At $b=5$, harmonic
-achieves the same MSE as original at $b \approx 10$, i.e.\ roughly a $2\times$ data reduction
-in this single configuration. At higher data volume the relative gap widens: at $b=50$,
-harmonic reduces MSE by $\sim$56\%. Clipped weighting's MSE is flat ($\approx 0.041$)
-regardless of data volume, confirming bias-domination. We caution that the
-``data-efficiency factor'' depends on $(s, r, \eta)$ and is reported here for one cell of the
-grid; characterising it as a function of all three would require a heatmap-style sweep that we
-flag as future work.
+Lower variance should translate to lower data requirements. We sweep data volume
+(base impressions per document, $b\in[2,100]$) and measure the data-equivalence factor
+$\mathrm{DEF}(s,r) = b_{\mathrm{orig}}(s,r) / b_{\mathrm{harm}}(s,r)$, where $b_{\mathrm{scheme}}(s,r)$
+is the smallest $b$ at which the scheme's MSE crosses a fixed threshold.
+Figure~\ref{fig:sample_efficiency} shows MSE vs $b$ at the headline cell (split 80/20,
+ratio 50:1); Figure~\ref{fig:def_heatmap} reports DEF across the full $(s, r)$ grid.
+
+\begin{figure}[t!]
+    \centering
+    \includegraphics[width=0.46\textwidth]{../images/exp4b_efficiency_heatmap/exp4b_def_heatmap.png}
+    \caption{Data-equivalence factor $b_{\mathrm{orig}}/b_{\mathrm{harm}}$ across $(s, r)$.
+    Median DEF $= 1.31$, max $= 1.94$. The most-imbalanced cells (high $s$, high $r$)
+    yield the largest savings; near-balanced cells ($r=1$) saturate at DEF $\approx 1$.}
+    \label{fig:def_heatmap}
+\end{figure}
+
+Across the grid: median DEF $= 1.31$, mean $= 1.30$, max $= 1.94$. In the headline cell
+(split 80/20, ratio 50:1) DEF $\approx 1.33$. The earlier ``roughly half the data'' framing
+holds only at a few of the most-imbalanced cells; a more accurate summary is that harmonic
+needs $\sim 25$--$30\%$ less data on average, with savings approaching $2\times$ in the
+highest-imbalance regimes and saturating at $\approx 1$ when $r=1$ (no systematic
+imbalance). Clipped weighting's MSE is flat ($\approx 0.041$) regardless of data volume,
+confirming bias-domination.
 
 \subsection{Experiment 4: Yahoo LTR Semi-Synthetic}
 \label{sec:exp3}
@@ -503,7 +572,10 @@ the same anchor-item imbalance model as Experiment~1. It is not a real-log valid
 \subsection{Experiment 5: Production-style Traffic Simulation}
 \label{sec:exp6_prod}
 
-A natural concern is whether anchor-item impression imbalance is realistic or synthetic. We simulate $K=5$ concurrent rankers: a default ranker (fraction $\alpha_0$ of traffic) shows each document at its natural position; treatment rankers independently swap adjacent pairs with probability 0.5. We compare uniform traffic (5$\times$20\%) against a production configuration (80\%\,+\,4$\times$5\%).
+A natural concern is whether anchor-item impression imbalance is realistic or synthetic.
+(Section~\ref{sec:kdd2012} demonstrates empirically that it is realistic on real
+sponsored-search logs; the simulation here is a controlled isolation of the
+A/B-testing mechanism that produces it.) We simulate $K=5$ concurrent rankers: a default ranker (fraction $\alpha_0$ of traffic) shows each document at its natural position; treatment rankers independently swap adjacent pairs with probability 0.5. We compare uniform traffic (5$\times$20\%) against a production configuration (80\%\,+\,4$\times$5\%).
 
 \begin{figure}[t!]
     \centering
@@ -545,11 +617,130 @@ from the underlying click stream. This is therefore a limitation of \emph{this p
 as released}, not of the method's applicability to real production logs.
 
 \paragraph{Implications for our analysis.}
-Public click logs that preserve raw per-impression counts (or reasonable aggregations of them)
-are needed to validate harmonic on real data. We hope the present paper motivates such releases.
-In the meantime, the production A/B-testing simulation (Section~\ref{sec:exp6_prod}) and the
-semi-synthetic Yahoo experiment (Section~\ref{sec:exp3}) are the closest available proxies:
-neither is a real production log, and we mark them as such throughout.
+Public click logs that preserve raw per-impression counts (or reasonable
+aggregations of them) are needed to validate harmonic on real data. The full
+KDD Cup 2012 Track 2 release (Section~\ref{sec:kdd2012}, 235\,M impressions
+preserving per-(query, ad, position) impression and click counts) supplies this:
+it is two to three orders of magnitude richer in multi-impression $(q,d)$ pairs
+than the deduplicated Baidu-ULTR release. Future organic-web-search releases
+that preserve the same structure across more positions would extend the validation;
+in the meantime the KDD Cup 2012 sponsored-search analysis is the primary real-log
+evidence reported in Section~\ref{sec:kdd2012}.
+
+\subsection{Real-log validation: KDD Cup 2012 Track 2}
+\label{sec:kdd2012}
+
+To validate harmonic on real click logs, we use the full KDD Cup 2012 Track 2
+dataset (Tencent SOSO sponsored search) \cite{kddcup2012track2}, which preserves
+per-(query, ad, depth, position) impression and click counts. The full
+\texttt{training.txt} file contains 149.6\,M rows; expanding the per-row
+\texttt{Impression} multiplicity yields \textbf{235.6\,M effective impressions}
+across 8.2\,M clicks (overall CTR $3.49\%$). Aggregating to (queryID, adID, position)
+gives \textbf{63.8\,M unique cells}. Sponsored-search depth is 1--3, so we evaluate
+adjacent-position pairs $(1,2)$ and $(2,3)$. The resulting interventional sets
+contain $\mathbf{4.61\,M}$ and $\mathbf{2.12\,M}$ $(q,\mathrm{ad})$ pairs respectively
+--- two to three orders of magnitude more than any other public click log we
+identified that preserves multi-impression structure (cf.\ the deduplicated
+Baidu-ULTR's 454\,K, Section~\ref{sec:baidu}).
+
+\textbf{Realistic impression imbalance with a heavy tail.} Across the two adjacent
+pairs, only $\sim 65\%$ of $(q,\mathrm{ad})$ items have $N_k/N_{k+1}\in [0.5, 2.0]$;
+$\sim 3$--$5\%$ exceed ratio $10$, and the maximum imbalance reaches $66{,}330\!:\!1$
+on the $(1,2)$ pair --- exactly the heavy-tailed regime our anchor-item synthetic
+model targets. This is dramatically more imbalanced than the deduplicated Baidu-ULTR
+release (78.4\% in $[0.5, 2]$, 0.8\% above ratio 10).
+
+\textbf{Variance surrogate reduction.}
+Plugging the real $\{N_k^i, N_{k+1}^i\}$ into the closed-form $V_k(\omega), V_{k+1}(\omega)$,
+harmonic reduces the symmetric surrogate $V_k+V_{k+1}$ by $\mathbf{79.3\%}$ on
+$(1,2)$ and $\mathbf{73.9\%}$ on $(2,3)$ versus uniform. On the asymmetric
+surrogate $\alpha V_k + \beta V_{k+1}$ with PBM-implied $\alpha = k-1$, $\beta = k$,
+the reductions are $\mathbf{79.0\%}$ and $\mathbf{72.6\%}$. Harmonic improves on
+min by an additional $\sim 3$--$4\%$ on this real data. Crucially, harmonic does
+\emph{not} underperform uniform on the asymmetric surrogate, consistent with our
+point in Section~\ref{sec:reviewer_response}: the structural counterexamples to
+the asymmetric Cauchy--Schwarz bound require degenerate two-archetype count
+patterns that real traffic does not produce.
+
+\textbf{Bootstrap stability of the ratio estimator.}
+Without a ground-truth examination probability we cannot compute MSE or bias on
+this dataset; what we \emph{can} measure is the wobble of $\hat{R}_{k,k+1}$
+under resampling of the $(q,\mathrm{ad})$ rows. We bootstrap with 1{,}000
+resamples (Table~\ref{tab:kdd2012}). Two caveats: (i) bootstrap std measures
+\emph{stability of the estimator}, not closeness to truth — if two weighting
+schemes converge to different limiting values (because of differing
+finite-sample ratio bias under heterogeneous counts), the one with smaller
+bootstrap std could still have larger MSE; (ii) any conclusion about
+``which scheme is right'' would require ground-truth $p_k$, which sponsored
+search does not provide. With those caveats, the variance \emph{surrogate}
+reduction above (79\% on $(1,2)$) is the load-bearing real-data result; the
+bootstrap-std reduction is supporting evidence for stability rather than
+correctness:
+
+\begin{table}[h]
+\small
+\centering
+\caption{KDD Cup 2012 Track 2 (full, 235M impressions, 63.8M cells): bootstrap
+mean and 95\% CI of $\hat{R}_{k,k+1}$ per scheme. 1{,}000 resamples at the
+$(q,\mathrm{ad})$ level. The $(1,2)$ interventional set contains 4.61M pairs;
+$(2,3)$ contains 2.12M. Note that bootstrap std measures variance under
+$(q,\mathrm{ad})$-resampling --- a \emph{different} quantity from the
+click-noise surrogate $V_k(\omega)$ that Theorem~\ref{thm:cs} bounds (see text).}
+\label{tab:kdd2012}
+\begin{tabular}{lccc}
+\toprule
+Pair & Scheme & $\hat{R}$ & Boot std (95\% CI) \\
+\midrule
+\multirow{3}{*}{$(1,2)$} & Uniform  & 1.542 & 0.0044 \footnotesize{[1.534, 1.551]} \\
+                          & Min      & 1.680 & 0.0140 \footnotesize{[1.652, 1.706]} \\
+                          & Harmonic & 1.679 & 0.0144 \footnotesize{[1.649, 1.706]} \\
+\midrule
+\multirow{3}{*}{$(2,3)$} & Uniform  & 1.550 & 0.0090 \footnotesize{[1.533, 1.568]} \\
+                          & Min      & 1.652 & 0.0120 \footnotesize{[1.629, 1.677]} \\
+                          & Harmonic & 1.647 & 0.0122 \footnotesize{[1.624, 1.671]} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Two patterns are visible. \emph{First}, harmonic and min agree on $\hat R$ within
+$\sim 0.06\%$ on $(1,2)$ and $0.3\%$ on $(2,3)$, while uniform diverges by
+$\sim 9\%$ in both cases (non-overlapping 95\% bootstrap CIs). This is consistent
+with --- but not proof of --- reduced finite-sample ratio bias under harmonic and
+min, since both anti-correlate weights with $1/N$ and partially counteract the
+$\mathbb{E}[A/B]\neq \mathbb{E}[A]/\mathbb{E}[B]$ gap that grows with count
+heterogeneity; without ground truth we cannot declare which is closer to
+$p_k/p_{k+1}$.
+
+\emph{Second --- and important to call out honestly --- the bootstrap std is
+\textbf{larger} for harmonic and min than for uniform on the full-scale data}
+(by $3\times$ on $(1,2)$, $1.4\times$ on $(2,3)$). This does not contradict
+the variance-surrogate result, because the two are measuring different things:
+\begin{itemize}
+\item $V_k(\omega)$ is the conditional variance over click realizations
+  \emph{given fixed counts}, and Theorem~\ref{thm:cs} reduces it by $79\%$
+  on the same data.
+\item Bootstrap std measures variance over $(q,\mathrm{ad})$-resampling from
+  the empirical population, which includes count variation, not just click
+  variation.
+\end{itemize}
+With 4.6\,M $(q,\mathrm{ad})$ pairs the click-noise component shrinks like
+$1/n$ and is dwarfed by the population-resampling component; under
+heterogeneous weighting (harmonic, min) a small fraction of high-count
+pairs dominate the weighted sum, so resampling those pairs in/out of the
+bootstrap creates larger fluctuations than uniform's flat weighting. This is
+analogous to importance sampling's effective-sample-size penalty under
+heavy-tailed weights. On the smaller 1M-row subset we initially analysed, the
+ratio reversed (harmonic had \emph{lower} bootstrap std) because the population
+component was too small to dominate at that scale.
+
+The takeaway: the \textbf{variance surrogate reduction (79\% on $(1,2)$, 73\% on
+$(2,3)$) is the load-bearing real-data result}, since (i) it is a deterministic
+algebraic statement on real counts, (ii) it is exactly what
+Theorem~\ref{thm:cs} bounds, and (iii) it is invariant to the population-vs-conditional
+distinction. Bootstrap std behaves differently and is reported here for transparency
+rather than as a primary claim. To our knowledge this is the first real-log
+analysis of an intervention-harvesting estimator at this scale ($>$\,4\,M
+interventional pairs on a single position pair).
 
 \section{Related Work and Conclusion}
 \label{sec:related_work}
@@ -558,7 +749,7 @@ Position bias estimation methods broadly fall into three categories: randomized 
 
 \textbf{Randomized interventions} explicitly manipulate result rankings to estimate examination probabilities \cite{joachims2017unbiased, wang2018position}. These approaches guarantee unbiasedness by randomizing item placements, yet they significantly degrade the user experience due to intrusive changes in rankings \cite{joachims2017unbiased}.
 
-\textbf{Joint relevance-propensity models} simultaneously estimate relevance and propensity from observational data using techniques like Expectation-Maximization (EM) \cite{wang2018position, wang2018position}. Extensions such as PAL \cite{pai2020pal} integrate position-bias correction directly into CTR prediction models for recommender systems. While these methods are non-intrusive, they require a parametric relevance model; empirical comparison against intervention harvesting is therefore methodologically ill-posed, since the two paradigms solve different estimation problems (parametric relevance-and-propensity joint inference vs.\ model-free propensity-only estimation).
+\textbf{Joint relevance-propensity models} simultaneously estimate relevance and propensity from observational data using techniques like Expectation-Maximization (EM) \cite{wang2018position}. Extensions such as PAL \cite{pai2020pal} integrate position-bias correction directly into CTR prediction models for recommender systems. While these methods are non-intrusive, they require a parametric relevance model; empirical comparison against intervention harvesting is therefore methodologically ill-posed, since the two paradigms solve different estimation problems (parametric relevance-and-propensity joint inference vs.\ model-free propensity-only estimation).
 
 \textbf{Intervention harvesting approaches}, originally proposed by \cite{agarwal2019estimating}, leverage natural ranking variations from multiple historical rankers, eliminating explicit randomization. Such methods preserve user experience while producing unbiased propensity estimates without assuming a relevance model. Extensions of this idea include temporal fluctuations in e-commerce search rankings \cite{aslanyan2019eCommerceBias} and policy-aware estimation from bandit logs \cite{oosterhuis2023DoublyRobustLTR}.
 
@@ -571,8 +762,20 @@ We have presented harmonic weighting as a drop-in replacement for the weighting 
   \item Oracle asymmetric characterization: exact surrogate-optimal weight $\omega_i^*$ (Eq.~\ref{eq:omega_star}) unconditionally beats original (Theorem~\ref{thm:asymmetric}, Corollary~\ref{cor:beats_original}); harmonic is its $\alpha{=}\beta$ special case (Corollary~\ref{cor:harmonic_special}), motivating it as the parameter-free practical choice
   \item Empirical observations of up to $\sim$55\% variance reduction versus original in our
         tested $(s, r)$ grid, mirrored on Yahoo semi-synthetic data and a production-style
-        traffic simulation; under tested PBM violations, original, min, and harmonic share
-        comparable bias, so the lower variance translates into lower MSE within these regimes
+        traffic simulation; under tested PBM violations (trust, cascade, and
+        position-dependent relevance), original, min, and harmonic share comparable bias,
+        so the lower variance translates into lower MSE within these regimes
+  \item Real-log analysis on the full KDD Cup 2012 Track 2 dataset (235\,M
+        impressions, 4.6\,M+ interventional pairs at a single position pair):
+        harmonic reduces the symmetric and asymmetric variance surrogates by
+        $\sim 73$--$79\%$ on real impression counts (a deterministic algebraic
+        statement, no ground truth required). Bootstrap-std of $\hat R$ over
+        $(q,\mathrm{ad})$-resampling is a different quantity; we report
+        and explain its behaviour transparently in Section~\ref{sec:kdd2012}.
+  \item Honest counterexample to the asymmetric Cauchy--Schwarz analogue: harmonic
+        \emph{can} underperform uniform on $\alpha V_k+\beta V_{k'}$ for degenerate
+        two-archetype count patterns; we show this failure mode does not arise in
+        realistic distributions (Section~\ref{sec:reviewer_response})
 \end{itemize}
 
 Our implementation and all experiments presented in this paper will be publicly available after acceptance. The implementation builds upon the unbiased learning-to-rank toolkit by \cite{Hager2024}, which provides a comprehensive framework for position bias estimation and evaluation.
@@ -611,22 +814,48 @@ $\bigstar$ harmonic $-$ min ($r{\leq}10$) & $-3.5{\times}10^{-5}$ \footnotesize{
 \end{tabular}
 \end{table}
 
-\paragraph{Adversarial $(\alpha,\beta)$ search.}
+\paragraph{Asymmetric surrogate: counterexample and structured search.}
 The Cauchy--Schwarz guarantee (Theorem~\ref{thm:cs}) bounds the symmetric
 surrogate $V_k+V_{k'}$. For the asymmetric surrogate
-$\alpha V_k + \beta V_{k'}$ harmonic could in principle underperform
-original. We swept a $5{\times}5$ grid of
-$(\alpha,\beta) \in [0.05, 50]^2$ (covering propensity ratios up to 1000:1)
-crossed with 200 random count configurations of $50$ documents each
-(\textbf{5{,}000 total cells}), computing the closed-form ratio
-$(\alpha V_k(\omega^h)+\beta V_{k'}(\omega^h))/(\alpha V_k(1)+\beta V_{k'}(1))$
-on each. \textbf{In zero of 5{,}000 cells did harmonic underperform
-original on the asymmetric surrogate.} The worst observed ratio was
-$0.929$ (harmonic still $7$\% better). On a hand-constructed
-intentionally adversarial counts pattern (5 docs with $N_k{=}1, N_{k'}{=}100$;
-5 with $N_k{=}100, N_{k'}{=}1$) the ratio is exactly $1.000$ at every
-$(\alpha,\beta)$ tested. We could not construct a configuration in which
-harmonic is worse than original on the variance surrogate.
+$\alpha V_k + \beta V_{k'}$ the analogue $f(h)\le f(1)$ does \emph{not} hold
+in general; we exhibit explicit counterexamples below.
+
+\emph{Closed-form $n=2$ counterexample.}
+With $\alpha=100,\beta=0.01$ and counts $(N_k^1,N_{k'}^1)=(100,1)$,
+$(N_k^2,N_{k'}^2)=(2,2)$, direct computation gives
+$f(\omega^h)=12.876$ and $f(1)=12.754$, i.e.\ harmonic is $\sim 1\%$
+worse than uniform on $\alpha V_k+\beta V_{k'}$.
+Structurally, when $\alpha\gg\beta$ a doc with $a\gg b$ has small
+$s = \alpha/a + \beta/b$ \emph{and} small $h \approx b$, so $h^2$ and $s$
+become positively correlated rather than anti-correlated as required for
+$\mathrm{Cov}(h^2,s)\le -E[s]\,\mathrm{Var}(h)$ (the algebraic form of
+$f(h)\le f(1)$).
+
+\emph{Why our previous random sweep missed this.}
+Sampling counts uniformly over $[1,1000]^2$ (as in our earlier draft) almost
+never produces the structural pattern above; the $h$ values look
+nearly uniform across documents, so $f(h) \approx f(1)$. Replacing the random
+sweep with a \emph{structured} search over mixtures of two count archetypes
+(``imbalanced'' $(M, 1)$ vs.\ ``balanced'' $(b_0, b_0)$, sweeping the mixture
+fraction from $0$ to $1$) reveals the failure mode at every grid point we
+tested. Restricting $(\alpha,\beta)\in[0.1,10]^2$ — covering all adjacent
+and non-adjacent pairs of the PBM with $\eta=1, M{=}10$ positions — we find
+\textbf{harmonic loses to uniform in 100\% of $15{\times}15$ cells} on at
+least one structured config, with a worst-case ratio of $7.78$. On the wider
+range $(\alpha,\beta)\in[0.05,100]^2$ the worst ratio reaches $15.4$.
+
+\emph{Why this still does not undermine harmonic in practice.}
+Realistic interventional sets contain heterogeneous counts (anchors plus
+regular docs, each with random per-doc fluctuations), not the degenerate
+two-archetype mixtures the structured search uses. In every $(s,r)$ cell
+of Experiments 1, 3 and 4 — sampled from realistic count distributions
+— harmonic empirically reduces variance over uniform, consistent with
+Theorem~\ref{thm:cs} (the symmetric component dominates) and the oracle
+characterization (Theorem~\ref{thm:asymmetric}). The counterexamples
+nevertheless show that an unconditional asymmetric Cauchy--Schwarz bound
+\emph{cannot} hold; closing this gap with a meaningful conditional bound
+(e.g.\ requiring count heterogeneity above a threshold) is open
+(Section~\ref{sec:open_directions}, item (b)).
 
 \paragraph{Plug-in oracle.}
 We implemented the two-stage adaptive scheme of Theorem~\ref{thm:asymmetric}:
@@ -664,6 +893,7 @@ benchmarks, so the simpler, parameter-free harmonic dominates the
 quality-vs-complexity tradeoff.
 
 \subsection{Open directions}
+\label{sec:open_directions}
 Several directions remain open.
 
 \textbf{(a) AdjacentChain error propagation.}
@@ -673,22 +903,30 @@ not directly characterised by Theorem~\ref{thm:cs}. An empirical study varying c
 length (positions 1--3, 1--5, 1--10) and including non-adjacent interventional sets, with MSE
 reported on the final propensity estimate (not just the per-pair ratio), would close this gap.
 
-\textbf{(b) Adversarial regimes for harmonic.}
-Section~\ref{sec:reviewer_response} confirms that harmonic does not lose to
-original on the asymmetric surrogate $\alpha V_k+\beta V_{k'}$ in 5{,}000
-sampled cells $(\alpha,\beta)\in[0.05,50]^2$. Theoretically extending the
-Cauchy--Schwarz guarantee to cover asymmetric weighting --- not just the
-symmetric $V_k+V_{k'}$ surrogate --- remains open.
+\textbf{(b) A conditional asymmetric guarantee.}
+Section~\ref{sec:reviewer_response} exhibits explicit count configurations (mixtures
+of two archetypes) on which harmonic underperforms uniform on the asymmetric
+surrogate $\alpha V_k+\beta V_{k'}$, by up to $7.8\times$ for
+$(\alpha,\beta)\in[0.1,10]^2$. The unconditional asymmetric Cauchy--Schwarz bound
+therefore does not hold. The right open question is to characterise a
+\emph{conditional} bound: a quantitative regularity condition on the count
+distribution (e.g.\ heterogeneity above a threshold, ratio coefficient of variation,
+or a no-degenerate-archetype assumption) under which harmonic provably dominates
+uniform asymmetrically. Real distributions
+(Sections~\ref{sec:exp3},~\ref{sec:kdd2012}) satisfy such a condition empirically;
+formalising it is open.
 
-\textbf{(e) Realistic ranker overlap.}
+\textbf{(c) Realistic ranker overlap.}
 Our production-style simulation (Section~\ref{sec:exp6_prod}) uses adjacent swaps with
 probability 0.5. More realistic experiments would use correlated-score perturbations or
 learned-ranker variations; this is straightforward future work.
 
-\textbf{(f) Real production-log validation.}
-The most important missing piece is validation on a click log that preserves per-impression
-counts (the deduplicated Baidu-ULTR release does not, see Section~\ref{sec:baidu}). We hope this
-work motivates such releases.
+\textbf{(d) Broader real-log validation.}
+KDD Cup 2012 Track 2 (Section~\ref{sec:kdd2012}) preserves per-impression counts but
+spans only 3 sponsored-search positions. Validation on a public organic web-search log
+that preserves raw per-impression counts and supports adjacent pairs across $M\geq 5$
+positions remains a missing piece; the Baidu-ULTR release (Section~\ref{sec:baidu})
+does not satisfy this. We hope our results motivate such releases.
 
 
 

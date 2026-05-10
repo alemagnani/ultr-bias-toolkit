@@ -1,0 +1,25 @@
+{
+  "n2": {
+    "fh": 12.875943788520086,
+    "fo": 12.75375,
+    "ratio": 1.009581008606887
+  },
+  "n50": {
+    "fh": 0.04018396500663875,
+    "fo": 0.039798,
+    "ratio": 1.0096981005738668
+  },
+  "structured_search_wide": {
+    "n_cells": 225,
+    "n_harmonic_loses": 225,
+    "frac_harmonic_loses": 1.0,
+    "worst_ratio": 15.35444751248789
+  },
+  "structured_search_realistic": {
+    "n_cells": 225,
+    "n_harmonic_loses": 225,
+    "frac_harmonic_loses": 1.0,
+    "worst_ratio": 7.777405851307658,
+    "median_worst_ratio": 1.0000000000000007
+  }
+}

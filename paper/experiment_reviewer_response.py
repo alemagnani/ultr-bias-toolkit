@@ -116,7 +116,7 @@ def paired_bootstrap_ci(
     return point, float(lo), float(hi)
 
 
-def experiment_paired_ci(num_trials: int = 500):
+def experiment_paired_ci(num_trials: int = 5000):
     """Re-run the headline (split=0.80, ratio in {1, 10, 50, 100}) with
     seed-aligned RNG so per-trial estimates are paired across schemes."""
     print("\n[1] Paired bootstrap CIs on per-trial MSE")
