@@ -43,9 +43,9 @@ sponsored-search log (235M impressions, 4.6M interventional pairs), the
 plug-in asymptotic relative efficiency of harmonic over uniform is $4.53$,
 well-calibrated against click-resample standard error ($1$--$2\%$ at two
 sample fractions), and robust to weight-capping (ARE $\ge 4.1$ at the
-$99.99$th percentile). PBM is a known approximation; a Cochran-$Q$
-diagnostic on high-information cells quantifies its mis-specification at
-$Q/\mathrm{df}=3.83$. Under such mis-specification different weighting
+$99.99$th percentile). A Cochran-$Q$ diagnostic confirms substantial PBM mis-specification
+($Q/\mathrm{df}=3.83$), allowing efficiency comparisons to be interpreted
+separately from model fit; under such mis-specification different weight
 schemes target different weighted averages of cell-specific ratios---an
 estimand caveat we discuss explicitly. Synthetic ($43\%$--$54\%$ MSE
 reduction at high imbalance) and Yahoo-LTR semi-synthetic ($\sim 40\%$
@@ -83,8 +83,8 @@ championed for fifty years. Recent ULTR
 work~\cite{agarwal2019estimating,wang2018position} introduced \emph{harmonic}
 weighting $\omega_i=N_k^i N_{k'}^i/(N_k^i+N_{k'}^i)$ to reduce variance versus
 uniform on heavy-tailed counts, but existing validation has relied on
-\emph{bootstrap} resampling -- which we show is provably the wrong instrument
-for inverse-variance-style weights on singleton-dominated data
+\emph{bootstrap} resampling, which we show can be misleading for
+inverse-variance-style weights on singleton-dominated heavy-tailed data
 (Section~\ref{sec:plugin}).
 
 \textbf{Contributions.}
@@ -126,9 +126,10 @@ is \emph{ratio-unbiased} when the ratio of conditional expectations of
 numerator and denominator equals $p_k/p_{k'}$,
 i.e.\ $\mathbb E[A\mid\mathbf N]/\mathbb E[B\mid\mathbf N]=p_k/p_{k'}$
 (\emph{not} $\mathbb E[\hat R]=p_k/p_{k'}$; the finite-sample bias of the
-self-normalised ratio is $O(1/N)$ under standard regularity). Under PBM,
-any count-only weight $\omega_i=\omega(N_k^i,N_{k'}^i)$ preserves
-ratio-unbiasedness in this sense~\cite{agarwal2019estimating}.
+self-normalised ratio is $O(1/N)$ under standard regularity). Under PBM, the ratio of conditional expectations of numerator and
+denominator equals $p_k/p_{k'}$ for any count-only weight
+$\omega_i=\omega(N_k^i,N_{k'}^i)$, and the resulting self-normalised
+ratio estimator is consistent for this target~\cite{agarwal2019estimating}.
 
 \begin{proposition}[Conditional delta-method variance]
 \label{prop:delta}
@@ -186,7 +187,9 @@ Theorem~\ref{thm:cs} is unconditional in the counts -- a property that
 distinguishes harmonic from the min-count heuristic of~\cite{agarwal2019estimating},
 which has no such guarantee. Theorem~\ref{thm:asym} provides the oracle
 benchmark; in synthetic experiments substituting the true $\alpha,\beta$ into
-$\omega^\star$ yields variance within $\pm 2\%$ of harmonic.
+$\omega^\star$ yields variance within $\pm 2\%$ of harmonic. Complete
+proofs and additional sensitivity analyses are provided in the
+supplementary material.
 
 \section{Plug-in Asymptotic Variance: the Right Instrument}
 \label{sec:plugin}
@@ -265,16 +268,17 @@ $\theta$-aware oracle      & 2.343 & 0.148   & 0.002         & 1.1 \\
 \end{table}
 
 \begin{table}[t]
-\caption{Stratified ARE(harmonic, uniform) by $N_1+N_2$ quartile on full KDD.
-Schemes are tied on the noise-dominated quartiles; harmonic dominates
-$\sim 5\times$ on the high-information quartile where the actual estimation
-signal lives.}
+\caption{Stratified ARE(harmonic, uniform) by $N_1+N_2$ tertile on full
+KDD (the bottom quartile boundary collapses into the lowest tertile
+because singletons dominate). Schemes are tied on the noise-dominated
+strata; harmonic dominates $\sim 5\times$ on the high-information stratum
+where the actual estimation signal lives.}
 \label{tab:strat}
 \centering
 \small
 \begin{tabular}{lrrr}
 \toprule
-$N_1+N_2$ quartile          & $n$ pairs & $\widetilde V_U$  & $\mathrm{ARE}(h,u)$ \\
+$N_1+N_2$ tertile          & $n$ pairs & $\widetilde V_U$  & $\mathrm{ARE}(h,u)$ \\
 \midrule
 Lowest                  & 1.99M & 2.3e-5 & 1.02 \\
 Middle-low              & 1.38M & 1.9e-5 & 1.09 \\
@@ -292,13 +296,16 @@ oracle $4.57$; harmonic is the principled parameter-free optimum.
 
 \paragraph{Stratified ARE (Table~\ref{tab:strat}).}
 Schemes tie on noise singletons (where there is nothing to estimate) and
-harmonic dominates uniform by $5\times$ on the high-information quartile.
+harmonic dominates uniform by $5\times$ on the high-information stratum.
 The gain comes from \emph{not} treating singletons as equal to
 million-impression cells.
 
 \paragraph{Weight-cap robustness.}
 The harmonic ESS of $1{,}849$ out of $4.61$M pairs invites a concern that
-the efficiency gain rests on a few extreme cells. Capping $\omega_i^h$ at
+the efficiency gain rests on a few extreme cells, but the small ESS
+reflects deliberate concentration on the pairs containing nearly all
+statistical information in this heavy-tailed setting rather than
+instability of the estimator. Capping $\omega_i^h$ at
 the $99.99$th percentile (threshold $2{,}079$; $462$ pairs capped) lifts
 ESS to $5.2{\times}10^4$ and still gives
 $\mathrm{ARE}=4.12$; at the $99$th percentile, $\mathrm{ARE}=2.83$ (ESS
