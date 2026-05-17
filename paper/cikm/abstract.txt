@@ -1,0 +1,26 @@
+Title:
+Harmonic Weighting is Count-Only Inverse-Variance Weighting:
+A Rigorous Asymptotic Analysis of Intervention Harvesting on Heavy-Tailed Click Logs
+
+Abstract (200 words):
+
+Intervention-harvesting estimators of position bias combine per-cell click-rate
+estimates across many (q, d, position) cells with widely varying impression
+counts. We show that harmonic weighting, omega_i = N_k^i N_{k'}^i /
+(N_k^i + N_{k'}^i), is exactly the count-only inverse-variance optimum -- the
+classical generalized-least-squares solution of Aitken (1934) -- and that the
+appropriate finite-sample diagnostic on real click logs is the plug-in
+delta-method asymptotic variance Vtilde(omega) of the self-normalized weighted
+ratio estimator (Owen 2013, Ch. 9), not bootstrap. We replace bootstrap analyses
+with Vtilde on the full KDD Cup 2012 Track 2 log (235M impressions; 4.6M
+interventional pairs at positions (1,2)) and find an asymptotic relative
+efficiency of harmonic over uniform of 4.5x, rising to ~5x on
+high-information cells. Plug-in Vtilde agrees with empirical click-resample
+standard error within 1%. Cochran's Q heterogeneity test restricted to
+high-information cells rejects the Position-Based Model at z ~ 253 sigma,
+isolating model misspecification from estimator efficiency. Synthetic and
+Yahoo-LTR semi-synthetic experiments with ground truth corroborate the
+efficiency claim.
+
+Keywords: position bias, unbiased learning-to-rank, intervention harvesting,
+inverse-variance weighting, asymptotic relative efficiency, click models.

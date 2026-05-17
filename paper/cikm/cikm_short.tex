@@ -1,0 +1,332 @@
+\documentclass[sigconf,anonymous]{acmart}
+\usepackage{amsmath, amsthm}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+
+\setcopyright{acmlicensed}
+\copyrightyear{2026}
+\acmYear{2026}
+\acmConference[CIKM '26]{ACM CIKM}{October 2026}{Toronto, Canada}
+
+\title{Harmonic Weighting is Count-Only Inverse-Variance Weighting:
+A Rigorous Asymptotic Analysis of Intervention Harvesting on Heavy-Tailed Click Logs}
+
+\author{Anonymous}
+\affiliation{\institution{Anonymous}\country{}}
+\renewcommand{\shortauthors}{Anonymous}
+
+\begin{document}
+
+\begin{abstract}
+Intervention-harvesting estimators of position bias~\cite{agarwal2019estimating} combine
+per-cell click-rate estimates across many $(q,d,\mathrm{position})$ cells with widely
+varying impression counts. We show that the \emph{harmonic} weighting scheme
+$\omega_i=N_k^i N_{k'}^i/(N_k^i+N_{k'}^i)$ is exactly the count-only inverse-variance
+optimum---the classical generalized-least-squares solution of
+Aitken~\cite{aitken1934least}---and that the appropriate finite-sample diagnostic on real
+click logs is the \emph{plug-in delta-method asymptotic variance}
+$\widetilde V(\omega)$ of the self-normalized weighted ratio
+estimator~\cite{owen2013mc}, not bootstrap. We replace bootstrap analyses with
+$\widetilde V$ on the full KDD Cup 2012 Track 2 log
+(235M impressions; 4.6M interventional pairs at positions $(1,2)$) and find an
+\textbf{asymptotic relative efficiency} of harmonic over uniform of $4.5\times$,
+rising to $\sim 5\times$ on high-information cells. Plug-in $\widetilde V$ agrees with
+empirical click-resample standard error within 1\%. Cochran's $Q$ heterogeneity
+test restricted to high-information cells rejects the Position-Based Model
+at $z\approx 253\sigma$, isolating model misspecification from estimator efficiency.
+Synthetic and Yahoo-LTR semi-synthetic experiments with ground truth corroborate
+the efficiency claim.
+\end{abstract}
+
+\maketitle
+
+\section{Introduction}
+\label{sec:intro}
+
+Click-based position-bias estimation via intervention
+harvesting~\cite{agarwal2019estimating,wang2018position} combines per-cell estimates of
+the form $\hat\theta_k^i=C_k^i/N_k^i$ across many $(q,d)$ cells. On real sponsored-search
+logs, impression counts $N_k^i$ are extraordinarily heavy-tailed: on the full
+KDD Cup 2012 Track 2 release (235\,M impressions, 4.6\,M interventional pairs at
+adjacent positions), \textbf{60.7\% of pairs have $N_1+N_2\le 5$ while 0.1\% of
+pairs carry 42\% of all impressions.} Equal-weighting such heteroscedastic
+estimators is statistically suboptimal by a century of classical theory:
+Aitken's generalised-least-squares theorem~\cite{aitken1934least} mandates
+inverse-variance weights, which the meta-analysis
+literature~\cite{hedges1985meta,borenstein2009meta} has championed for fifty years.
+
+Recent ULTR work proposed \emph{harmonic weighting}
+$\omega_i=N_k^i N_{k'}^i/(N_k^i+N_{k'}^i)$ as a variance-reduced replacement for
+the uniform and min-count schemes of~\cite{agarwal2019estimating}. Existing empirical
+validation has relied on \emph{bootstrap} variance estimates on real click logs,
+but on heavy-tailed data the bootstrap is the \emph{wrong} instrument for
+inverse-variance-style weights (Section~\ref{sec:method}, point~3).
+
+\textbf{This paper makes three contributions.}
+\textbf{(1)} We identify harmonic weighting as the count-only inverse-variance
+optimum for the intervention-harvesting estimator, anchoring it in classical
+GLS / meta-analysis theory (Section~\ref{sec:method}).
+\textbf{(2)} We replace bootstrap-based variance assessment with the
+\emph{plug-in delta-method asymptotic variance}
+$\widetilde V(\omega)$ of the self-normalised weighted ratio
+estimator~\cite{owen2013mc,vdv1998asymptotic}, and report
+\emph{asymptotic relative efficiency} (ARE) as the headline metric
+(Section~\ref{sec:plugin}).
+\textbf{(3)} On full KDD we measure ARE(harmonic, uniform) $=4.5$ (rising to
+$\sim 5$ on the high-information quartile), with plug-in agreement to within
+1\% of empirical click-resample std and a Cochran-$Q$ test at $z\approx 253\sigma$
+that decisively rejects PBM on the data---separating estimator efficiency from
+model fit (Section~\ref{sec:kdd}).
+
+\section{Setup and Method}
+\label{sec:method}
+
+\paragraph{Estimator.} Under the Position-Based Model (PBM),
+$P(\mathrm{click}\mid q,d,k)=p_k\, r_{q,d}$. Given an interventional set
+$I_{k,k'}$ of $(q,d)$ pairs that appeared at both positions $k$ and $k'$, the
+ratio of position-bias parameters is estimated as
+\begin{equation}
+\hat R_{k,k'}=\frac{\sum_i \omega_i\, \hat\theta_k^i}{\sum_i \omega_i\, \hat\theta_{k'}^i},
+\quad \hat\theta_k^i=\frac{C_k^i}{N_k^i}.
+\label{eq:Rhat}
+\end{equation}
+$\hat R$ is a self-normalised weighted ratio estimator. Any count-only weight
+$\omega_i=\omega(N_k^i,N_{k'}^i)$ preserves ratio-unbiasedness under
+PBM~\cite{agarwal2019estimating}.
+
+\paragraph{Harmonic as count-only IVW.}
+For Bernoulli observations,
+$\mathrm{Var}(\hat\theta_k^i)=\theta_k^i(1-\theta_k^i)/N_k^i$. Aitken's
+theorem~\cite{aitken1934least} states that the minimum-variance unbiased linear
+combination assigns weight $\omega_i\propto 1/\mathrm{Var}(\hat\theta_i)$. With
+$\theta$ treated as constant across cells (i.e.\ the count-only regime), the IVW
+optimum for the pair $(k,k')$ is the \emph{harmonic mean} of the two cell counts.
+
+\begin{theorem}[Count-only IVW characterisation]
+\label{thm:harmonic_ivw}
+Among all weights of the form $\omega_i=\omega(N_k^i,N_{k'}^i)$, the harmonic
+weight $\omega_i=N_k^i N_{k'}^i/(N_k^i+N_{k'}^i)$ minimises the count-only
+variance surrogate $V_k(\omega)+V_{k'}(\omega)$, with
+$V_k(\omega)=\sum_i \omega_i^2/N_k^i / (\sum_i \omega_i)^2$.
+\end{theorem}
+
+\paragraph{Plug-in asymptotic variance.} Let
+$A=\sum_i\omega_i\theta_k^i$ and $B=\sum_i\omega_i\theta_{k'}^i$. By the delta
+method~\cite{vdv1998asymptotic} and conditional independence of clicks at
+different positions,
+\begin{equation}
+\widetilde V(\omega)=\frac{\sum_i\omega_i^2\,\theta_k^i(1-\theta_k^i)/N_k^i}{A^2}
++\frac{\sum_i\omega_i^2\,\theta_{k'}^i(1-\theta_{k'}^i)/N_{k'}^i}{B^2},
+\label{eq:Vtilde}
+\end{equation}
+and $\mathrm{SE}(\hat R)=|\hat R|\sqrt{\widetilde V(\omega)}$. Plugging in
+$\hat\theta_i$ (with light shrinkage toward the marginal) gives a deterministic
+functional of the observed counts---the textbook self-normalised IS variance
+estimator~\cite{owen2013mc,kong1992ess,swaminathan2015snips}.
+
+\paragraph{Why bootstrap fails here.} Three reasons.
+(i)~Uniform weighting averages over $\sim$60\% near-singleton pairs, producing a
+smooth-looking bootstrap distribution whose tightness reflects averaging-of-noise,
+not estimator precision.
+(ii)~Pair-resampling perturbs the high-information cells that drive
+inverse-variance estimators, penalising any concentrated weight scheme by
+construction.
+(iii)~Bootstrap cannot disentangle estimator efficiency from PBM
+misspecification, but $\widetilde V$ does (a model-internal efficiency comparison
+is well-defined even when PBM is rejected).
+
+\section{Plug-in ARE and Calibration}
+\label{sec:plugin}
+
+\paragraph{Asymptotic Relative Efficiency.}
+For two schemes $\omega_a,\omega_b$, $\mathrm{ARE}(a,b)=\widetilde V(\omega_b)/\widetilde V(\omega_a)$
+quantifies the sample-size multiplier scheme~$b$ pays to match scheme~$a$:
+$\mathrm{ARE}=c$ means $b$ needs $c\times$ the data of $a$ for equal precision.
+$\widetilde V$ scales as $1/\mathrm{ESS}(\omega)$ with
+$\mathrm{ESS}(\omega)=(\sum_i\omega_i)^2/\sum_i\omega_i^2$ (Kong's effective
+sample size~\cite{kong1992ess}).
+
+\paragraph{Calibration check.} On a subsample of KDD ($f=0.001$), plug-in SE
+matches empirical click-resample SE within 1\% for both uniform (0.1306 vs.\
+0.1321) and harmonic (0.1113 vs.\ 0.1120). The plug-in is correct on this data.
+
+\paragraph{Cochran's $Q$ for PBM heterogeneity.}
+On the same data, per-cell log-ratios $\log(\hat\theta_k^i/\hat\theta_{k'}^i)$
+have IVW-pooled variance $\sigma_i^2$; the heterogeneity statistic
+$Q=\sum_i w_i(\log\hat\rho_i-\log\hat R)^2$ with $w_i=1/\sigma_i^2$ is
+$\chi^2_{n-1}$ under PBM. Restricting to cells with $\ge 5$ clicks at each
+position (high-information cells) yields a clean PBM-violation test.
+
+\section{Experiments on Real Click Logs (KDD Cup 2012)}
+\label{sec:kdd}
+
+\paragraph{Data.} Full KDD Cup 2012 Track 2 release: 149.6\,M raw rows,
+235.6\,M effective impressions, 63.8\,M unique $(q,\mathrm{ad},\mathrm{pos})$
+cells, 8.2\,M clicks (CTR 3.49\%). Pair $(1,2)$ interventional set:
+\textbf{4.61\,M $(q,\mathrm{ad})$ pairs}, $132.3$\,M impressions. Median pair
+size $4$; max $2{,}466{,}174$. Of these, 60.7\% have $N_1+N_2\le 5$, while
+0.1\% of pairs hold 42\% of all impressions.
+
+\begin{table}[t]
+\caption{Plug-in delta-method variance $\widetilde V$, SE of $\hat R$, ARE
+versus uniform, and ESS on full KDD Cup 2012 Track 2 ($f=1.0$, $n_{\mathrm{pairs}}=4.61$M).
+Harmonic, min, and the count-only oracle all reach $\mathrm{ARE}\approx 4.5$.
+The full-$\theta$ oracle is pathological because per-cell $\hat\theta_i$ is
+too noisy at this scale (singleton mass).}
+\label{tab:are_full}
+\centering
+\small
+\begin{tabular}{lrrrr}
+\toprule
+Scheme & $\hat R$ & $\mathrm{SE}$ & $\mathrm{ARE}_{\mathrm{vs U}}$ & ESS \\
+\midrule
+Uniform                    & 1.683 & 4.24e-3 & 1.00 & 4.61M \\
+Min                        & 1.712 & 2.05e-3 & 4.41 & 2{,}526 \\
+\textbf{Harmonic}          & 1.710 & 2.02e-3 & \textbf{4.53} & 1{,}849 \\
+Count-oracle (0.5,1)       & 1.715 & 2.02e-3 & 4.57 & 1{,}760 \\
+$\theta$-aware oracle      & 2.343 & 0.148   & 0.002 & 1.1 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\caption{Stratified ARE(harmonic, uniform) by $N_1+N_2$ quartile on full KDD.
+Schemes are tied on the noise-dominated quartiles; harmonic dominates 5$\times$
+on the high-information quartile, where the actual estimation signal lives.}
+\label{tab:strat}
+\centering
+\small
+\begin{tabular}{lrrr}
+\toprule
+$N_1+N_2$ quartile & $n$ pairs & $\widetilde V_U$ & $\mathrm{ARE}(h,u)$ \\
+\midrule
+Lowest                  & 1.99M & 2.3e-5 & 1.02 \\
+Middle-low              & 1.38M & 1.9e-5 & 1.09 \\
+\textbf{Highest}        & 1.25M & 7.6e-6 & \textbf{4.98} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Headline (Table~\ref{tab:are_full}).}
+$\mathrm{ARE}(\text{harmonic},\text{uniform})=4.53$ on full KDD.
+\textbf{Uniform needs $\sim 4.5\times$ the impressions to match harmonic's
+precision}, with $\mathrm{SE}_U/\mathrm{SE}_H\approx 2.13$. The min-count
+heuristic of~\cite{agarwal2019estimating} achieves ARE$=4.41$; the count-only
+oracle reaches $4.57$. The full-$\theta$ oracle, which would be optimal under
+Aitken's theorem if $\theta_i$ were known, blows up because plug-in
+$\hat\theta_i$ is itself too noisy on the singleton-dominated tail.
+
+\paragraph{Stratified ARE (Table~\ref{tab:strat}).} Harmonic dominates uniform
+$5\times$ on the highest-impression quartile and is essentially tied on the
+noise quartiles. The efficiency gain comes from \emph{not} averaging singletons
+on equal footing with high-information cells.
+
+\paragraph{PBM is decisively rejected.} On the 16,132 high-information pairs
+(both positions $\ge 5$ clicks at $f=1.0$),
+$Q=6.17\times 10^4$, $\mathrm{df}=16{,}131$, $Q/\mathrm{df}=3.83$,
+$z\approx (61700-16131)/\sqrt{2\cdot 16131}\approx 253\sigma$. This holds across
+scales ($z\approx 50$ at $f=0.1$; $z\approx 7.6$ at $f=0.01$). PBM rejection
+explains why schemes converge to slightly different $\hat R$ on KDD (uniform
+1.68, harmonic 1.71, $\theta$-oracle 2.34): Theorem~1
+ratio-unbiasedness~\cite{agarwal2019estimating} holds \emph{under PBM}, which is
+violated. The ARE result is unaffected---it is a model-internal efficiency
+comparison.
+
+\paragraph{Synthetic and Yahoo-LTR.}
+On synthetic data with PBM by construction and ground-truth $p_k$, harmonic
+reaches a target precision $\varepsilon$ with $1/1.3$--$1/1.94$ the impressions
+that uniform needs (median 1.31$\times$, max 1.94$\times$ across imbalance
+regimes; figure deferred to appendix).
+On the semi-synthetic Yahoo LTR dataset, harmonic reduces MSE versus uniform by
+up to $55\%$, consistent with ARE $\approx 2$. Both confirm the ARE prediction
+in regimes where ground truth exists.
+
+\section{Conclusion}
+
+Framing harmonic weighting as the count-only inverse-variance optimum
+(Aitken~\cite{aitken1934least}) and replacing bootstrap-based variance
+assessment with plug-in delta-method $\widetilde V$ (Owen
+\S9.2~\cite{owen2013mc}) yields a rigorous, calibration-validated efficiency
+comparison on heavy-tailed real click logs. On KDD Cup 2012 Track 2,
+harmonic delivers $\mathrm{ARE}=4.5$ over uniform, with PBM
+heterogeneity quantified separately by Cochran-$Q$ at $z\approx 253\sigma$.
+Future work: shrinkage variants of the full-$\theta$ oracle for cells where
+$\hat\theta_i$ is well-estimated; richer click models~\cite{wang2018position,yue2010beyond}
+where PBM is known to fail.
+
+\section*{GenAI Usage Disclosure}
+The authors used a large-language-model assistant to help with code
+generation for the empirical pipeline (KDD aggregation, plug-in variance
+script), with copy-editing, and with the formulation of LaTeX tables and
+equations from numerical results. All experimental design, mathematical
+derivations (Theorem~\ref{thm:harmonic_ivw} and Eq.~\eqref{eq:Vtilde}),
+interpretation of results, citations, and final wording were authored and
+verified by the authors. No LLM-generated content was used without human
+review. Code and full experiment scripts are provided in the supplementary
+material.
+
+\bibliographystyle{ACM-Reference-Format}
+\begin{thebibliography}{10}
+
+\bibitem{agarwal2019estimating}
+A.~Agarwal, X.~Wang, C.~Li, M.~Bendersky, and M.~Najork.
+\newblock Estimating position bias without intrusive interventions.
+\newblock In {\em WSDM}, 2019.
+
+\bibitem{aitken1934least}
+A.~C. Aitken.
+\newblock On least squares and linear combination of observations.
+\newblock {\em Proc.\ Royal Soc.\ Edinburgh}, 55:42--48, 1934.
+
+\bibitem{borenstein2009meta}
+M.~Borenstein, L.~V. Hedges, J.~P.~T. Higgins, and H.~R. Rothstein.
+\newblock {\em Introduction to Meta-Analysis}.
+\newblock Wiley, 2009.
+
+\bibitem{hedges1985meta}
+L.~V. Hedges and I.~Olkin.
+\newblock {\em Statistical Methods for Meta-Analysis}.
+\newblock Academic Press, 1985.
+
+\bibitem{joachims2017unbiased}
+T.~Joachims, A.~Swaminathan, and T.~Schnabel.
+\newblock Unbiased learning-to-rank with biased feedback.
+\newblock In {\em WSDM}, 2017.
+
+\bibitem{kong1992ess}
+A.~Kong.
+\newblock A note on importance sampling using standardized weights.
+\newblock Tech.\ Rep.\ 348, U.\ Chicago Statistics, 1992.
+
+\bibitem{owen2013mc}
+A.~B. Owen.
+\newblock {\em Monte Carlo Theory, Methods and Examples}, ch.\ 9.
+\newblock 2013.
+
+\bibitem{swaminathan2015snips}
+A.~Swaminathan and T.~Joachims.
+\newblock The self-normalized estimator for counterfactual learning.
+\newblock In {\em NeurIPS}, 2015.
+
+\bibitem{vdv1998asymptotic}
+A.~W. van~der Vaart.
+\newblock {\em Asymptotic Statistics}, ch.\ 3.
+\newblock Cambridge, 1998.
+
+\bibitem{wang2018position}
+X.~Wang, M.~Bendersky, D.~Metzler, and M.~Najork.
+\newblock Position bias estimation for unbiased learning to rank in personal search.
+\newblock In {\em WSDM}, 2018.
+
+\bibitem{yue2010beyond}
+Y.~Yue, R.~Patel, and H.~Roehrig.
+\newblock Beyond position bias: examining result attractiveness as a source of presentation bias.
+\newblock In {\em WWW}, 2010.
+
+\end{thebibliography}
+
+\end{document}

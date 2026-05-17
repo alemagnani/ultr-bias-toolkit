@@ -13,3 +13,6 @@ paper/main.log
 paper/main.bbl
 paper/main.blg
 paper/main.out
+
+# academic refs (copyrighted PDFs, kept local only)
+paper/reviewer_response/refs_pdf/
