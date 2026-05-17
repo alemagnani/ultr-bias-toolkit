@@ -15,7 +15,7 @@
 \acmYear{2026}
 \acmConference[CIKM '26]{ACM CIKM}{October 2026}{Toronto, Canada}
 
-\title{Count-Only Inverse-Variance Weighting for Intervention Harvesting}
+\title{Surrogate Inverse-Variance Weighting for Intervention Harvesting on Heavy-Tailed Click Logs}
 
 \author{Anonymous}
 \affiliation{\institution{Anonymous}\country{}}
@@ -93,25 +93,25 @@ inverse-variance-style weights on singleton-dominated heavy-tailed data
 (Section~\ref{sec:plugin}).
 
 \textbf{Contributions.}
-\textbf{(1)} We identify harmonic as the count-only inverse-variance choice
-under the standard PBM with homoscedastic relevance
-(Theorem~\ref{thm:ivw}), prove an unconditional Cauchy--Schwarz reduction
-of the delta-method variance \emph{surrogate} $V_k+V_{k'}$
-(Theorem~\ref{thm:cs}, conditional on the surrogate objective and
-unconditional in the counts), and characterise the exact asymmetric
-surrogate oracle of which harmonic is the $\alpha=\beta$ special case
+\textbf{(1)} We identify harmonic as the inverse-variance optimum on a
+\emph{relevance-agnostic count-only surrogate} of the delta-method
+variance under PBM (Theorem~\ref{thm:ivw}); prove an unconditional
+Cauchy--Schwarz reduction of $V_k+V_{k'}$ that is conditional on the
+surrogate objective and unconditional in the counts
+(Theorem~\ref{thm:cs}); and characterise the exact asymmetric surrogate
+oracle of which harmonic is the $\alpha=\beta$ special case
 (Theorem~\ref{thm:asym}).
 \textbf{(2)} We adopt the plug-in delta-method asymptotic variance
 $\widetilde V(\omega)$ as a finite-sample efficiency diagnostic aligned
 with the conditional-on-counts question, and use empirical click-resample
 SE as its calibration baseline; we discuss why pair-bootstrap is misaligned
 with this question on heavy-tailed data.
-\textbf{(3)} On the full KDD log we measure
-$\mathrm{ARE}(\text{harmonic},\text{uniform})=4.53$, calibrated within
-$1$--$2\%$ across two sample fractions, and robust to weight-capping at
-the $99.99$th percentile (ARE $\ge 4.1$). We quantify PBM
-mis-specification via Cochran's $Q/\mathrm{df}=3.83$ and discuss the
-estimand caveat that follows.
+\textbf{(3)} On the full KDD log,
+$\mathrm{ARE}(\text{harmonic},\text{uniform})=4.53$ on the surrogate,
+calibrated within $1$--$2\%$ and robust to weight-capping; PBM
+mis-specification (Cochran-$Q/\mathrm{df}=3.83$) makes $\omega$ a
+precision/estimand trade-off, not a search for a single
+``true'' $p_k/p_{k'}$.
 Synthetic and Yahoo-LTR experiments with ground truth corroborate.
 
 \section{Estimator and Theory}
@@ -363,9 +363,15 @@ plug-in IVW fails.
 With $\hat p_1=0.0501$, $\hat p_2=0.0256$ estimated from the marginal
 CTRs, $\alpha=18.97$, $\beta=38.08$, $\alpha/\beta\approx 0.50$.
 Harmonic reduces $\alpha V_k+\beta V_{k'}$ by a factor of $4.75$ versus
-uniform---essentially identical to the symmetric reduction of $4.84$.
-The asymmetric counterexample of Section~\ref{sec:method} thus does not
-materialise on KDD's count distribution.
+uniform. Both this number and the symmetric reduction of $4.84$ are
+deterministic functionals of the observed counts---the gap reflects the
+intrinsic asymmetry of $(\alpha,\beta)$, not Monte-Carlo noise---and the
+two are within $2\%$ of each other. The closed-form asymmetric
+counterexample of Section~\ref{sec:method} requires strongly
+\emph{anti-correlated} $(N_k,N_{k'})$ across cells (each cell informative
+at exactly one position); on KDD the per-pair counts are positively
+correlated, as items popular at position $1$ are typically also popular
+at position $2$, and we conjecture this is generic for production logs.
 
 \paragraph{Stratified ARE (Table~\ref{tab:strat}).}
 Schemes tie on noise singletons (where there is nothing to estimate) and
@@ -374,11 +380,10 @@ The gain comes from \emph{not} treating singletons as equal to
 million-impression cells.
 
 \paragraph{Weight-cap robustness.}
-The harmonic ESS of $1{,}849$ out of $4.61$M pairs invites a concern that
-the efficiency gain rests on a few extreme cells, but the small ESS
-reflects deliberate concentration on the pairs containing nearly all
-statistical information in this heavy-tailed setting rather than
-instability of the estimator. Capping $\omega_i^h$ at
+The harmonic ESS is $1{,}849$ out of $4.61$M pairs: concentration on a
+small subset of high-count cells is what produces the surrogate
+$\widetilde V$ reduction, and the trade-off is sensitivity to those
+cells, which we probe directly by capping. Capping $\omega_i^h$ at
 the $99.99$th percentile (threshold $2{,}079$; $462$ pairs capped) lifts
 ESS to $5.2{\times}10^4$ and still gives
 $\mathrm{ARE}=4.12$; at the $99$th percentile, $\mathrm{ARE}=2.83$ (ESS
@@ -521,76 +526,56 @@ Challenge Set~1 test split (6,936 queries; relevance grades $g\in\{0,...,4\}$
 mapped to $r(q,d)=(2^g-1)/15$ following NDCG; click model
 $P(C=1\mid q,d,k)=p_k\,r(q,d)$; 200 trials). Harmonic reduces variance by
 $\sim 40\%$ vs.\ uniform at imbalance $r=50$ (Var
-$1.5\!\times\!10^{-4}\!\to\!8.7\!\times\!10^{-5}$). Aggressive clipping
-trades variance for bias and yields $\sim\!458\times$ higher MSE,
-confirming that variance-reduction without bias control is not viable.
+$1.5\!\times\!10^{-4}\!\to\!8.7\!\times\!10^{-5}$). With $200$ trials,
+a delta-method approximation places the $95\%$ CI on the
+variance-ratio at $[0.49, 0.71]$, so the gain is well separated from
+$1.0$ but not tightly pinned. Aggressive clipping trades variance for
+bias and yields $\sim\!458\times$ higher MSE.
 
-\paragraph{Production-style traffic simulation.}
-$K{=}5$ concurrent rankers; a default ranker shows each document at its
-natural position, treatment rankers swap adjacent pairs with probability
-$0.5$. Under uniform traffic ($5\!\times\!20\%$) only $0.4\%$ of adjacent
-pairs exceed impression ratio $10$ and harmonic's MSE reduction is
-$6.3\%$; under production traffic ($80\%\!+\!4\!\times\!5\%$), $16.7\%$
-of pairs exceed ratio~$10$ and harmonic's MSE reduction grows to
-$\textbf{17.2\%}$, confirming the gain scales directly with
-traffic-induced imbalance.
+A production-style $K{=}5$ ranker A/B simulation (single hyperparameter
+setting) shows harmonic's MSE reduction growing from $6.3\%$ to
+$17.2\%$ as adjacent-pair impression imbalance rises---qualitative
+direction only; full sweep deferred to the regular-paper version.
 
 \section{Related Work}
 \label{sec:related}
 
-Intervention harvesting was introduced by~\cite{agarwal2019estimating} with
-the uniform and min-count variants we compare against;~\cite{wang2018position}
-jointly estimates relevance and propensities via EM.
-Self-normalised weighted ratio estimators have a long history in importance
-sampling and survey statistics: Owen~\cite{owen2013mc} §9.2 derives the
-asymptotic variance we use; Kong~\cite{kong1992ess} introduces ESS;
-Hesterberg~\cite{hesterberg1995} analyses heterogeneous-weight variance.
-Inverse-variance weighting traces to Aitken~\cite{aitken1934least} and is
-canonical in
-meta-analysis~\cite{hedges1985meta,borenstein2009meta}. The closest analogue
-in counterfactual learning is the self-normalised IPS estimator
-SNIPS~\cite{swaminathan2015snips}, which applies the same $\widetilde V$
-framework to off-policy evaluation in bandits;~\cite{bottou2013counterfactual}
-analyses why weight heterogeneity, not sample count, governs effective
-precision on logged feedback. PBM violations in real logs are documented
-in~\cite{yue2010beyond,wang2018position} and reviewed
-in~\cite{chuklin2015clickmodels}.
+Intervention harvesting was introduced
+by~\cite{agarwal2019estimating}; \cite{wang2018position} jointly
+estimates relevance and propensities via EM. Self-normalised weighted
+ratio estimators are standard in importance sampling and survey
+statistics~\cite{owen2013mc,kong1992ess,hesterberg1995};
+inverse-variance weighting traces to Aitken~\cite{aitken1934least} and
+is canonical in meta-analysis~\cite{hedges1985meta,borenstein2009meta}.
+The closest off-policy analogue is
+SNIPS~\cite{swaminathan2015snips,bottou2013counterfactual}. PBM
+violations on real logs are documented
+in~\cite{yue2010beyond,wang2018position,chuklin2015clickmodels}.
 
 \paragraph{Why count-only PBM weighting is still worth studying.}
-Given that PBM is approximate (Section~\ref{sec:cochran}), one might
-prefer EM-style joint estimation of relevance and propensities as
-in~\cite{wang2018position}, which has bias-variance trade-offs of its
-own (EM is sensitive to initialisation and model choice; intervention
-harvesting is one-shot and model-internal). The two approaches are
-complementary: intervention harvesting is a clean building block whose
-variance properties we characterise here, and a relevance-agnostic
-weight scheme like harmonic is precisely the right input to an EM
-M-step that re-uses count statistics. A direct empirical comparison
-against an EM estimator is left to the regular-paper version.
+Given that PBM is approximate, EM-style joint estimation of relevance
+and propensities~\cite{wang2018position} is a natural alternative
+with its own bias--variance trade-offs (initialisation sensitivity,
+model choice). The two approaches are complementary: a
+relevance-agnostic weight is the right input to an EM M-step that
+re-uses count statistics. Empirical EM comparison is left to the
+regular-paper version.
 
 \section{Conclusion}
 
-We frame harmonic weighting as the inverse-variance optimum of an
-explicit \emph{relevance-agnostic count-only surrogate} of the
-delta-method variance under PBM
-(Theorems~\ref{thm:ivw}--\ref{thm:asym}). This is honest about the cost
-of dropping cell relevance from the actual Bernoulli variance, which
-the $\theta$-aware oracle exposes as plug-in infeasibility on
-singleton-dominated data ($\mathrm{ARE}=0.002$). The plug-in
-delta-method variance $\widetilde V$ (Eq.~\ref{eq:Vtilde}) is the
-natural diagnostic at fixed $\omega$; on full KDD Cup 2012 Track 2 it
-yields $\mathrm{ARE}(\text{harmonic},\text{uniform})=4.53$ on the
-surrogate, rising to $\sim 5\times$ on information-bearing cells, with
-harmonic and the min heuristic essentially tied empirically ($4.53$
-vs.\ $4.41$). Under known PBM mis-specification
-(Cochran-$Q/\mathrm{df}=3.83$), different schemes target different
-weighted averages of cell-specific ratios; choosing $\omega$ is a
-precision/estimand trade-off, not a search for ``the'' position-bias
-ratio. Future work: shrinkage variants of the $\theta$-aware oracle
-(Theorem~\ref{thm:asym} with $\hat\theta_i$ regularised); empirical
-comparison against EM-style joint estimation~\cite{wang2018position};
-unconditional out-of-policy variance bounds; click models beyond
-PBM~\cite{yue2010beyond,chuklin2015clickmodels}.
+Harmonic weighting is the inverse-variance optimum on a
+\emph{relevance-agnostic count-only surrogate} of the PBM delta-method
+variance (Theorems~\ref{thm:ivw}--\ref{thm:asym}). The actual
+inverse-variance solution ($\theta$-aware oracle) is plug-in infeasible
+on singleton-dominated data ($\mathrm{ARE}=0.002$). The plug-in
+$\widetilde V$ is the natural diagnostic at fixed $\omega$; on full KDD
+$\mathrm{ARE}(\text{harmonic},\text{uniform})=4.53$ on the surrogate,
+with harmonic and min essentially tied ($4.53$ vs.\ $4.41$). Under
+known PBM mis-specification (Cochran-$Q/\mathrm{df}=3.83$) different
+schemes target different weighted averages of cell-specific ratios, so
+choosing $\omega$ is a precision/estimand trade-off. Future work:
+shrinkage $\theta$-aware oracle; EM comparison~\cite{wang2018position};
+click models beyond PBM~\cite{yue2010beyond,chuklin2015clickmodels}.
 
 \section*{GenAI Usage Disclosure}
 The authors used a large-language-model assistant for code generation
