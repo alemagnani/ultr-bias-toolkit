@@ -350,6 +350,38 @@ $\mathrm{ARE}=4.12$; at the $99$th percentile, $\mathrm{ARE}=2.83$ (ESS
 $7.6{\times}10^5$); even at the $90$th, $\mathrm{ARE}=1.86$. Harmonic
 beats uniform robustly across capping levels.
 
+\paragraph{Comparison of count-only weighting schemes.}
+Table~\ref{tab:schemes} compares harmonic to the natural alternatives on
+full KDD. Among count-only weights, harmonic is best on $\widetilde V$.
+Log-counting is too flat (treats singletons nearly as well as
+million-impression cells); the geometric mean and min-count concentrate
+more aggressively but neither matches the inverse-variance optimum.
+Capping at the 99th percentile preserves a $2.83\times$ advantage but
+shifts the estimand ($\hat R: 1.71\to 1.61$), consistent with the
+estimand discussion below.
+
+\begin{table}[t]
+\caption{Count-only weighting schemes compared on full KDD via plug-in
+$\widetilde V$. Schemes that concentrate more aggressively give lower
+$\widetilde V$ but smaller ESS. Harmonic is the inverse-variance
+optimum among count-only schemes (Theorem~\ref{thm:ivw}).}
+\label{tab:schemes}
+\centering
+\small
+\begin{tabular}{lrrrr}
+\toprule
+Scheme                          & $\hat R$ & SE & ARE & ESS \\
+\midrule
+Uniform                         & 1.683 & 4.24e-3 & 1.00 & 4.61M \\
+$\log(1+\min(N_k,N_{k'}))$      & 1.651 & 3.18e-3 & 1.71 & 3.17M \\
+$\sqrt{N_k N_{k'}}$             & 1.706 & 2.28e-3 & 3.55 & 1{,}246 \\
+$\min(N_k,N_{k'})$              & 1.712 & 2.05e-3 & 4.41 & 2{,}526 \\
+\textbf{Harmonic}               & 1.710 & 2.02e-3 & \textbf{4.53} & 1{,}849 \\
+Harmonic, cap@99th pct          & 1.606 & 2.40e-3 & 2.83 & 765K \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \paragraph{Estimand under PBM mis-specification.}
 \label{par:estimand}
 PBM is a known approximation; on real logs different weight schemes
