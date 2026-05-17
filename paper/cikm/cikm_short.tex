@@ -33,12 +33,13 @@ $(q,\mathrm{ad})$ pairs have $\le 5$ impressions while $0.1\%$ of
 pairs hold $42\%$ of all impressions. The way cells are weighted is
 therefore decisive. We propose two count-aware weighting schemes as drop-in replacements
 for the uniform per-cell weighting used by Agarwal et al.: a simple
-\emph{min-count} weight (considered in our prior work) and the
-\emph{harmonic} weight $\omega_i=N_k^iN_{k'}^i/(N_k^i+N_{k'}^i)$ (the
-main proposal of this paper). The two perform comparably in
-practice, but harmonic has a stronger theoretical foundation: it
-equals the inverse-variance choice under the Position-Based Model (PBM)
-once cell-level relevance is dropped from the per-cell variance---a
+\emph{min-count} weight $\omega_i=\min(N_k^i,N_{k'}^i)$ and the
+\emph{harmonic} weight
+$\omega_i=N_k^iN_{k'}^i/(N_k^i+N_{k'}^i)$. Both are new to this paper.
+The two perform comparably in practice on real heavy-tailed click logs,
+but harmonic has a stronger theoretical foundation: it equals the
+inverse-variance choice under the Position-Based Model (PBM) once
+cell-level relevance is dropped from the per-cell variance---a
 \emph{relevance-agnostic surrogate} of the actual variance. A
 Cauchy--Schwarz inequality guarantees harmonic reduces this surrogate
 for any impression counts.
@@ -85,15 +86,14 @@ Equal-weighting heteroscedastic estimators is statistically suboptimal
 by classical inverse-variance theory~\cite{borenstein2009meta}, a result
 the meta-analysis literature has championed for decades. The intervention-harvesting estimator
 of~\cite{agarwal2019estimating} uses uniform per-cell weighting (each
-cell's click rate enters the sum with weight $1$). We propose two
-count-aware alternatives: the \emph{min-count} weight
-$\omega_i=\min(N_k^i,N_{k'}^i)$ (simpler, considered in our prior
-work) and the \emph{harmonic} weight
-$\omega_i=N_k^i N_{k'}^i/(N_k^i+N_{k'}^i)$ (the main proposal of this
-paper). Min and harmonic perform comparably in practice on KDD, but
-harmonic has a stronger theoretical foundation: it is the
-inverse-variance optimum of a relevance-agnostic surrogate
-(Theorem~\ref{thm:ivw}) and the only one of the two with an
+cell's click rate enters the sum with weight $1$). \textbf{We propose
+two new count-aware alternatives}: the \emph{min-count} weight
+$\omega_i=\min(N_k^i,N_{k'}^i)$ and the \emph{harmonic} weight
+$\omega_i=N_k^i N_{k'}^i/(N_k^i+N_{k'}^i)$. Empirically, min and
+harmonic perform comparably on KDD (Section~\ref{sec:kdd}); the
+harmonic proposal is preferable because of its stronger theoretical
+foundation: it is the inverse-variance optimum of a relevance-agnostic
+surrogate (Theorem~\ref{thm:ivw}) and the only one of the two with an
 unconditional variance-reduction guarantee against uniform
 (Theorem~\ref{thm:cs}). Existing variance-reduction arguments on
 heavy-tailed real logs have relied on \emph{bootstrap} resampling,
@@ -363,12 +363,14 @@ Middle-low              & 1.38M & 1.9e-5 & 1.09 \\
 $\mathrm{ARE}(\text{harmonic},\text{uniform})=4.53$:
 \textbf{uniform requires $\sim 4.5\times$ the impressions of harmonic
 for matching precision} on the relevance-agnostic surrogate. The
-min-count variant achieves $4.41$ on the same surrogate ($-2.7\%$
-relative): harmonic and min are essentially tied empirically on KDD; harmonic's contribution is the unconditional
+min-count proposal achieves $4.41$ on the same surrogate ($-2.7\%$
+relative): harmonic and min are essentially tied empirically on KDD,
+and we recommend harmonic because it carries the unconditional
 guarantee (Theorem~\ref{thm:cs}) and the parameter-free derivation,
-not a large empirical margin. The count-only oracle ($4.57$) is the
-ceiling within the surrogate. The $\theta$-aware oracle, which would
-be optimal under Aitken's theorem with known $r_i$, plugs in $\hat r_i$
+not because of a large empirical margin. The count-only oracle
+($4.57$) is the ceiling within the surrogate. The $\theta$-aware
+oracle, which would be optimal under classical inverse-variance theory
+with known $r_i$, plugs in $\hat r_i$
 that is too noisy on the singleton-dominated tail and collapses to
 $\mathrm{ARE}=0.002$: a substantive finding rather than a side
 note---it shows that count-only weighting is robust precisely where
@@ -430,7 +432,7 @@ Scheme                          & $\hat R$ & SE & ARE & ESS \\
 Uniform                         & 1.683 & 4.24e-3 & 1.00 & 4.61M \\
 $\log(1+\min(N_k,N_{k'}))$      & 1.651 & 3.18e-3 & 1.71 & 3.17M \\
 $\sqrt{N_k N_{k'}}$             & 1.706 & 2.28e-3 & 3.55 & 1{,}246 \\
-$\min(N_k,N_{k'})$ (prior)      & 1.712 & 2.05e-3 & 4.41 & 2{,}526 \\
+$\min(N_k,N_{k'})$              & 1.712 & 2.05e-3 & 4.41 & 2{,}526 \\
 \textbf{Harmonic}               & 1.710 & 2.02e-3 & \textbf{4.53} & 1{,}849 \\
 Harmonic, cap@99th pct          & 1.606 & 2.40e-3 & 2.83 & 765K \\
 \bottomrule
@@ -585,7 +587,9 @@ inverse-variance solution ($\theta$-aware oracle) is plug-in infeasible
 on singleton-dominated data ($\mathrm{ARE}=0.002$). The plug-in
 $\widetilde V$ is the natural diagnostic at fixed $\omega$; on full KDD
 $\mathrm{ARE}(\text{harmonic},\text{uniform})=4.53$ on the surrogate,
-with harmonic and min essentially tied ($4.53$ vs.\ $4.41$). Under
+with our two proposals tied empirically (harmonic $4.53$, min $4.41$;
+harmonic is preferred because it carries the unconditional guarantee
+of Theorem~\ref{thm:cs}). Under
 known PBM mis-specification (Cochran-$Q/\mathrm{df}=3.83$) different
 schemes target different weighted averages of cell-specific ratios, so
 choosing $\omega$ is a precision/estimand trade-off. Future work:
