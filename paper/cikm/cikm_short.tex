@@ -24,38 +24,34 @@
 \begin{document}
 
 \begin{abstract}
-Intervention-harvesting estimators of position
-bias~\cite{agarwal2019estimating} combine per-cell click-rate estimates
-across many $(q,d,\mathrm{position})$ cells whose impression counts span
-several orders of magnitude. Under the Position-Based Model (PBM), the per-cell Bernoulli variance
-$p_kr_i(1-p_kr_i)/N_k^i$ depends on the (unknown) cell relevance $r_i$;
-the actual inverse-variance optimum is therefore not deployable from
-counts alone. We work with the \emph{relevance-agnostic count-only
-surrogate} obtained by dropping the $r_i$-dependent factors. On this
-surrogate, the \emph{harmonic} weight
-$\omega_i=N_k^iN_{k'}^i/(N_k^i+N_{k'}^i)$ is the inverse-variance
-optimum---Aitken's classical generalised-least-squares
-solution~\cite{aitken1934least} restricted to count-only weights---and
-an unconditional Cauchy--Schwarz inequality shows it minimises
-$V_k+V_{k'}$ for any impression counts; empirically the same reduction
-holds for the asymmetric variant $\alpha V_k+\beta V_{k'}$ on KDD
-($\alpha/\beta\approx 0.50$). We propose the plug-in delta-method asymptotic variance
-$\widetilde V(\omega)$ of the self-normalised weighted ratio
-estimator~\cite{owen2013mc,vdv1998asymptotic} as a finite-sample diagnostic
-that is well aligned with the conditional-on-counts efficiency question, in
-contrast to a naive pair-bootstrap. On the full KDD Cup 2012 Track 2
-sponsored-search log (235M impressions, 4.6M interventional pairs), the
-plug-in asymptotic relative efficiency of harmonic over uniform is $4.53$,
-well-calibrated against click-resample standard error ($1$--$2\%$ at two
-sample fractions), and robust to weight-capping (ARE $\ge 4.1$ at the
-$99.99$th percentile). A Cochran-$Q$ diagnostic confirms substantial PBM mis-specification
-($Q/\mathrm{df}=3.83$), allowing efficiency comparisons to be interpreted
-separately from model fit; under such mis-specification different weight
-schemes target different weighted averages of cell-specific ratios---an
-estimand caveat we discuss explicitly. Synthetic ($43\%$--$54\%$ MSE
-reduction at high imbalance) and Yahoo-LTR semi-synthetic ($\sim 40\%$
-variance reduction at $r=50$) experiments with ground truth corroborate the
-efficiency prediction.
+Intervention harvesting~\cite{agarwal2019estimating} estimates the
+position-bias ratio $p_k/p_{k'}$ by aggregating per-cell click-rate
+ratios across many $(\mathrm{query},\mathrm{doc})$ cells. On real click
+logs the per-cell impression counts are extremely heavy-tailed: on the
+full KDD Cup 2012 Track 2 log, $60\%$ of interventional
+$(q,\mathrm{ad})$ pairs have $\le 5$ impressions while $0.1\%$ of
+pairs hold $42\%$ of all impressions. The way cells are weighted is
+therefore decisive. The \emph{harmonic} weight, used in the
+intervention-harvesting literature, equals the inverse-variance choice
+under the Position-Based Model (PBM) once cell-level relevance is
+dropped from the per-cell variance---a \emph{relevance-agnostic
+surrogate} of the actual variance---and a Cauchy--Schwarz inequality
+guarantees harmonic reduces this surrogate for any impression counts.
+The actual inverse-variance solution requires per-cell relevance and is
+infeasible at this scale. We further argue that the naive pair
+bootstrap is poorly aligned with the conditional-on-counts efficiency
+question on heavy-tailed data, and adopt instead the textbook
+delta-method asymptotic variance of the weighted ratio
+estimator~\cite{owen2013mc,vdv1998asymptotic} as a closed-form
+diagnostic. On the full KDD log harmonic's asymptotic relative
+efficiency over uniform weighting is $4.5{\times}$, matched within
+$1$--$2\%$ by click-resample standard error and robust to weight
+capping. A Cochran-$Q$ test confirms substantial PBM mis-specification;
+under such mis-specification, different weight schemes target different
+weighted averages of cell-specific ratios---an estimand caveat we make
+explicit. Synthetic and Yahoo-LTR semi-synthetic experiments with
+ground truth corroborate the efficiency prediction (up to $54\%$
+variance reduction at high imbalance).
 \end{abstract}
 
 \maketitle
