@@ -27,14 +27,19 @@
 Intervention-harvesting estimators of position
 bias~\cite{agarwal2019estimating} combine per-cell click-rate estimates
 across many $(q,d,\mathrm{position})$ cells whose impression counts span
-several orders of magnitude. Under the Position-Based Model (PBM), with
-cell-level relevance treated as homoscedastic, the \emph{harmonic} weight
-$\omega_i=N_k^iN_{k'}^i/(N_k^i+N_{k'}^i)$ is the count-only inverse-variance
-choice---Aitken's classical generalised-least-squares
-solution~\cite{aitken1934least} restricted to count-only weights---and an
-unconditional Cauchy--Schwarz inequality shows it minimises the
-delta-method variance \emph{surrogate} $V_k+V_{k'}$ for any impression
-counts. We propose the plug-in delta-method asymptotic variance
+several orders of magnitude. Under the Position-Based Model (PBM), the per-cell Bernoulli variance
+$p_kr_i(1-p_kr_i)/N_k^i$ depends on the (unknown) cell relevance $r_i$;
+the actual inverse-variance optimum is therefore not deployable from
+counts alone. We work with the \emph{relevance-agnostic count-only
+surrogate} obtained by dropping the $r_i$-dependent factors. On this
+surrogate, the \emph{harmonic} weight
+$\omega_i=N_k^iN_{k'}^i/(N_k^i+N_{k'}^i)$ is the inverse-variance
+optimum---Aitken's classical generalised-least-squares
+solution~\cite{aitken1934least} restricted to count-only weights---and
+an unconditional Cauchy--Schwarz inequality shows it minimises
+$V_k+V_{k'}$ for any impression counts; empirically the same reduction
+holds for the asymmetric variant $\alpha V_k+\beta V_{k'}$ on KDD
+($\alpha/\beta\approx 0.50$). We propose the plug-in delta-method asymptotic variance
 $\widetilde V(\omega)$ of the self-normalised weighted ratio
 estimator~\cite{owen2013mc,vdv1998asymptotic} as a finite-sample diagnostic
 that is well aligned with the conditional-on-counts efficiency question, in
@@ -67,13 +72,13 @@ feed this estimator are extraordinarily heavy-tailed. On the full
 KDD Cup 2012 Track 2 release (235M impressions; 4.6M interventional pairs
 at adjacent positions $(1,2)$), \textbf{60.7\% of pairs have
 $N_1+N_2\le 5$ while 0.1\% of pairs carry 42\% of all
-impressions}~\cite{kddcup2012}. Public benchmarks hide this shape: the released
+impressions}~\cite{kddcup2012}. Public benchmarks can hide this shape: the released
 Baidu-ULTR~\cite{zou2022large} aggregation has $94\%$ of $(q,d,\mathrm{pos})$
 cells with $N=1$ and $78\%$ of adjacent-pair impression ratios within
-$[0.5,2]$ \emph{because} the publication pipeline deduplicates impressions
-per cell---an artefact of release engineering, not of the underlying
-production logs. The unaggregated KDD release preserves the heavy-tailed
-production distribution.
+$[0.5,2]$, which we attribute to the per-cell deduplication used in the
+public release rather than to the underlying production logs (the
+unaggregated KDD release, by contrast, preserves the heavy-tailed
+production distribution).
 
 Equal-weighting heteroscedastic estimators is statistically suboptimal by a
 century of classical theory: Aitken's generalised-least-squares
@@ -140,16 +145,20 @@ $V_r(\omega)=\sum_i\omega_i^2/N_r^i/(\sum_i\omega_i)^2$,
 $\alpha=(1-p_k)/p_k$, $\beta=(1-p_{k'})/p_{k'}$.
 \end{proposition}
 
-\paragraph{Harmonic as count-only IVW.}
-For Bernoulli observations,
-$\mathrm{Var}(\hat\theta_k^i)=\theta_k^i(1-\theta_k^i)/N_k^i$. Under PBM,
-$\theta_k^i=p_k r_i$, so the Bernoulli variance contains a cell-level
-relevance $r_i$ that is generally heterogeneous. After suppressing this
-cell-level relevance heterogeneity, the inverse-variance optimum of
-Aitken~\cite{aitken1934least} restricted to count-only weights is the
-harmonic mean of the two cell counts. We make this precise as a statement
-about the variance \emph{surrogate} obtained by ignoring cell-level
-relevance variation:
+\paragraph{Relevance-agnostic count-only IVW.}
+The exact Bernoulli variance is
+$\mathrm{Var}(\hat\theta_k^i)=p_kr_i(1-p_kr_i)/N_k^i$, which depends on
+the cell relevance $r_i$. Plug-in inverse-variance weights with
+$\hat r_i$ estimated per cell define the
+\emph{$\theta$-aware oracle} of Theorem~\ref{thm:asym}; in
+heavy-tailed click logs $\hat r_i$ is itself extremely noisy on the
+$\sim\!60\%$ singleton mass, making this oracle infeasible in practice
+(Table~\ref{tab:are_full}: ARE $= 0.002$). We therefore work with a
+\emph{relevance-agnostic surrogate} that drops the $r_i$-dependent
+factor from the cell-level variance. The inverse-variance optimum of
+Aitken~\cite{aitken1934least} on this surrogate, restricted to count-only
+weights, is the harmonic mean of the two cell counts. We make this
+precise:
 
 \begin{theorem}[Count-only IVW on the surrogate]
 \label{thm:ivw}
@@ -164,8 +173,11 @@ For any impression counts $\{N_k^i,N_{k'}^i\}_{i=1}^n$,
 $\;V_k(\omega^h)+V_{k'}(\omega^h)\le V_k(\mathbf 1)+V_{k'}(\mathbf 1)$.
 The guarantee is unconditional in the counts but conditional on
 $V_k+V_{k'}$ as the objective; it implies improved
-$\mathrm{Var}(\hat R\mid\mathbf N)$ under PBM when $\alpha\approx\beta$
-(Proposition~\ref{prop:delta} below).
+$\mathrm{Var}(\hat R\mid\mathbf N)$ via
+Proposition~\ref{prop:delta} when $\alpha\approx\beta$. For the
+asymmetric $\alpha V_k+\beta V_{k'}$ surrogate the bound is empirical
+only, but we verify on full KDD that harmonic reduces it by essentially
+the same factor as the symmetric one (Section~\ref{sec:kdd}).
 \end{theorem}
 
 \begin{proof}[Sketch]
@@ -217,7 +229,9 @@ method gives
 \label{eq:Vtilde}
 \end{equation}
 $\mathrm{SE}(\hat R)=|\hat R|\sqrt{\widetilde V(\omega)}$. Plugging in
-$\hat\theta_i$ (with light shrinkage toward the marginal) yields the textbook
+$\hat\theta_i$ (with the shrinkage estimator
+$\hat\theta_i=(C_i+\bar\theta_k)/(N_i+1)$, $\bar\theta_k$ the marginal
+position-$k$ CTR) yields the textbook
 self-normalised IS variance estimator~\cite{owen2013mc,kong1992ess,swaminathan2015snips}.
 
 \paragraph{ARE.} For schemes $a,b$,
@@ -245,12 +259,16 @@ counts), which we adopt for calibration.
 \paragraph{Calibration and stability at scale.}
 Table~\ref{tab:scaling} reports plug-in SE versus empirical
 click-resample SE across KDD sample fractions, together with
-$\mathrm{ARE}(\text{harmonic},\text{uniform})$ at each scale.
-Plug-in agrees with empirical click-resample SE within $1$--$2\%$ where
-the latter is computed, and the ARE \emph{grows} with sample size
-($1.66 \to 4.53$), because the heavy-tailed structure of the count
-distribution becomes more pronounced as more data is included rather than
-averaged out.
+$\mathrm{ARE}(\text{harmonic},\text{uniform})$ at each scale. Because
+both $\widetilde V$ and click-resample SE share the conditional
+Bernoulli + cross-cell-independence assumption, their agreement is
+primarily an implementation-correctness check; a stronger probe of the
+independence assumption would be a query-cluster bootstrap, which is
+sensitive to Cochran-$Q$-style heterogeneity. We report pair-bootstrap
+numbers in supplementary material. The ARE \emph{grows} with sample
+size ($1.66 \to 4.53$) because the heavy-tailed structure of the count
+distribution becomes more pronounced as more data is included rather
+than averaged out.
 
 \begin{table}[t]
 \caption{Plug-in SE vs.\ click-resample SE across KDD subsamples, and
@@ -326,11 +344,28 @@ Middle-low              & 1.38M & 1.9e-5 & 1.09 \\
 \end{table}
 
 \paragraph{Headline (Table~\ref{tab:are_full}).}
-$\mathrm{ARE}(\text{harmonic},\text{uniform})=4.53$.
-\textbf{Uniform requires $\sim 4.5\times$ the impressions of harmonic for
-matching precision}, with $\mathrm{SE}_U/\mathrm{SE}_H\approx 2.13$. The
-min heuristic~\cite{agarwal2019estimating} achieves $4.41$, the count-only
-oracle $4.57$; harmonic is the principled parameter-free optimum.
+$\mathrm{ARE}(\text{harmonic},\text{uniform})=4.53$:
+\textbf{uniform requires $\sim 4.5\times$ the impressions of harmonic
+for matching precision} on the relevance-agnostic surrogate. The
+min-count heuristic~\cite{agarwal2019estimating} achieves $4.41$ on the
+same surrogate ($-2.7\%$ relative): harmonic and min are essentially
+tied empirically on KDD; harmonic's contribution is the unconditional
+guarantee (Theorem~\ref{thm:cs}) and the parameter-free derivation,
+not a large empirical margin. The count-only oracle ($4.57$) is the
+ceiling within the surrogate. The $\theta$-aware oracle, which would
+be optimal under Aitken's theorem with known $r_i$, plugs in $\hat r_i$
+that is too noisy on the singleton-dominated tail and collapses to
+$\mathrm{ARE}=0.002$: a substantive finding rather than a side
+note---it shows that count-only weighting is robust precisely where
+plug-in IVW fails.
+
+\paragraph{Asymmetric surrogate (empirical).}
+With $\hat p_1=0.0501$, $\hat p_2=0.0256$ estimated from the marginal
+CTRs, $\alpha=18.97$, $\beta=38.08$, $\alpha/\beta\approx 0.50$.
+Harmonic reduces $\alpha V_k+\beta V_{k'}$ by a factor of $4.75$ versus
+uniform---essentially identical to the symmetric reduction of $4.84$.
+The asymmetric counterexample of Section~\ref{sec:method} thus does not
+materialise on KDD's count distribution.
 
 \paragraph{Stratified ARE (Table~\ref{tab:strat}).}
 Schemes tie on noise singletons (where there is nothing to estimate) and
@@ -521,20 +556,41 @@ precision on logged feedback. PBM violations in real logs are documented
 in~\cite{yue2010beyond,wang2018position} and reviewed
 in~\cite{chuklin2015clickmodels}.
 
+\paragraph{Why count-only PBM weighting is still worth studying.}
+Given that PBM is approximate (Section~\ref{sec:cochran}), one might
+prefer EM-style joint estimation of relevance and propensities as
+in~\cite{wang2018position}, which has bias-variance trade-offs of its
+own (EM is sensitive to initialisation and model choice; intervention
+harvesting is one-shot and model-internal). The two approaches are
+complementary: intervention harvesting is a clean building block whose
+variance properties we characterise here, and a relevance-agnostic
+weight scheme like harmonic is precisely the right input to an EM
+M-step that re-uses count statistics. A direct empirical comparison
+against an EM estimator is left to the regular-paper version.
+
 \section{Conclusion}
 
-Framing harmonic weighting as the count-only inverse-variance optimum
-(Theorems~\ref{thm:ivw}--\ref{thm:asym}) and replacing bootstrap with the
-plug-in delta-method variance $\widetilde V$ (Eq.~\ref{eq:Vtilde}) yields
-rigorous, calibration-verified efficiency comparisons on heavy-tailed real
-click logs. On the full KDD Cup 2012 Track 2 log,
-$\mathrm{ARE}(\text{harmonic},\text{uniform})=4.53$, rising to $\sim 5\times$
-on information-bearing cells, with PBM mis-specification quantified separately
-by Cochran-$Q$ ($Q/\mathrm{df}=3.83$). Future work: shrinkage variants of the
-$\theta$-aware oracle (Theorem~\ref{thm:asym} with $\hat\theta_i$
-regularised); click models beyond
-PBM~\cite{wang2018position,yue2010beyond,chuklin2015clickmodels} where the
-intervention-harvesting family must be reformulated.
+We frame harmonic weighting as the inverse-variance optimum of an
+explicit \emph{relevance-agnostic count-only surrogate} of the
+delta-method variance under PBM
+(Theorems~\ref{thm:ivw}--\ref{thm:asym}). This is honest about the cost
+of dropping cell relevance from the actual Bernoulli variance, which
+the $\theta$-aware oracle exposes as plug-in infeasibility on
+singleton-dominated data ($\mathrm{ARE}=0.002$). The plug-in
+delta-method variance $\widetilde V$ (Eq.~\ref{eq:Vtilde}) is the
+natural diagnostic at fixed $\omega$; on full KDD Cup 2012 Track 2 it
+yields $\mathrm{ARE}(\text{harmonic},\text{uniform})=4.53$ on the
+surrogate, rising to $\sim 5\times$ on information-bearing cells, with
+harmonic and the min heuristic essentially tied empirically ($4.53$
+vs.\ $4.41$). Under known PBM mis-specification
+(Cochran-$Q/\mathrm{df}=3.83$), different schemes target different
+weighted averages of cell-specific ratios; choosing $\omega$ is a
+precision/estimand trade-off, not a search for ``the'' position-bias
+ratio. Future work: shrinkage variants of the $\theta$-aware oracle
+(Theorem~\ref{thm:asym} with $\hat\theta_i$ regularised); empirical
+comparison against EM-style joint estimation~\cite{wang2018position};
+unconditional out-of-policy variance bounds; click models beyond
+PBM~\cite{yue2010beyond,chuklin2015clickmodels}.
 
 \section*{GenAI Usage Disclosure}
 The authors used a large-language-model assistant for code generation
@@ -573,6 +629,11 @@ T.~Hesterberg.
 M.~Borenstein, L.~V. Hedges, J.~P.~T. Higgins, and H.~R. Rothstein.
 \newblock {\em Introduction to Meta-Analysis}.
 \newblock Wiley, 2009.
+
+\bibitem{craswell2008experimental}
+N.~Craswell, O.~Zoeter, M.~Taylor, and B.~Ramsey.
+\newblock An experimental comparison of click position-bias models.
+\newblock In {\em WSDM}, 2008.
 
 \bibitem{chuklin2015clickmodels}
 A.~Chuklin, I.~Markov, and M.~de~Rijke.
