@@ -89,48 +89,56 @@ inverse-variance-style weights on singleton-dominated heavy-tailed data
 (Section~\ref{sec:plugin}).
 
 \textbf{Contributions.}
-\textbf{(1)} We identify harmonic as the inverse-variance optimum on a
-\emph{relevance-agnostic count-only surrogate} of the delta-method
-variance under PBM (Theorem~\ref{thm:ivw}); prove an unconditional
-Cauchy--Schwarz reduction of $V_k+V_{k'}$ that is conditional on the
-surrogate objective and unconditional in the counts
-(Theorem~\ref{thm:cs}); and characterise the exact asymmetric surrogate
-oracle of which harmonic is the $\alpha=\beta$ special case
-(Theorem~\ref{thm:asym}).
-\textbf{(2)} We adopt the plug-in delta-method asymptotic variance
-$\widetilde V(\omega)$ as a finite-sample efficiency diagnostic aligned
-with the conditional-on-counts question, and use empirical click-resample
-SE as its calibration baseline; we discuss why pair-bootstrap is misaligned
-with this question on heavy-tailed data.
-\textbf{(3)} On the full KDD log,
-$\mathrm{ARE}(\text{harmonic},\text{uniform})=4.53$ on the surrogate,
-calibrated within $1$--$2\%$ and robust to weight-capping; PBM
-mis-specification (Cochran-$Q/\mathrm{df}=3.83$) makes $\omega$ a
-precision/estimand trade-off, not a search for a single
-``true'' $p_k/p_{k'}$.
-Synthetic and Yahoo-LTR experiments with ground truth corroborate.
+\textbf{(1)} We show that the harmonic weight is the inverse-variance
+optimum on a \emph{relevance-agnostic count-only surrogate} of the
+per-cell variance under PBM (Theorem~\ref{thm:ivw}), and prove a
+Cauchy--Schwarz inequality showing it reduces this surrogate for any
+impression counts (Theorem~\ref{thm:cs}). The exact inverse-variance
+oracle for the more general asymmetric surrogate is also characterised,
+and harmonic is its parameter-free special case (Theorem~\ref{thm:asym}).
+\textbf{(2)} We adopt the textbook closed-form asymptotic variance of
+the weighted ratio estimator as a finite-sample diagnostic that is
+properly aligned with conditional-on-counts efficiency on heavy-tailed
+data, where naive pair-bootstrap is misleading.
+\textbf{(3)} On the full KDD log, harmonic delivers an asymptotic
+relative efficiency of $4.53$ over uniform on this surrogate -- meaning
+uniform weighting would need roughly $4.5{\times}$ the data to match
+harmonic's precision -- with the plug-in agreeing within $1$--$2\%$ of
+empirical click-resample standard error and remaining robust to weight
+capping. A Cochran-$Q$ heterogeneity test ($Q/\mathrm{df}=3.83$) confirms
+substantial PBM mis-specification, under which the choice of weight is
+a precision/estimand trade-off rather than a search for a single
+``true'' position-bias ratio. Synthetic and Yahoo-LTR experiments with
+ground truth corroborate.
 
 \section{Estimator and Theory}
 \label{sec:method}
 
-Under PBM, $P(\mathrm{click}\mid q,d,k)=p_k\,r_{q,d}$. Given an interventional
-set $I_{k,k'}$ of $(q,d)$ pairs that appeared at both positions $k$ and $k'$,
-the position-bias ratio is estimated as~\cite{agarwal2019estimating}
+Throughout, $q$ denotes a query, $d$ a document or ad shown for that
+query, and $k$ a result position; $N_k^i$ and $C_k^i$ are the number
+of impressions and clicks the $i$-th $(q,d)$ pair received at position
+$k$. The Position-Based Model assumes $P(\mathrm{click}\mid q,d,k)
+=p_k\,r_{q,d}$, factorising click probability into a position-only
+examination probability $p_k$ and a relevance term $r_{q,d}\in[0,1]$.
+Given the set of $(q,d)$ pairs that appeared at both positions $k$ and
+$k'$, the ratio $p_k/p_{k'}$ is estimated
+as~\cite{agarwal2019estimating}
 \begin{equation}
 \hat R_{k,k'}=\frac{A}{B}=\frac{\sum_i \omega_i\, \hat\theta_k^i}
                               {\sum_i \omega_i\, \hat\theta_{k'}^i},
 \quad \hat\theta_k^i=\tfrac{C_k^i}{N_k^i}.
 \label{eq:Rhat}
 \end{equation}
-This is a self-normalised weighted ratio estimator. We say a weight scheme
-is \emph{ratio-unbiased} when the ratio of conditional expectations of
-numerator and denominator equals $p_k/p_{k'}$,
-i.e.\ $\mathbb E[A\mid\mathbf N]/\mathbb E[B\mid\mathbf N]=p_k/p_{k'}$
-(\emph{not} $\mathbb E[\hat R]=p_k/p_{k'}$; the finite-sample bias of the
-self-normalised ratio is $O(1/N)$ under standard regularity). Under PBM, the ratio of conditional expectations of numerator and
-denominator equals $p_k/p_{k'}$ for any count-only weight
-$\omega_i=\omega(N_k^i,N_{k'}^i)$, and the resulting self-normalised
-ratio estimator is consistent for this target~\cite{agarwal2019estimating}.
+$\hat R_{k,k'}$ is the standard \emph{self-normalised weighted ratio}
+estimator: a sum of weighted per-cell click rates divided by another
+such sum. We say a weight scheme is \emph{ratio-unbiased} when, under
+PBM, the ratio of the conditional expectations of the numerator and
+denominator equals $p_k/p_{k'}$ -- note this is not the same as
+$\mathbb E[\hat R]=p_k/p_{k'}$, because expectation does not commute
+with ratios; the finite-sample bias of $\hat R$ is $O(1/N)$ under
+standard regularity. Under PBM, every count-only weight
+$\omega_i=\omega(N_k^i,N_{k'}^i)$ satisfies this property, and $\hat R$
+is consistent for $p_k/p_{k'}$~\cite{agarwal2019estimating}.
 
 \begin{proposition}[Conditional delta-method variance]
 \label{prop:delta}
@@ -212,7 +220,7 @@ encountered them in any realistic count distribution we tested. The
 $\omega^\star$ in Theorem~\ref{thm:asym} remains the exact oracle for
 all $(\alpha,\beta)$.
 
-\section{Plug-in Asymptotic Variance: the Right Instrument}
+\section{Plug-in Asymptotic Variance as Diagnostic}
 \label{sec:plugin}
 
 \paragraph{$\widetilde V$ in closed form.}
