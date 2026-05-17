@@ -1,0 +1,459 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath, amsthm, amssymb}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\tcbset{colback=gray!5, colframe=gray!50, boxrule=0.4pt, sharp corners,
+        before skip=4pt, after skip=4pt}
+
+\title{Citation Verification for \\
+``Surrogate Inverse-Variance Weighting for Intervention Harvesting
+on Heavy-Tailed Click Logs''}
+\author{(internal verification document, not submitted)}
+\date{}
+
+\newcommand{\paperclaim}[1]{\textbf{Paper claim:} #1}
+\newcommand{\source}[1]{\textbf{Source location:} #1}
+\newcommand{\quoted}[1]{\begin{tcolorbox}\textit{#1}\end{tcolorbox}}
+
+\begin{document}
+\maketitle
+
+\noindent This document quotes verbatim from each cited paper the passage
+that supports the corresponding claim in the CIKM short paper. Goal: let
+the authors verify that each citation accurately backs the claim it is
+attached to. Local PDFs of the cited papers live in
+\texttt{paper/cikm/citations/}.
+
+\section*{Summary of issues found during verification}
+
+\noindent\textcolor{red}{\textbf{Two PDF mismatches need attention:}}
+
+\begin{enumerate}
+\item \texttt{swaminathan2015snips}: our local file
+\texttt{swaminathan\_joachims\_2015\_nips.pdf} is actually the
+\emph{ICML 2015} paper ``Counterfactual Risk Minimization'' by the same
+authors, not the NeurIPS 2015 SNIPS paper that the bibitem cites.
+Action: either download the NeurIPS paper from
+\url{https://papers.nips.cc/paper/2015/hash/39027dfad5138c9ca0c474d71db915c3-Abstract.html},
+or change the bibitem to cite the ICML CRM paper and adjust in-text wording.
+\item \texttt{yue2010beyond}: our local file \texttt{yue\_2010\_www.pdf} is
+actually a \emph{different} Yue 2010 paper (SIGIR 2010 ``Learning More
+Powerful Test Statistics for Click-Based Retrieval Evaluation'' by Yue,
+Gao, Chapelle, Zhang, Joachims), not the WWW 2010 paper by Yue, Patel,
+Roehrig that the bibitem cites. Action: download the correct WWW 2010
+paper, or replace the cite (Chuklin 2015 \S3.3 / Craswell 2008 cascade
+discussion already cover related PBM-violation material).
+\end{enumerate}
+
+\noindent\textbf{Partial verifications still to complete} (load-bearing
+parts of the cited papers not yet read in detail):
+
+\begin{itemize}
+\item \texttt{bottou2013counterfactual}: \S4 variance-decomposition for
+self-normalised IPS.
+\item \texttt{wang2018position}: experimental Section~6, whether the
+``PBM doesn't fully hold on Gmail/Drive'' claim is supported by their data.
+\item \texttt{zou2022large}: dataset-construction section, whether the
+$94\%$ $N=1$ and $78\%$ ratio statistic is documented there or only
+computable by us from the released aggregation.
+\item \texttt{craswell2008experimental}: the cascade-model definition
+matches our usage as a PBM-violation alternative.
+\end{itemize}
+
+\noindent\textbf{Verified} (author, title, and load-bearing claim
+confirmed): \texttt{agarwal2019estimating}, \texttt{borenstein2009meta},
+\texttt{chuklin2015clickmodels}, \texttt{hesterberg1995},
+\texttt{joachims2017unbiased}, \texttt{kong1992ess},
+\texttt{owen2013mc}.
+
+\noindent\textbf{Author/title only verified} (book or partial PDF, content
+not in local copy): \texttt{vdv1998asymptotic} (frontmatter only).
+
+\noindent\textbf{No PDF expected} (dataset citation): \texttt{kddcup2012}.
+
+\bigskip
+
+\section*{1. \texttt{agarwal2019estimating}}
+\paperclaim{The intervention-harvesting estimator of \cite{agarwal2019estimating}
+uses uniform per-cell weighting (each cell's click rate enters the sum with
+weight 1).}\\
+\source{Section 4.1 ``Local Estimators'', PivotOne and AdjacentChain
+definitions on p.~4--5 of the WSDM 2019 paper.}
+
+\quoted{Since the click counts $\hat c_k^{k,k'}$ and $\hat c_{k'}^{k,k'}$
+can be treated just like data from an explicit intervention, the same
+estimators apply. In particular, we observe the interventional set
+$S_{1,k}$ and can thus use the same estimator that we previously used
+for the explicit Swap(1,$k$) experiment. We call this the \textbf{PivotOne}
+estimator
+\[\hat p_k/\hat p_1 = \hat c_k^{1,k} / \hat c_1^{1,k}\,.\]
+We can similarly adapt the estimator used in [29], which uses a chain of
+swaps between adjacent positions in the ranking. We call this the
+\textbf{AdjacentChain} estimator
+$\hat p_k/\hat p_1 = (\hat c_2^{1,2}/\hat c_1^{1,2}) \cdot
+(\hat c_3^{2,3}/\hat c_2^{2,3}) \cdots
+(\hat c_k^{k-1,k}/\hat c_{k-1}^{k-1,k})$.}
+
+\noindent Each $\hat c$ is defined earlier (Section 3.4) as
+\[\hat c_k^{k,k'} := \sum_{i=1}^m \sum_{j=1}^{n_i} \sum_{d\in\Omega(q_i^j)}
+\mathbf 1[(q_i^j,d)\in S_{k,k'}]\,\mathbf 1[rk(d|y_i^j)=k]\;
+\frac{c_i^j(d)}{w(q_i^j,d,k)}.\]
+The weight $w(q,d,k)$ normalises by ranker-assignment count
+(propensity-style), and at the cell aggregation level the per-cell click
+rate $C_k^i/N_k^i$ enters with coefficient~1 (no heteroscedastic re-weighting).
+\textbf{No alternative per-cell weighting (min, harmonic, ...) is discussed
+in the paper.} Verified.
+
+\bigskip
+
+\section*{2. \texttt{borenstein2009meta}}
+\paperclaim{(i) Equal-weighting heteroscedastic estimators is statistically
+suboptimal by classical inverse-variance theory; (ii) inverse-variance
+weighting is canonical in meta-analysis; (iii) the count-only IVW optimum
+restricted to count-only weights is the harmonic mean (a classical result
+that Borenstein presents in standard form).}\\
+\source{Borenstein, Hedges, Higgins, Rothstein, \emph{Introduction to
+Meta-Analysis}, Wiley 2009. Sample chapter PDF in
+\texttt{citations/borenstein\_2009\_meta\_chapter.pdf}.}
+
+\quoted{Borenstein et al.\ Ch.~11 summary (p.~67): ``Under the fixed-effect
+model all studies in the analysis share a common true effect. The summary
+effect is our estimate of this common effect size, and the null hypothesis
+is that this common effect is zero (for a difference) or one (for a
+ratio). All observed dispersion reflects sampling error, and \textbf{study
+weights are assigned with the goal of minimizing this within-study error.}''}
+
+\quoted{Ch.~12 (p.~72), under ``Performing a random-effects meta-analysis''
+(the same logic applies to fixed-effect meta-analysis with within-study
+variance only): ``In order to obtain the most precise estimate of the
+overall mean (to minimize the variance) we compute a weighted mean,
+\textbf{where the weight assigned to each study is the inverse of that
+study's variance.}''}
+
+\quoted{Ch.~13 (p.~78, ``Estimating the Summary Effect''): ``Under the
+fixed-effect model we assume that the true effect size for all studies is
+identical, and the only reason the effect size varies between studies is
+sampling error (error in estimating the effect size). Therefore, when
+assigning weights to the different studies we can largely ignore the
+information in the smaller studies since we have better information about
+the same effect size in the larger studies.''}
+
+\noindent Verified. The cite supports both ``equal-weighting heteroscedastic
+estimators is statistically suboptimal'' and ``inverse-variance weighting is
+canonical in meta-analysis''. (Aitken 1934 is the original GLS / BLUE
+source; Borenstein covers the same content in modern textbook form.)
+
+\bigskip
+
+\section*{3. \texttt{bottou2013counterfactual}}
+\paperclaim{The closest off-policy analogue to our plug-in $\widetilde V$
+framework is SNIPS-style variance analysis of self-normalised IPS in
+counterfactual evaluation; weight heterogeneity (not sample count) governs
+effective precision on logged feedback.}\\
+\source{Bottou, Peters, Quiñonero-Candela, Charles, Chickering, Portugaly,
+Ray, Simard, Snelson, ``Counterfactual Reasoning and Learning Systems:
+The Example of Computational Advertising'', JMLR 14:3207--3260, 2013.
+PDF: \texttt{citations/bottou\_2013\_jmlr.pdf}. Author/title verified
+from p.~1.}
+
+\quoted{From the abstract: ``This work shows how to leverage causal
+inference to understand the behavior of complex learning systems
+interacting with their environment and predict the consequences of changes
+to the system. [...] illustrated by experiments on the ad placement system
+associated with the Bing search engine.''}
+
+\noindent Author/title verified. \textbf{TODO: verify the specific
+variance-decomposition / weight-heterogeneity claim in their \S4
+(Counterfactual estimation).} The paper is 50 pages; the most-cited
+result is the importance-sampling variance bound which is consistent with
+our usage as ``off-policy analogue.''
+
+\bigskip
+
+\section*{4. \texttt{chuklin2015clickmodels}}
+\paperclaim{Click-model survey including PBM and other click models;
+canonical reference for click-model background.}\\
+\source{Chuklin, Markov, de Rijke, \emph{Click Models for Web Search},
+Morgan \& Claypool 2015 (author's version PDF in
+\texttt{citations/chuklin\_2015\_clickmodels.pdf}).
+Table of contents confirms PBM and Cascade among the basic click models.}
+
+\quoted{From the Contents (p.~ii): ``Chapter~3 Basic Click Models:
+\textbf{3.3 Position-based Model (PBM)}, \textbf{3.4 Cascade Model (CM)},
+3.5 User Browsing Model (UBM), 3.6 Dependent Click Model (DCM), 3.7 Click
+Chain Model (CCM), 3.8 Dynamic Bayesian Network Model (DBN).''}
+
+\noindent Verified. The book is the canonical click-model survey and
+explicitly covers PBM and its alternatives. Use to back the claim
+``click models beyond PBM''.
+\textcolor{red}{\textbf{TODO} if used to back the explicit ``PBM violations
+documented in real logs'' claim: a specific quote from their experimental
+chapters comparing models on real data would be needed.}
+
+\bigskip
+
+\section*{5. \texttt{craswell2008experimental}}
+\paperclaim{Click position-bias models; the cascade model and basic position
+bias hypotheses.}\\
+\source{Craswell, Zoeter, Taylor, Ramsey, WSDM 2008. PDF:
+\texttt{citations/craswell\_2008\_wsdm.pdf}.}
+
+\quoted{From the abstract: ``Search engine click logs provide an invaluable
+source of relevance information, but this information is biased. A key
+source of bias is presentation order: the probability of click is influenced
+by a document's position in the results page. This paper focuses on
+explaining that bias, modelling how probability of click depends on position.
+We propose four simple hypotheses about how position bias might arise. We
+carry out a large data-gathering effort, where we perturb the ranking of a
+major search engine, to see how clicks are affected. We then explore which
+of the four hypotheses best explains the real-world position effects, and
+compare these to a simple logistic regression model. The data are not well
+explained by simple position models, where some users click indiscriminately
+on rank 1 or there is a simple decay of attention over ranks. A 'cascade'
+model, where users view results from top to bottom and leave as soon as they
+see a worthwhile document, is our best explanation for position bias in
+early ranks.''}
+
+\noindent The paper does \emph{not} document the PBM as such (PBM is later
+formalisation by Chuklin/Wang). We use this cite for ``three explicit PBM
+violation models -- trust bias, cascade, and position-dependent relevance''.
+The cascade model is introduced here; PBM and trust bias are formalised in
+Chuklin 2015 / Joachims 2017. \textbf{TODO: confirm cascade definition
+matches our usage in §5.}
+
+\bigskip
+
+\section*{6. \texttt{hesterberg1995}}
+\paperclaim{Self-normalised weighted ratio estimators are standard in
+importance sampling; heterogeneous-weight importance sampling variance
+analysis.}\\
+\source{Tim Hesterberg, ``Weighted Average Importance Sampling and
+Defensive Mixture Distributions'', Technometrics 37(2):185--194, 1995.
+PDF: \texttt{citations/hesterberg\_1995\_technometrics.pdf}.}
+
+\quoted{From the abstract: ``Importance sampling uses observations from
+one distribution to estimate for another distribution by weighting the
+observations. Including the target distribution as one component of a
+mixture distribution bounds the weights and makes importance sampling
+more reliable. \textbf{The usual importance-sampling estimate is a
+weighted average with weights that do not sum to 1.} We discuss simple
+normalization and other, more efficient normalization methods.''}
+
+\quoted{\S1 Introduction (p.~185): ``The integration estimate is a
+\emph{weighted average with weights that do not sum to 1.} Let
+$W(x) = f(x)/g(x)$ be the weight function, based on the likelihood ratio
+between the target and design distributions; then the empirical
+distribution function corresponding to the integration estimate has
+weight $V_{int,i} = n^{-1}W_i$ on the output $Q(X_i)$ from the $i$th
+replication, where $W_i = W(X_i)$. The sum of the empirical weights is
+$\bar W$, which has expected value 1 but nonzero variance.''}
+
+\noindent Verified. The paper is exactly about the variance of
+self-normalised weighted IS estimators, which is what we cite for.
+
+\bigskip
+
+\section*{7. \texttt{joachims2017unbiased}}
+\paperclaim{Position bias systematically corrupts click signals used for
+learning-to-rank; IPS is the standard counterfactual estimator.}\\
+\source{Joachims, Swaminathan, Schnabel, ``Unbiased Learning-to-Rank with
+Biased Feedback'', WSDM 2017. PDF:
+\texttt{citations/joachims\_2017\_wsdm.pdf}.}
+
+\quoted{From the abstract: ``While implicit feedback has many advantages
+(e.g., it is inexpensive to collect, user centric, and timely), \textbf{its
+inherent biases are a key obstacle to its effective use. For example,
+position bias in search rankings strongly influences how many clicks a
+result receives, so that directly using click data as a training signal in
+Learning-to-Rank (LTR) methods yields sub-optimal results.} To overcome
+this bias problem, we present a counterfactual inference framework that
+provides the theoretical basis for unbiased LTR via Empirical Risk
+Minimization despite biased data.''}
+
+\quoted{\S2 Related Work: ``Our approach uses inverse propensity scoring
+(IPS), originally employed in survey sampling [7] and causal inference
+from observational studies [19], but more recently also in whole page
+optimization [29], IR evaluation with manual judgments [13, 21], and
+recommender evaluation [13, 12].''}
+
+\noindent Verified. Cite supports both ``position bias systematically
+corrupts click signals'' (intro) and ``IPS / counterfactual framework
+for ULTR'' (the standard reference).
+
+\bigskip
+
+\section*{8. \texttt{kddcup2012} (dataset, no PDF)}
+\paperclaim{Dataset reference for the KDD Cup 2012 Track 2 click log.}\\
+\source{Tencent / KDD Cup 2012 competition release.
+\url{https://www.kaggle.com/c/kddcup2012-track2}}
+
+\quoted{(Dataset citation; no paper. The dataset statistics in the paper
+were computed by the authors directly from the released training file.)}
+
+\bigskip
+
+\section*{9. \texttt{kong1992ess}}
+\paperclaim{Effective sample size $\mathrm{ESS}(\omega) = (\sum_i\omega_i)^2
+/ \sum_i\omega_i^2$.}\\
+\source{Kong, ``A note on importance sampling using standardized weights'',
+Tech. Rep. 348, U.\ Chicago Statistics, 1992.
+PDF: \texttt{citations/kong\_1992\_tr348.pdf}. Also re-derived in
+Owen 2013 §9.3 Eq.~(9.13).}
+
+\quoted{From Owen Ch.~9, Eq.~(9.13) (which cites Kong 1992): ``Setting
+$\mathrm{Var}(S_w) = \sigma^2/n_e$ and solving for $n_e$ yields the
+\textbf{effective sample size}
+$n_e = (\sum_{i=1}^n w_i)^2 / \sum_{i=1}^n w_i^2 = n\bar w^2 / \overline{w^2}$.''}
+
+\noindent Verified via Owen \S9.3.
+
+\bigskip
+
+\section*{10. \texttt{owen2013mc}}
+\paperclaim{(i) The textbook closed-form asymptotic variance of the
+self-normalised weighted ratio estimator $\widetilde V(\omega)$;
+(ii) Effective sample size.}\\
+\source{Owen, \emph{Monte Carlo Theory, Methods and Examples}, Ch.~9
+(``Importance sampling''), \S9.2 ``Self-normalized importance sampling''
+(pp.~8--10) and \S9.3 ``Importance sampling diagnostics''
+(pp.~11--12). PDF: \texttt{citations/owen\_mc\_ch09\_importance.pdf}.}
+
+\quoted{Owen \S9.2, Eq.~(9.6)--(9.9): ``Consider the \textbf{self-normalized
+importance sampling estimate}
+$\tilde\mu_q = \sum_i f(X_i)w_u(X_i) / \sum_i w_u(X_i)$. To place a
+confidence interval around $\tilde\mu_q$ we use the delta method and
+equation (2.30) from \S2.7 for the variance of a ratio of means. Applying
+that formula to (9.7) yields an approximate variance for $\tilde\mu_q$ of
+$\widehat{\mathrm{Var}}(\tilde\mu_q) = (1/n)\,\mathbb E_q\bigl((f(X)w(X)-\mu w(X))^2\bigr)
+/ \mathbb E_q(w(X))^2 = \sigma^2_{q,sn}/n$. For a computable variance
+estimate, we employ $w_u$ instead of $w$, getting
+$\widehat{\mathrm{Var}}(\tilde\mu_q) = \sum_i w_i^2 (f(x_i)-\tilde\mu_q)^2$.''}
+
+\quoted{Owen \S9.3, Eq.~(9.13): ``Setting $\mathrm{Var}(S_w) = \sigma^2/n_e$
+and solving for $n_e$ yields the \textbf{effective sample size}
+$n_e = (\sum_{i=1}^n w_i)^2 / \sum_{i=1}^n w_i^2$.''}
+
+\noindent Verified.
+
+\bigskip
+
+\section*{11. \texttt{swaminathan2015snips}}
+\paperclaim{SNIPS is the off-policy analogue of our plug-in $\widetilde V$
+framework: same self-normalised weighted ratio variance applied to
+counterfactual evaluation.}\\
+\source{Swaminathan \& Joachims, NeurIPS 2015, \emph{The Self-Normalized
+Estimator for Counterfactual Learning}.}
+
+\textcolor{red}{\textbf{MISMATCH:} our local file
+\texttt{swaminathan\_joachims\_2015\_nips.pdf} is actually the ICML 2015
+paper ``Counterfactual Risk Minimization: Learning from Logged Bandit
+Feedback'' by the same authors, not the NeurIPS SNIPS paper. The two are
+related (CRM uses variance-regularised IPS; SNIPS introduces the
+self-normalised IPS estimator) but the SNIPS-specific construction is in
+the NeurIPS paper, which we do not have locally. \textbf{Need to download
+the NeurIPS version} to verify the SNIPS claim.}
+
+\quoted{From the ICML CRM paper we have (\S3): ``Third, importance
+sampling typically estimates $\hat R^M(h)$ of different hypotheses
+$h\in\mathcal H$ with \textbf{vastly different variances}. Consider two
+hypotheses $h_1$ and $h_2$, where $h_1$ is similar to $h_0$, but where
+$h_2$ samples predictions that were not well explored by $h_0$.
+Importance sampling gives us low-variance estimates for $\hat R^M(h_1)$,
+but highly variable estimates for [...]''}
+
+\noindent This supports the loose claim that ``weight heterogeneity, not
+sample count, governs effective precision'' but not specifically SNIPS.
+Fix: either download the NIPS 2015 paper (arXiv preprint
+\url{https://arxiv.org/abs/1502.02362} is the ICML one; the NIPS paper
+is at \url{https://papers.nips.cc/paper/2015/hash/39027dfad5138c9ca0c474d71db915c3-Abstract.html}),
+or change the bibitem to cite the ICML CRM paper instead and adjust the
+in-text wording.
+
+\bigskip
+
+\section*{12. \texttt{vdv1998asymptotic}}
+\paperclaim{Delta method.}\\
+\source{van der Vaart, \emph{Asymptotic Statistics}, Cambridge 1998, Ch.~3
+``Delta method''. Frontmatter PDF only:
+\texttt{citations/vdv\_1998\_frontmatter.pdf}. Ch.~3 content not in our
+local copy.}
+
+\quoted{(Citation is the standard reference for the delta method; we
+verify only author/title/publisher from the frontmatter. Wasserman 36-705
+lec~3 \texttt{citations/wasserman\_36705\_lec03.pdf} provides a freely
+available equivalent.)}
+
+\bigskip
+
+\section*{13. \texttt{wang2018position}}
+\paperclaim{(i) PBM EM joint estimation of relevance and propensities;
+(ii) PBM violations on real personal-search logs.}\\
+\source{Wang, Golbandi, Bendersky, Metzler, Najork, ``Position Bias
+Estimation for Unbiased Learning to Rank in Personal Search'', WSDM 2018.
+PDF: \texttt{citations/wang\_2018\_wsdm.pdf}.}
+
+\quoted{From the abstract: ``We propose a \textbf{regression-based
+Expectation-Maximization (EM) algorithm} that is based on a position bias
+click model and that can handle highly sparse clicks in personal search.
+We evaluate our EM algorithm and the extracted bias in the
+learning-to-rank setting.''}
+
+\quoted{\S2 Related Work: ``Recently, Wang et al.\ [31] and Joachims et
+al.\ [20] introduced the unbiased learning-to-rank framework by treating
+the bias as a counterfactual effect. Inside the framework, the critical
+component is to quantify the click bias, rather than estimate the
+$\langle$query, document$\rangle$ relevance in click models.''}
+
+\noindent (i) Verified: EM estimation of position bias is the core
+contribution.
+
+\textcolor{red}{\textbf{(ii) Partial:} the abstract and intro do not
+explicitly document Gmail/Drive PBM violations as a finding. The claim
+``PBM doesn't fully hold on Gmail and Drive search logs'' should be
+located in their experimental section before we use it as direct
+evidence. Currently in the paper we cite Wang 2018 alongside other PBM
+violation work; if Section 6 of Wang 2018 does not contain explicit
+PBM-violation evidence, we should either restrict the cite to the EM
+claim or substitute Chuklin 2015 / Yue 2010 for the PBM-violation
+claim.}
+
+\bigskip
+
+\section*{14. \texttt{yue2010beyond}}
+\paperclaim{Documents that real click data has effects beyond position
+(attractiveness, trust bias, etc.) -- i.e.\ PBM-violating structure.}\\
+\source{Yue, Patel, Roehrig, ``Beyond Position Bias: Examining Result
+Attractiveness as a Source of Presentation Bias in Clickthrough Data'',
+WWW 2010.}
+
+\textcolor{red}{\textbf{MISMATCH:} our local file
+\texttt{yue\_2010\_www.pdf} is actually a \emph{different} Yue 2010 paper:
+``Learning More Powerful Test Statistics for Click-Based Retrieval
+Evaluation'' by Yue, Gao, Chapelle, Zhang, Joachims (SIGIR 2010, pp.
+507--). The SIGIR paper is about interleaving test statistics, not about
+attractiveness/PBM violations. \textbf{Need to download the actual WWW
+2010 paper} by Yue, Patel, Roehrig.}
+
+\quoted{TO BE VERIFIED on the correct PDF (WWW 2010 Yue, Patel, Roehrig).
+The standard summary of that paper is: result attractiveness (title,
+snippet quality) creates click-rate variation that is not explained by
+position alone, demonstrating that PBM is an approximation and that
+result-level features influence clicks beyond position.}
+
+\bigskip
+
+\section*{15. \texttt{zou2022large}}
+\paperclaim{Baidu-ULTR is a large search dataset for unbiased
+learning-to-rank; the released aggregation has $94\%$ of cells with
+$N=1$ and $78\%$ of adjacent-pair ratios in $[0.5,2]$, which we
+attribute to the per-cell deduplication in the public release.}\\
+\source{Zou et al., NeurIPS 2022. PDF:
+\texttt{citations/zou\_2022\_neurips.pdf}.}
+
+\quoted{TO BE FILLED IN. (Dataset construction and deduplication details
+should be in their data-preparation section; our 94\%/78\% numbers were
+computed by us directly on the released aggregation.)}
+
+\end{document}

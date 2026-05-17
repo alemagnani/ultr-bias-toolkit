@@ -31,13 +31,15 @@ logs the per-cell impression counts are extremely heavy-tailed: on the
 full KDD Cup 2012 Track 2 log, $60\%$ of interventional
 $(q,\mathrm{ad})$ pairs have $\le 5$ impressions while $0.1\%$ of
 pairs hold $42\%$ of all impressions. The way cells are weighted is
-therefore decisive. We propose the \emph{harmonic} weight
-$\omega_i=N_k^iN_{k'}^i/(N_k^i+N_{k'}^i)$ as a drop-in replacement for
-the uniform per-cell weighting in the intervention-harvesting estimator
-of Agarwal et al., and show that it equals the inverse-variance choice
-under the Position-Based Model (PBM) once cell-level relevance is
-dropped from the per-cell variance---a \emph{relevance-agnostic
-surrogate} of the actual variance. A
+therefore decisive. We propose two count-aware weighting schemes as drop-in replacements
+for the uniform per-cell weighting used by Agarwal et al.: a simple
+\emph{min-count} weight (considered in our prior work) and the
+\emph{harmonic} weight $\omega_i=N_k^iN_{k'}^i/(N_k^i+N_{k'}^i)$ (the
+main proposal of this paper). The two perform comparably in
+practice, but harmonic has a stronger theoretical foundation: it
+equals the inverse-variance choice under the Position-Based Model (PBM)
+once cell-level relevance is dropped from the per-cell variance---a
+\emph{relevance-agnostic surrogate} of the actual variance. A
 Cauchy--Schwarz inequality guarantees harmonic reduces this surrogate
 for any impression counts.
 The actual inverse-variance solution requires per-cell relevance and is
@@ -79,18 +81,21 @@ public release rather than to the underlying production logs (the
 unaggregated KDD release, by contrast, preserves the heavy-tailed
 production distribution).
 
-Equal-weighting heteroscedastic estimators is statistically suboptimal by a
-century of classical theory: Aitken's generalised-least-squares
-theorem~\cite{aitken1934least} mandates inverse-variance weights, a result
-the meta-analysis literature~\cite{hedges1985meta,borenstein2009meta} has
-championed for fifty years. The intervention-harvesting estimator
+Equal-weighting heteroscedastic estimators is statistically suboptimal
+by classical inverse-variance theory~\cite{borenstein2009meta}, a result
+the meta-analysis literature has championed for decades. The intervention-harvesting estimator
 of~\cite{agarwal2019estimating} uses uniform per-cell weighting (each
-cell's click rate enters the sum with weight $1$). We propose
-\emph{harmonic} weighting
-$\omega_i=N_k^i N_{k'}^i/(N_k^i+N_{k'}^i)$ as a drop-in replacement,
-and also analyse the min-count variant
-$\omega_i=\min(N_k^i,N_{k'}^i)$ as a simpler alternative that we
-considered in prior work. Existing variance-reduction arguments on
+cell's click rate enters the sum with weight $1$). We propose two
+count-aware alternatives: the \emph{min-count} weight
+$\omega_i=\min(N_k^i,N_{k'}^i)$ (simpler, considered in our prior
+work) and the \emph{harmonic} weight
+$\omega_i=N_k^i N_{k'}^i/(N_k^i+N_{k'}^i)$ (the main proposal of this
+paper). Min and harmonic perform comparably in practice on KDD, but
+harmonic has a stronger theoretical foundation: it is the
+inverse-variance optimum of a relevance-agnostic surrogate
+(Theorem~\ref{thm:ivw}) and the only one of the two with an
+unconditional variance-reduction guarantee against uniform
+(Theorem~\ref{thm:cs}). Existing variance-reduction arguments on
 heavy-tailed real logs have relied on \emph{bootstrap} resampling,
 which we show can be misleading for inverse-variance-style weights on
 singleton-dominated data (Section~\ref{sec:plugin}).
@@ -166,9 +171,9 @@ heavy-tailed click logs $\hat r_i$ is itself extremely noisy on the
 $\sim\!60\%$ singleton mass, making this oracle infeasible in practice
 (Table~\ref{tab:are_full}: ARE $= 0.002$). We therefore work with a
 \emph{relevance-agnostic surrogate} that drops the $r_i$-dependent
-factor from the cell-level variance. The inverse-variance optimum of
-Aitken~\cite{aitken1934least} on this surrogate, restricted to count-only
-weights, is the harmonic mean of the two cell counts. We make this
+factor from the cell-level variance. The inverse-variance optimum~\cite{borenstein2009meta} on this
+surrogate, restricted to count-only weights, is the harmonic mean of
+the two cell counts. We make this
 precise:
 
 \begin{theorem}[Count-only IVW on the surrogate]
@@ -555,8 +560,8 @@ by~\cite{agarwal2019estimating}; \cite{wang2018position} jointly
 estimates relevance and propensities via EM. Self-normalised weighted
 ratio estimators are standard in importance sampling and survey
 statistics~\cite{owen2013mc,kong1992ess,hesterberg1995};
-inverse-variance weighting traces to Aitken~\cite{aitken1934least} and
-is canonical in meta-analysis~\cite{hedges1985meta,borenstein2009meta}.
+inverse-variance weighting is canonical in
+meta-analysis~\cite{borenstein2009meta}.
 The closest off-policy analogue is
 SNIPS~\cite{swaminathan2015snips,bottou2013counterfactual}. PBM
 violations on real logs are documented
@@ -605,11 +610,6 @@ A.~Agarwal, X.~Wang, C.~Li, M.~Bendersky, and M.~Najork.
 \newblock Estimating position bias without intrusive interventions.
 \newblock In {\em WSDM}, 2019.
 
-\bibitem{aitken1934least}
-A.~C. Aitken.
-\newblock On least squares and linear combination of observations.
-\newblock {\em Proc.\ Royal Soc.\ Edinburgh}, 55:42--48, 1934.
-
 \bibitem{bottou2013counterfactual}
 L.~Bottou, J.~Peters, J.~Qui\~nonero-Candela, et~al.
 \newblock Counterfactual reasoning and learning systems.
@@ -634,11 +634,6 @@ N.~Craswell, O.~Zoeter, M.~Taylor, and B.~Ramsey.
 A.~Chuklin, I.~Markov, and M.~de~Rijke.
 \newblock {\em Click Models for Web Search}.
 \newblock Morgan \& Claypool, 2015.
-
-\bibitem{hedges1985meta}
-L.~V. Hedges and I.~Olkin.
-\newblock {\em Statistical Methods for Meta-Analysis}.
-\newblock Academic Press, 1985.
 
 \bibitem{joachims2017unbiased}
 T.~Joachims, A.~Swaminathan, and T.~Schnabel.
