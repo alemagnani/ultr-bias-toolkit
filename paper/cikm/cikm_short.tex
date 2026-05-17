@@ -31,12 +31,15 @@ logs the per-cell impression counts are extremely heavy-tailed: on the
 full KDD Cup 2012 Track 2 log, $60\%$ of interventional
 $(q,\mathrm{ad})$ pairs have $\le 5$ impressions while $0.1\%$ of
 pairs hold $42\%$ of all impressions. The way cells are weighted is
-therefore decisive. The \emph{harmonic} weight, used in the
-intervention-harvesting literature, equals the inverse-variance choice
+therefore decisive. We propose the \emph{harmonic} weight
+$\omega_i=N_k^iN_{k'}^i/(N_k^i+N_{k'}^i)$ as a drop-in replacement for
+the uniform per-cell weighting in the intervention-harvesting estimator
+of Agarwal et al., and show that it equals the inverse-variance choice
 under the Position-Based Model (PBM) once cell-level relevance is
 dropped from the per-cell variance---a \emph{relevance-agnostic
-surrogate} of the actual variance---and a Cauchy--Schwarz inequality
-guarantees harmonic reduces this surrogate for any impression counts.
+surrogate} of the actual variance. A
+Cauchy--Schwarz inequality guarantees harmonic reduces this surrogate
+for any impression counts.
 The actual inverse-variance solution requires per-cell relevance and is
 infeasible at this scale. We further argue that the naive pair
 bootstrap is poorly aligned with the conditional-on-counts efficiency
@@ -80,13 +83,17 @@ Equal-weighting heteroscedastic estimators is statistically suboptimal by a
 century of classical theory: Aitken's generalised-least-squares
 theorem~\cite{aitken1934least} mandates inverse-variance weights, a result
 the meta-analysis literature~\cite{hedges1985meta,borenstein2009meta} has
-championed for fifty years. Recent ULTR
-work~\cite{agarwal2019estimating,wang2018position} introduced \emph{harmonic}
-weighting $\omega_i=N_k^i N_{k'}^i/(N_k^i+N_{k'}^i)$ to reduce variance versus
-uniform on heavy-tailed counts, but existing validation has relied on
-\emph{bootstrap} resampling, which we show can be misleading for
-inverse-variance-style weights on singleton-dominated heavy-tailed data
-(Section~\ref{sec:plugin}).
+championed for fifty years. The intervention-harvesting estimator
+of~\cite{agarwal2019estimating} uses uniform per-cell weighting (each
+cell's click rate enters the sum with weight $1$). We propose
+\emph{harmonic} weighting
+$\omega_i=N_k^i N_{k'}^i/(N_k^i+N_{k'}^i)$ as a drop-in replacement,
+and also analyse the min-count variant
+$\omega_i=\min(N_k^i,N_{k'}^i)$ as a simpler alternative that we
+considered in prior work. Existing variance-reduction arguments on
+heavy-tailed real logs have relied on \emph{bootstrap} resampling,
+which we show can be misleading for inverse-variance-style weights on
+singleton-dominated data (Section~\ref{sec:plugin}).
 
 \textbf{Contributions.}
 \textbf{(1)} We show that the harmonic weight is the inverse-variance
@@ -199,9 +206,9 @@ $\omega_i^\star\propto N_k^i N_{k'}^i/(\alpha N_{k'}^i+\beta N_k^i)$.
 Harmonic is the $\alpha=\beta$ special case.
 \end{theorem}
 
-Theorem~\ref{thm:cs} is unconditional in the counts -- a property that
-distinguishes harmonic from the min-count heuristic of~\cite{agarwal2019estimating},
-which has no such guarantee. Theorem~\ref{thm:asym} provides the oracle
+Theorem~\ref{thm:cs} is unconditional in the counts -- a property
+that distinguishes harmonic from the min-count variant, which has no
+such guarantee. Theorem~\ref{thm:asym} provides the oracle
 benchmark; in synthetic experiments substituting the true $\alpha,\beta$ into
 $\omega^\star$ yields variance within $\pm 2\%$ of harmonic. Complete
 proofs and additional sensitivity analyses are provided in the
@@ -319,7 +326,7 @@ pathological because per-cell $\hat\theta_i$ is too noisy at this scale.}
 Scheme                     & $\hat R$ & $\mathrm{SE}$ & $\mathrm{ARE}$ & ESS \\
 \midrule
 Uniform                    & 1.683 & 4.24e-3 & 1.00          & 4.61M \\
-Min~\cite{agarwal2019estimating}            & 1.712 & 2.05e-3 & 4.41          & 2{,}526 \\
+Min                        & 1.712 & 2.05e-3 & 4.41          & 2{,}526 \\
 \textbf{Harmonic}          & 1.710 & 2.02e-3 & \textbf{4.53} & 1{,}849 \\
 Count-oracle (0.5,1)       & 1.715 & 2.02e-3 & 4.57          & 1{,}760 \\
 $\theta$-aware oracle      & 2.343 & 0.148   & 0.002         & 1.1 \\
@@ -351,9 +358,8 @@ Middle-low              & 1.38M & 1.9e-5 & 1.09 \\
 $\mathrm{ARE}(\text{harmonic},\text{uniform})=4.53$:
 \textbf{uniform requires $\sim 4.5\times$ the impressions of harmonic
 for matching precision} on the relevance-agnostic surrogate. The
-min-count heuristic~\cite{agarwal2019estimating} achieves $4.41$ on the
-same surrogate ($-2.7\%$ relative): harmonic and min are essentially
-tied empirically on KDD; harmonic's contribution is the unconditional
+min-count variant achieves $4.41$ on the same surrogate ($-2.7\%$
+relative): harmonic and min are essentially tied empirically on KDD; harmonic's contribution is the unconditional
 guarantee (Theorem~\ref{thm:cs}) and the parameter-free derivation,
 not a large empirical margin. The count-only oracle ($4.57$) is the
 ceiling within the surrogate. The $\theta$-aware oracle, which would
@@ -419,7 +425,7 @@ Scheme                          & $\hat R$ & SE & ARE & ESS \\
 Uniform                         & 1.683 & 4.24e-3 & 1.00 & 4.61M \\
 $\log(1+\min(N_k,N_{k'}))$      & 1.651 & 3.18e-3 & 1.71 & 3.17M \\
 $\sqrt{N_k N_{k'}}$             & 1.706 & 2.28e-3 & 3.55 & 1{,}246 \\
-$\min(N_k,N_{k'})$              & 1.712 & 2.05e-3 & 4.41 & 2{,}526 \\
+$\min(N_k,N_{k'})$ (prior)      & 1.712 & 2.05e-3 & 4.41 & 2{,}526 \\
 \textbf{Harmonic}               & 1.710 & 2.02e-3 & \textbf{4.53} & 1{,}849 \\
 Harmonic, cap@99th pct          & 1.606 & 2.40e-3 & 2.83 & 765K \\
 \bottomrule
