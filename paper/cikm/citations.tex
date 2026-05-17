@@ -26,57 +26,48 @@ the authors verify that each citation accurately backs the claim it is
 attached to. Local PDFs of the cited papers live in
 \texttt{paper/cikm/citations/}.
 
-\section*{Summary of issues found during verification}
+\section*{Status summary}
 
-\noindent\textcolor{red}{\textbf{Two PDF mismatches need attention:}}
+\noindent\textbf{Fully verified} (author, title, and load-bearing claim
+confirmed by quoting the relevant passage from the local PDF):
+\texttt{agarwal2019estimating}, \texttt{borenstein2009meta},
+\texttt{bottou2013counterfactual} (§4.4 heavy-tailed-weights variance),
+\texttt{chuklin2015clickmodels}, \texttt{craswell2008experimental}
+(cascade model definition), \texttt{hesterberg1995},
+\texttt{joachims2017unbiased}, \texttt{kong1992ess} (via
+Owen~Eq.~9.13), \texttt{owen2013mc}, \texttt{swaminathan2015snips}
+(correct PDF in \texttt{swaminathan\_joachims\_2015\_nips\_snips.pdf}),
+\texttt{wang2018position} (verified for EM-style estimation; see action
+item below), \texttt{yue2010beyond} (correct PDF in
+\texttt{yue\_2010\_www\_beyond.pdf}), \texttt{zou2022large} (verified
+size and \emph{public-aggregation} framing; the $94\%/78\%$ statistics
+are our own computation).
 
-\begin{enumerate}
-\item \texttt{swaminathan2015snips}: our local file
-\texttt{swaminathan\_joachims\_2015\_nips.pdf} is actually the
-\emph{ICML 2015} paper ``Counterfactual Risk Minimization'' by the same
-authors, not the NeurIPS 2015 SNIPS paper that the bibitem cites.
-Action: either download the NeurIPS paper from
-\url{https://papers.nips.cc/paper/2015/hash/39027dfad5138c9ca0c474d71db915c3-Abstract.html},
-or change the bibitem to cite the ICML CRM paper and adjust in-text wording.
-\item \texttt{yue2010beyond}: our local file \texttt{yue\_2010\_www.pdf} is
-actually a \emph{different} Yue 2010 paper (SIGIR 2010 ``Learning More
-Powerful Test Statistics for Click-Based Retrieval Evaluation'' by Yue,
-Gao, Chapelle, Zhang, Joachims), not the WWW 2010 paper by Yue, Patel,
-Roehrig that the bibitem cites. Action: download the correct WWW 2010
-paper, or replace the cite (Chuklin 2015 \S3.3 / Craswell 2008 cascade
-discussion already cover related PBM-violation material).
-\end{enumerate}
+\noindent\textbf{Author/title only verified} (partial PDF, content not in
+local copy): \texttt{vdv1998asymptotic} (frontmatter only; equivalent
+delta-method material in Wasserman 36-705 lec~3 which we have).
 
-\noindent\textbf{Partial verifications still to complete} (load-bearing
-parts of the cited papers not yet read in detail):
+\noindent\textbf{No PDF expected} (dataset citation): \texttt{kddcup2012}
+(KDD Cup 2012 Track 2 competition release).
 
+\medskip
+
+\noindent\textbf{Action taken in the paper based on this verification:}
 \begin{itemize}
-\item \texttt{bottou2013counterfactual}: \S4 variance-decomposition for
-self-normalised IPS.
-\item \texttt{wang2018position}: experimental Section~6, whether the
-``PBM doesn't fully hold on Gmail/Drive'' claim is supported by their data.
-\item \texttt{zou2022large}: dataset-construction section, whether the
-$94\%$ $N=1$ and $78\%$ ratio statistic is documented there or only
-computable by us from the released aggregation.
-\item \texttt{craswell2008experimental}: the cascade-model definition
-matches our usage as a PBM-violation alternative.
+\item Removed \texttt{wang2018position} from the ``PBM violations on real
+logs are documented in~[\,...]'' cite list, since Wang 2018 works
+\emph{within} PBM (its EM algorithm estimates PBM parameters; it does
+not empirically demonstrate PBM violation). Wang 2018 remains cited
+correctly for the EM-style joint estimation context.
+\item Dropped \texttt{aitken1934least} and \texttt{hedges1985meta} (no
+freely downloadable PDF) in favour of \texttt{borenstein2009meta} which
+covers the same IVW material.
 \end{itemize}
-
-\noindent\textbf{Verified} (author, title, and load-bearing claim
-confirmed): \texttt{agarwal2019estimating}, \texttt{borenstein2009meta},
-\texttt{chuklin2015clickmodels}, \texttt{hesterberg1995},
-\texttt{joachims2017unbiased}, \texttt{kong1992ess},
-\texttt{owen2013mc}.
-
-\noindent\textbf{Author/title only verified} (book or partial PDF, content
-not in local copy): \texttt{vdv1998asymptotic} (frontmatter only).
-
-\noindent\textbf{No PDF expected} (dataset citation): \texttt{kddcup2012}.
 
 \bigskip
 
 \section*{1. \texttt{agarwal2019estimating}}
-\paperclaim{The intervention-harvesting estimator of \cite{agarwal2019estimating}
+\paperclaim{The intervention-harvesting estimator of Agarwal et al.\ 2019
 uses uniform per-cell weighting (each cell's click rate enters the sum with
 weight 1).}\\
 \source{Section 4.1 ``Local Estimators'', PivotOne and AdjacentChain
@@ -160,15 +151,25 @@ from p.~1.}
 
 \quoted{From the abstract: ``This work shows how to leverage causal
 inference to understand the behavior of complex learning systems
-interacting with their environment and predict the consequences of changes
-to the system. [...] illustrated by experiments on the ad placement system
-associated with the Bing search engine.''}
+interacting with their environment and predict the consequences of
+changes to the system. [...] illustrated by experiments on the ad
+placement system associated with the Bing search engine.''}
 
-\noindent Author/title verified. \textbf{TODO: verify the specific
-variance-decomposition / weight-heterogeneity claim in their \S4
-(Counterfactual estimation).} The paper is 50 pages; the most-cited
-result is the importance-sampling variance bound which is consistent with
-our usage as ``off-policy analogue.''
+\quoted{\S4.4 Confidence Intervals (p.~3225): ``Unfortunately, when
+$P(\omega)$ is small, the reweighting ratio $w(\omega)$ takes large
+values with low probability. \textbf{This heavy tailed distribution has
+annoying consequences because the variance of the integrand could be
+very high or infinite.} [...] Importance sampling works best when the
+actual distribution and the counterfactual distribution overlap. When
+the counterfactual distribution has significant mass in domains where
+the actual distribution is small, \textbf{the few samples available in
+these domains receive very high weights. Their noisy contribution
+dominates the reweighted estimate.}''}
+
+\noindent Verified. \S4.4 (``Confidence Intervals'') explicitly analyses
+how heavy-tailed importance weights dominate the variance of the
+self-normalised IPS estimator -- exactly the off-policy analogue our
+paper invokes.
 
 \bigskip
 
@@ -202,26 +203,29 @@ bias hypotheses.}\\
 
 \quoted{From the abstract: ``Search engine click logs provide an invaluable
 source of relevance information, but this information is biased. A key
-source of bias is presentation order: the probability of click is influenced
-by a document's position in the results page. This paper focuses on
-explaining that bias, modelling how probability of click depends on position.
-We propose four simple hypotheses about how position bias might arise. We
-carry out a large data-gathering effort, where we perturb the ranking of a
-major search engine, to see how clicks are affected. We then explore which
-of the four hypotheses best explains the real-world position effects, and
-compare these to a simple logistic regression model. The data are not well
-explained by simple position models, where some users click indiscriminately
-on rank 1 or there is a simple decay of attention over ranks. A 'cascade'
-model, where users view results from top to bottom and leave as soon as they
-see a worthwhile document, is our best explanation for position bias in
-early ranks.''}
+source of bias is presentation order: the probability of click is
+influenced by a document's position in the results page. [...] We
+propose four simple hypotheses about how position bias might arise. [...]
+\textbf{A `cascade' model, where users view results from top to bottom and
+leave as soon as they see a worthwhile document, is our best explanation
+for position bias in early ranks.}''}
 
-\noindent The paper does \emph{not} document the PBM as such (PBM is later
-formalisation by Chuklin/Wang). We use this cite for ``three explicit PBM
-violation models -- trust bias, cascade, and position-dependent relevance''.
-The cascade model is introduced here; PBM and trust bias are formalised in
-Chuklin 2015 / Joachims 2017. \textbf{TODO: confirm cascade definition
-matches our usage in §5.}
+\quoted{\S2, ``Cascade Model'' (p.~88): ``Now we present a new model for
+explaining the position effect, which assumes a linear traversal through
+the ranking, and that documents below a clicked result are not examined.
+[...] In the cascade model, we assume that the user views search results
+from top to bottom, deciding whether to click each result before moving
+to the next. Each document $d_i$ is either clicked with probability $r_d$
+or skipped with probability $(1-r_d)$. In the most basic form of the
+model, we assume that a user who clicks never comes back, and a user who
+skips always continues, in which case:
+$c_{di} = r_d \prod_{j=1}^{i-1}(1 - r_{\text{doc in rank }j})$.''}
+
+\noindent Verified. The cascade model is introduced here and matches our
+usage as a PBM-violation alternative click model.
+(``trust bias'' and ``position-dependent relevance'' are formalised
+elsewhere -- our cite of Craswell here is purely for the cascade model
+definition.)
 
 \bigskip
 
@@ -343,33 +347,33 @@ $n_e = (\sum_{i=1}^n w_i)^2 / \sum_{i=1}^n w_i^2$.''}
 \paperclaim{SNIPS is the off-policy analogue of our plug-in $\widetilde V$
 framework: same self-normalised weighted ratio variance applied to
 counterfactual evaluation.}\\
-\source{Swaminathan \& Joachims, NeurIPS 2015, \emph{The Self-Normalized
-Estimator for Counterfactual Learning}.}
+\source{Swaminathan \& Joachims, ``The Self-Normalized Estimator for
+Counterfactual Learning'', NeurIPS 2015. PDF:
+\texttt{citations/swaminathan\_joachims\_2015\_nips\_snips.pdf}.}
 
-\textcolor{red}{\textbf{MISMATCH:} our local file
-\texttt{swaminathan\_joachims\_2015\_nips.pdf} is actually the ICML 2015
-paper ``Counterfactual Risk Minimization: Learning from Logged Bandit
-Feedback'' by the same authors, not the NeurIPS SNIPS paper. The two are
-related (CRM uses variance-regularised IPS; SNIPS introduces the
-self-normalised IPS estimator) but the SNIPS-specific construction is in
-the NeurIPS paper, which we do not have locally. \textbf{Need to download
-the NeurIPS version} to verify the SNIPS claim.}
+\quoted{From the abstract: ``This paper identifies a severe problem of the
+counterfactual risk estimator typically used in batch learning from
+logged bandit feedback (BLBF), and \textbf{proposes the use of an
+alternative estimator that avoids this problem.} [...] We show that this
+conventional estimator suffers from a \emph{propensity overfitting}
+problem when used for learning over complex hypothesis spaces. We
+propose to replace the risk estimator with a \textbf{self-normalized
+estimator}, showing that it neatly avoids this problem.''}
 
-\quoted{From the ICML CRM paper we have (\S3): ``Third, importance
-sampling typically estimates $\hat R^M(h)$ of different hypotheses
-$h\in\mathcal H$ with \textbf{vastly different variances}. Consider two
-hypotheses $h_1$ and $h_2$, where $h_1$ is similar to $h_0$, but where
-$h_2$ samples predictions that were not well explored by $h_0$.
-Importance sampling gives us low-variance estimates for $\hat R^M(h_1)$,
-but highly variable estimates for [...]''}
+\quoted{\S2 Related Work (p.~2): ``Classic variance reduction techniques
+for importance sampling are also useful for counterfactual evaluation and
+learning. For instance, importance weights can be ``clipped'' to trade-off
+bias against variance in the estimators. [...] In particular, \textbf{we
+study the self-normalized estimator which is superior to the vanilla
+estimator when fluctuations in the weights dominate the variance.} We
+additionally show that the self-normalized estimator neatly addresses
+propensity overfitting.''}
 
-\noindent This supports the loose claim that ``weight heterogeneity, not
-sample count, governs effective precision'' but not specifically SNIPS.
-Fix: either download the NIPS 2015 paper (arXiv preprint
-\url{https://arxiv.org/abs/1502.02362} is the ICML one; the NIPS paper
-is at \url{https://papers.nips.cc/paper/2015/hash/39027dfad5138c9ca0c474d71db915c3-Abstract.html}),
-or change the bibitem to cite the ICML CRM paper instead and adjust the
-in-text wording.
+\noindent Verified. SNIPS is exactly the self-normalised IPS estimator
+whose variance behaviour mirrors our $\widetilde V$ framework, and the
+key insight ``superior when fluctuations in the weights dominate the
+variance'' directly matches our point that weight heterogeneity drives
+precision.
 
 \bigskip
 
@@ -409,15 +413,23 @@ $\langle$query, document$\rangle$ relevance in click models.''}
 \noindent (i) Verified: EM estimation of position bias is the core
 contribution.
 
-\textcolor{red}{\textbf{(ii) Partial:} the abstract and intro do not
-explicitly document Gmail/Drive PBM violations as a finding. The claim
-``PBM doesn't fully hold on Gmail and Drive search logs'' should be
-located in their experimental section before we use it as direct
-evidence. Currently in the paper we cite Wang 2018 alongside other PBM
-violation work; if Section 6 of Wang 2018 does not contain explicit
-PBM-violation evidence, we should either restrict the cite to the EM
-claim or substitute Chuklin 2015 / Yue 2010 for the PBM-violation
-claim.}
+\textbf{(ii) Result of careful read of \S5--6:} the paper compares
+their EM estimator's position-bias estimate to a RandPair-experiment
+ground truth (\S5.2.1, Fig.~2) and shows ``Empirical has more skew than
+RandPair, consistent with previous findings'' -- i.e.\ raw click rates
+\emph{differ from} PBM-via-RandPair ground truth, which is evidence of
+position bias but \emph{not} explicitly of PBM model mis-specification.
+The Conclusions (\S6) summarise: ``the propensity estimation is
+equivalent to the position bias estimation in the \emph{classical
+position bias model}'' -- they work \emph{within} PBM, not against it.
+
+\textcolor{red}{\textbf{Recommendation:} Wang 2018 is correctly cited for
+EM-style joint relevance/propensity estimation but does \emph{not}
+provide direct empirical evidence of PBM violations. We should restrict
+the cite to the EM-comparison context in our paper and not include it in
+the ``PBM violations on real logs are documented in [\,...]'' list. The
+remaining cites in that list (\texttt{yue2010beyond},
+\texttt{chuklin2015clickmodels}) are sufficient.}
 
 \bigskip
 
@@ -426,21 +438,30 @@ claim.}
 (attractiveness, trust bias, etc.) -- i.e.\ PBM-violating structure.}\\
 \source{Yue, Patel, Roehrig, ``Beyond Position Bias: Examining Result
 Attractiveness as a Source of Presentation Bias in Clickthrough Data'',
-WWW 2010.}
+WWW 2010. PDF: \texttt{citations/yue\_2010\_www\_beyond.pdf}.}
 
-\textcolor{red}{\textbf{MISMATCH:} our local file
-\texttt{yue\_2010\_www.pdf} is actually a \emph{different} Yue 2010 paper:
-``Learning More Powerful Test Statistics for Click-Based Retrieval
-Evaluation'' by Yue, Gao, Chapelle, Zhang, Joachims (SIGIR 2010, pp.
-507--). The SIGIR paper is about interleaving test statistics, not about
-attractiveness/PBM violations. \textbf{Need to download the actual WWW
-2010 paper} by Yue, Patel, Roehrig.}
+\quoted{From the abstract: ``Although data is plentiful, one must take
+care when interpreting clicks, since user behavior can be affected by
+various sources of presentation bias. \textbf{While the issue of position
+bias in clickthrough data has been the topic of much study, other
+presentation bias effects have received comparatively little attention.}
+For instance, since users must decide whether to click on a result based
+on its summary (e.g., the title, URL and abstract), one might expect
+clicks to favor `more attractive' results. In this paper, we examine
+result summary attractiveness as a potential source of presentation
+bias. [...] \textbf{Our experiments conducted on the Google web search
+engine show substantial evidence of presentation bias in clicks towards
+results with more attractive titles.}''}
 
-\quoted{TO BE VERIFIED on the correct PDF (WWW 2010 Yue, Patel, Roehrig).
-The standard summary of that paper is: result attractiveness (title,
-snippet quality) creates click-rate variation that is not explained by
-position alone, demonstrating that PBM is an approximation and that
-result-level features influence clicks beyond position.}
+\quoted{\S1 Introduction: ``[T]he so called position bias effect. But
+users must also judge relevance based on summaries rather than the
+actual results themselves. [...] Intuitively, we might expect click
+behavior to favor the more attractive title. \textbf{Thus, even in the
+absence of position bias, a result's perceived relevance might noticeably
+differ from its actual relevance.}''}
+
+\noindent Verified. Paper directly documents PBM-violating structure
+(attractiveness biases) in real Google search logs, supporting our cite.
 
 \bigskip
 
@@ -449,11 +470,28 @@ result-level features influence clicks beyond position.}
 learning-to-rank; the released aggregation has $94\%$ of cells with
 $N=1$ and $78\%$ of adjacent-pair ratios in $[0.5,2]$, which we
 attribute to the per-cell deduplication in the public release.}\\
-\source{Zou et al., NeurIPS 2022. PDF:
-\texttt{citations/zou\_2022\_neurips.pdf}.}
+\source{Zou, Mao, Chu, Tang, Ye, Wang, Yin, ``A Large Scale Search
+Dataset for Unbiased Learning to Rank'', NeurIPS 2022 Datasets and
+Benchmarks Track. PDF: \texttt{citations/zou\_2022\_neurips.pdf}.}
 
-\quoted{TO BE FILLED IN. (Dataset construction and deduplication details
-should be in their data-preparation section; our 94\%/78\% numbers were
-computed by us directly on the released aggregation.)}
+\quoted{Table 1 (p.~4): ``Baidu: \# Query = 383{,}429{,}526; \# Doc =
+1{,}287{,}710{,}306; \# User Feedback = 18 (Real Feedback); \# Display-info
+= 8 (Display Info); \# Session = 1{,}210{,}257{,}130; Pub-Year = 2022.''}
+
+\quoted{\S3.1 ``Documents'' (p.~4): ``For the candidate documents of the
+query, we only record the displayed documents to save the cost of
+storing the logs. Typically, the document not being displayed is less
+informative than the ones displayed since the user cannot provide any
+feedback on the document without display. As a result, the logged search
+session usually contains just 10 documents for every query because one
+page contains 10 results.''}
+
+\noindent The dataset's size and the largest-public-ULTR-dataset claim
+are verified. \textbf{The specific $94\%$ $N=1$ and $78\%$ ratio
+statistics are not stated in Zou 2022 -- we computed those ourselves
+from the released aggregation.} The cite as used in our paper supports
+``Baidu-ULTR aggregation'' as a public benchmark; the deduplication
+attribution is our own characterisation, not a Zou quote. This is fine
+since the in-text language says ``we attribute to...''.
 
 \end{document}
