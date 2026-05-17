@@ -191,6 +191,19 @@ $\omega^\star$ yields variance within $\pm 2\%$ of harmonic. Complete
 proofs and additional sensitivity analyses are provided in the
 supplementary material.
 
+\paragraph{Limits of the symmetric guarantee.}
+The unconditional bound in Theorem~\ref{thm:cs} concerns
+$V_k+V_{k'}$. The asymmetric analogue
+$\alpha V_k(\omega^h)+\beta V_{k'}(\omega^h) \le \alpha V_k(\mathbf 1)+\beta V_{k'}(\mathbf 1)$
+does \emph{not} hold unconditionally: a closed-form $n=2$ counterexample
+with $(N_k^1,N_{k'}^1)=(1,100)$, $(N_k^2,N_{k'}^2)=(100,1)$ and
+$(\alpha,\beta)=(0.01,1)$ has harmonic strictly worse than uniform on the
+asymmetric surrogate. The configurations under which this fails are
+degenerate (each cell informative at exactly one position); we have not
+encountered them in any realistic count distribution we tested. The
+$\omega^\star$ in Theorem~\ref{thm:asym} remains the exact oracle for
+all $(\alpha,\beta)$.
+
 \section{Plug-in Asymptotic Variance: the Right Instrument}
 \label{sec:plugin}
 
@@ -379,13 +392,21 @@ To validate the ARE prediction in settings with ground truth, we run two
 controlled experiments.
 
 \paragraph{Anchor-item imbalance sweep (synthetic).}
-Following~\cite{agarwal2019estimating}, $M{=}10$ positions, $p_k=k^{-1}$,
-anchor-item model with traffic split $s$ and imbalance ratio $r$, 500 trials.
-At $s=0.80$, $r=100$ harmonic reduces variance by $43.6\%$ vs.\ uniform,
-$5\%$ vs.\ min; reduction grows to $\sim 54\%$ at $s=0.90,r=50$.
-Across the $(s,r)$ grid, the data-equivalence factor
-$\mathrm{DEF}=b_{\mathrm{uni}}/b_{\mathrm{harm}}$ has median $1.31$ and
-maximum $1.94$.
+Following~\cite{agarwal2019estimating}: $M{=}10$ positions, $p_k=k^{-\eta}$
+with $\eta=1$, AdjacentChain estimator. A fraction $s$ of documents are
+``anchors'' with heavy traffic at one position
+($N\sim\mathrm{Unif}(50r,200r)$) and light traffic at the other
+($N\sim\mathrm{Unif}(1,51)$); the remaining $1-s$ are balanced
+($N\sim\mathrm{Unif}(25,75)$ at both positions); $s\in\{0.5,...,0.95\}$,
+$r\in\{1,...,100\}$, 500 trials per cell. At $s=0.80$, $r=100$ harmonic
+reduces variance by $43.6\%$ vs.\ uniform and $5\%$ vs.\ min; reduction
+grows to $\sim 54\%$ at $s=0.90,r=50$. Across the full $(s,r)$ grid the
+data-equivalence factor
+$\mathrm{DEF}(s,r)=b_{\mathrm{uni}}(s,r)/b_{\mathrm{harm}}(s,r)$ -- the
+ratio of base impressions per document at which each scheme first hits a
+fixed MSE threshold -- has median $1.31$, mean $1.30$, max $1.94$. Highly
+imbalanced cells achieve up to $2\times$ data savings; near-balanced
+cells ($r=1$) saturate at $\mathrm{DEF}\approx 1$.
 
 \paragraph{Bias comparability under PBM violations.}
 We additionally simulate three explicit PBM violation models -- trust
@@ -428,16 +449,45 @@ Model & Scheme & MSE & Variance & Bias$^2$ \\
 \end{table}
 
 \paragraph{Yahoo-LTR semi-synthetic.}
-Same simulator but with real graded relevance from Yahoo Learning to Rank
-Challenge Set~1 (6936 test queries; clicks simulated via PBM). Harmonic
-reduces variance by $\sim 40\%$ vs.\ uniform at imbalance $r=50$
-(Var $0.00015 \to 0.00009$; ${\sim}458\times$ lower MSE than aggressive
-clipping). Production-style traffic simulation with $K{=}5$ concurrent
-rankers (one default at $80\%$ + four treatment at $5\%$ each, swap
-probability $0.5$): under uniform traffic only $0.4\%$ of pairs exceed
-ratio~$10$, but under production traffic $16.7\%$ do; harmonic's MSE
-reduction grows from $6.3\%$ to $\textbf{17.2\%}$, confirming the gain
-scales with traffic-induced imbalance.
+Same simulator with graded relevance from the Yahoo Learning to Rank
+Challenge Set~1 test split (6,936 queries; relevance grades $g\in\{0,...,4\}$
+mapped to $r(q,d)=(2^g-1)/15$ following NDCG; click model
+$P(C=1\mid q,d,k)=p_k\,r(q,d)$; 200 trials). Harmonic reduces variance by
+$\sim 40\%$ vs.\ uniform at imbalance $r=50$ (Var
+$1.5\!\times\!10^{-4}\!\to\!8.7\!\times\!10^{-5}$). Aggressive clipping
+trades variance for bias and yields $\sim\!458\times$ higher MSE,
+confirming that variance-reduction without bias control is not viable.
+
+\paragraph{Production-style traffic simulation.}
+$K{=}5$ concurrent rankers; a default ranker shows each document at its
+natural position, treatment rankers swap adjacent pairs with probability
+$0.5$. Under uniform traffic ($5\!\times\!20\%$) only $0.4\%$ of adjacent
+pairs exceed impression ratio $10$ and harmonic's MSE reduction is
+$6.3\%$; under production traffic ($80\%\!+\!4\!\times\!5\%$), $16.7\%$
+of pairs exceed ratio~$10$ and harmonic's MSE reduction grows to
+$\textbf{17.2\%}$, confirming the gain scales directly with
+traffic-induced imbalance.
+
+\section{Related Work}
+\label{sec:related}
+
+Intervention harvesting was introduced by~\cite{agarwal2019estimating} with
+the uniform and min-count variants we compare against;~\cite{wang2018position}
+jointly estimates relevance and propensities via EM.
+Self-normalised weighted ratio estimators have a long history in importance
+sampling and survey statistics: Owen~\cite{owen2013mc} §9.2 derives the
+asymptotic variance we use; Kong~\cite{kong1992ess} introduces ESS;
+Hesterberg~\cite{hesterberg1995} analyses heterogeneous-weight variance.
+Inverse-variance weighting traces to Aitken~\cite{aitken1934least} and is
+canonical in
+meta-analysis~\cite{hedges1985meta,borenstein2009meta}. The closest analogue
+in counterfactual learning is the self-normalised IPS estimator
+SNIPS~\cite{swaminathan2015snips}, which applies the same $\widetilde V$
+framework to off-policy evaluation in bandits;~\cite{bottou2013counterfactual}
+analyses why weight heterogeneity, not sample count, governs effective
+precision on logged feedback. PBM violations in real logs are documented
+in~\cite{yue2010beyond,wang2018position} and reviewed
+in~\cite{chuklin2015clickmodels}.
 
 \section{Conclusion}
 
@@ -476,6 +526,16 @@ A.~Agarwal, X.~Wang, C.~Li, M.~Bendersky, and M.~Najork.
 A.~C. Aitken.
 \newblock On least squares and linear combination of observations.
 \newblock {\em Proc.\ Royal Soc.\ Edinburgh}, 55:42--48, 1934.
+
+\bibitem{bottou2013counterfactual}
+L.~Bottou, J.~Peters, J.~Qui\~nonero-Candela, et~al.
+\newblock Counterfactual reasoning and learning systems.
+\newblock {\em JMLR}, 14:3207--3260, 2013.
+
+\bibitem{hesterberg1995}
+T.~Hesterberg.
+\newblock Weighted average importance sampling and defensive mixture distributions.
+\newblock {\em Technometrics}, 37(2):185--194, 1995.
 
 \bibitem{borenstein2009meta}
 M.~Borenstein, L.~V. Hedges, J.~P.~T. Higgins, and H.~R. Rothstein.
