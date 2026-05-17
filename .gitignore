@@ -16,3 +16,12 @@ paper/main.out
 
 # academic refs (copyrighted PDFs, kept local only)
 paper/reviewer_response/refs_pdf/
+
+# LaTeX intermediate files in cikm folder
+paper/cikm/*.aux
+paper/cikm/*.log
+paper/cikm/*.out
+paper/cikm/*.toc
+paper/cikm/*.bbl
+paper/cikm/*.blg
+paper/cikm/*.synctex.gz

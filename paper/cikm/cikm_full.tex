@@ -401,7 +401,7 @@ Figure~\ref{fig:variance_vs_imbalance} shows variance as a function of imbalance
 
 \begin{figure}[t!]
     \centering
-    \includegraphics[width=0.48\textwidth]{../images/exp1_imbalance_sweep/exp1_variance_vs_imbalance.png}
+    \includegraphics[width=0.48\textwidth]{../../images/exp1_imbalance_sweep/exp1_variance_vs_imbalance.png}
     \caption{Variance vs.\ imbalance ratio at traffic split 80/20. Harmonic and min are consistently below original; clipped achieves near-zero variance at the cost of large bias$^2$ (see Table~\ref{tab:exp1_results}).}
     \label{fig:variance_vs_imbalance}
 \end{figure}
@@ -439,14 +439,14 @@ consistent but modest ($\sim$5--7\%); the contribution of harmonic is the princi
 
 \begin{figure}[t!]
     \centering
-    \includegraphics[width=0.48\textwidth]{../images/exp1_imbalance_sweep/exp1_variance_reduction.png}
+    \includegraphics[width=0.48\textwidth]{../../images/exp1_imbalance_sweep/exp1_variance_reduction.png}
     \caption{Variance reduction (\%) of harmonic and min relative to original, across traffic splits and imbalance ratios. Harmonic consistently dominates min; gains increase with both split and ratio.}
     \label{fig:variance_reduction}
 \end{figure}
 
 \begin{figure}[t!]
     \centering
-    \includegraphics[width=0.48\textwidth]{../images/exp1_imbalance_sweep/exp1_variance_vs_split.png}
+    \includegraphics[width=0.48\textwidth]{../../images/exp1_imbalance_sweep/exp1_variance_vs_split.png}
     \caption{Variance vs.\ traffic split at imbalance ratio 50:1. Harmonic and min consistently outperform original across all splits; gains grow as more documents become anchor items.}
     \label{fig:variance_vs_split}
 \end{figure}
@@ -455,7 +455,7 @@ consistent but modest ($\sim$5--7\%); the contribution of harmonic is the princi
 
 \begin{figure}[t!]
     \centering
-    \includegraphics[width=0.48\textwidth]{../images/exp2_pbm_violations/exp2_mse_decomposition.png}
+    \includegraphics[width=0.48\textwidth]{../../images/exp2_pbm_violations/exp2_mse_decomposition.png}
     \caption{MSE decomposition (bias$^2$ + variance) under two PBM violation models. Original, min, and harmonic share comparable bias$^2$ under both violations; harmonic achieves lower variance and thus lower MSE. Clipped weights introduce large additional bias.}
     \label{fig:pbm_violations}
 \end{figure}
@@ -502,7 +502,7 @@ Figure~\ref{fig:pbm_violations} and Table~\ref{tab:pbm_violations} summarize res
 
 \begin{figure}[t!]
     \centering
-    \includegraphics[width=0.46\textwidth]{../images/exp4_sample_efficiency/exp4_mse_vs_impressions.png}
+    \includegraphics[width=0.46\textwidth]{../../images/exp4_sample_efficiency/exp4_mse_vs_impressions.png}
     \caption{MSE vs.\ data volume (base impressions per document) at imbalance ratio 50:1, split 80/20. Harmonic reaches the same MSE as original with roughly half the data. Clipped's MSE is flat (bias-dominated) regardless of data volume.}
     \label{fig:sample_efficiency}
 \end{figure}
@@ -516,7 +516,7 @@ ratio 50:1); Figure~\ref{fig:def_heatmap} reports DEF across the full $(s, r)$ g
 
 \begin{figure}[t!]
     \centering
-    \includegraphics[width=0.46\textwidth]{../images/exp4b_efficiency_heatmap/exp4b_def_heatmap.png}
+    \includegraphics[width=0.46\textwidth]{../../images/exp4b_efficiency_heatmap/exp4b_def_heatmap.png}
     \caption{Data-equivalence factor $b_{\mathrm{orig}}/b_{\mathrm{harm}}$ across $(s, r)$.
     Median DEF $= 1.31$, max $= 1.94$. The most-imbalanced cells (high $s$, high $r$)
     yield the largest savings; near-balanced cells ($r=1$) saturate at DEF $\approx 1$.}
@@ -555,7 +555,7 @@ To verify that results hold beyond uniform-random relevance, we repeat the imbal
 
 \begin{figure}[t!]
     \centering
-    \includegraphics[width=0.48\textwidth]{../images/exp3_yahoo/exp3_variance_vs_imbalance.png}
+    \includegraphics[width=0.48\textwidth]{../../images/exp3_yahoo/exp3_variance_vs_imbalance.png}
     \caption{Variance and MSE vs.\ imbalance ratio on Yahoo semi-synthetic data (split 80/20). Harmonic consistently outperforms original and min across all ratios.}
     \label{fig:yahoo_variance}
 \end{figure}
@@ -579,7 +579,7 @@ A/B-testing mechanism that produces it.) We simulate $K=5$ concurrent rankers: a
 
 \begin{figure}[t!]
     \centering
-    \includegraphics[width=0.48\textwidth]{../images/exp5_production/exp5_ratio_distribution.png}
+    \includegraphics[width=0.48\textwidth]{../../images/exp5_production/exp5_ratio_distribution.png}
     \caption{Impression ratio $N_k/N_{k+1}$ under uniform vs.\ production traffic. Production A/B testing creates a heavy-tailed distribution (16.7\% of pairs with ratio $>$10, p90$=$14); uniform traffic stays near ratio$=$1, consistent with Baidu-ULTR.}
     \label{fig:prod_ratio}
 \end{figure}
