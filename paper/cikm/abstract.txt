@@ -8,14 +8,16 @@ inverse-variance weighting, asymptotic relative efficiency, click models
 
 ABSTRACT
 Intervention harvesting (Agarwal et al., 2019) estimates the position-bias
-ratio p_k/p_{k'} by aggregating per-cell click-rate ratios across many
-(query, document) cells. On real click logs the per-cell impression counts
-are extremely heavy-tailed: on the full KDD Cup 2012 Track 2 log, 60% of
-interventional (query, ad) pairs have at most 5 impressions while 0.1% of
-pairs hold 42% of all impressions. The way cells are weighted is therefore
-decisive. The intervention-harvesting estimator of Agarwal et al. uses
-uniform per-cell weighting; we propose two new count-only alternatives:
-a simple min-count weight w_i = min(N_k^i, N_{k'}^i) and a harmonic weight
+ratio p_k / p_{k'} between positions k and k' by aggregating, across many
+(query, document) cells indexed by i, the per-cell click-rate ratio at the
+two positions. Let N_k^i denote the impression count of cell i at position
+k. On real click logs these counts are extremely heavy-tailed: on the full
+KDD Cup 2012 Track 2 log, 60% of interventional (query, ad) pairs have at
+most 5 total impressions while 0.1% of pairs hold 42% of all impressions.
+The way cells are weighted is therefore decisive. The intervention-
+harvesting estimator of Agarwal et al. uses uniform per-cell weighting;
+we propose two new count-only alternatives: a simple min-count weight
+w_i = min(N_k^i, N_{k'}^i) and a harmonic weight
 w_i = N_k^i N_{k'}^i / (N_k^i + N_{k'}^i).
 
 Why harmonic? Under the Position-Based Model (PBM), the per-impression
