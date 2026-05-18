@@ -131,15 +131,19 @@ ground truth corroborate.
 \section{Estimator and Theory}
 \label{sec:method}
 
-Throughout, $q$ denotes a query, $d$ a document or ad shown for that
-query, and $k$ a result position; $N_k^i$ and $C_k^i$ are the number
-of impressions and clicks the $i$-th $(q,d)$ pair received at position
-$k$. The Position-Based Model assumes $P(\mathrm{click}\mid q,d,k)
-=p_k\,r_{q,d}$, factorising click probability into a position-only
-examination probability $p_k$ and a relevance term $r_{q,d}\in[0,1]$.
-Given the set of $(q,d)$ pairs that appeared at both positions $k$ and
-$k'$, the ratio $p_k/p_{k'}$ is estimated
-as~\cite{agarwal2019estimating}
+\paragraph{Notation.} Throughout, $q$ is a query, $d$ a document/ad,
+$k$ a result position, and $i$ indexes the $(q,d)$ cells in the
+interventional set. The Position-Based Model (PBM) assumes
+$P(\mathrm{click}\mid q,d,k)=p_kr_{q,d}$ with $p_k\in(0,1]$ the
+position-$k$ examination probability and $r_{q,d}\in[0,1]$ the
+$(q,d)$ relevance; we abbreviate the per-cell relevance as $r_i$ and
+write the true per-cell click probability as $\theta_k^i=p_kr_i$. We
+observe $N_k^i$ impressions and $C_k^i$ clicks for cell $i$ at
+position $k$, with empirical rate $\hat\theta_k^i=C_k^i/N_k^i$. Our
+target is the position-bias ratio $R_{k,k'}=p_k/p_{k'}$. Per-cell
+weights are $\omega_i\ge 0$. Given the set of $(q,d)$ pairs that
+appeared at both positions $k$ and $k'$, the estimator
+of~\cite{agarwal2019estimating} for $p_k/p_{k'}$ is
 \begin{equation}
 \hat R_{k,k'}=\frac{A}{B}=\frac{\sum_i \omega_i\, \hat\theta_k^i}
                               {\sum_i \omega_i\, \hat\theta_{k'}^i},
@@ -159,11 +163,13 @@ is consistent for $p_k/p_{k'}$~\cite{agarwal2019estimating}.
 
 \begin{proposition}[Conditional delta-method variance]
 \label{prop:delta}
-By the delta method~\cite{vdv1998asymptotic},
-$\mathrm{Var}(\hat R\mid\mathbf N)\approx R^2[\alpha
-V_k(\omega)+\beta V_{k'}(\omega)]$ with
-$V_r(\omega)=\sum_i\omega_i^2/N_r^i/(\sum_i\omega_i)^2$,
-$\alpha=(1-p_k)/p_k$, $\beta=(1-p_{k'})/p_{k'}$.
+Given the vector of impression counts $\mathbf{N}=\{N_k^i\}$, the delta
+method~\cite{vdv1998asymptotic} gives
+\[
+\mathrm{Var}(\hat R_{k,k'}\mid\mathbf N)\;\approx\;R_{k,k'}^2\bigl[\alpha\,V_k(\omega)+\beta\,V_{k'}(\omega)\bigr],
+\]
+with $V_r(\omega)=\sum_i\omega_i^2/N_r^i / (\sum_i\omega_i)^2$,
+$\alpha=(1-p_k)/p_k$, and $\beta=(1-p_{k'})/p_{k'}$.
 \end{proposition}
 
 \paragraph{Relevance-agnostic count-only IVW.}
@@ -243,19 +249,20 @@ all $(\alpha,\beta)$.
 \label{sec:plugin}
 
 \paragraph{$\widetilde V$ in closed form.}
-With $A=\sum_i\omega_i\theta_k^i$, $B=\sum_i\omega_i\theta_{k'}^i$, and
-clicks at $k$ and $k'$ conditionally independent given counts, the delta
-method gives
+The delta method applied to $\hat R_{k,k'}=A/B$ gives
 \begin{equation}
 \widetilde V(\omega)=\frac{\sum_i\omega_i^2\,\theta_k^i(1-\theta_k^i)/N_k^i}{A^2}
 +\frac{\sum_i\omega_i^2\,\theta_{k'}^i(1-\theta_{k'}^i)/N_{k'}^i}{B^2},
 \label{eq:Vtilde}
 \end{equation}
-$\mathrm{SE}(\hat R)=|\hat R|\sqrt{\widetilde V(\omega)}$. Plugging in
-$\hat\theta_i$ (with the shrinkage estimator
-$\hat\theta_i=(C_i+\bar\theta_k)/(N_i+1)$, $\bar\theta_k$ the marginal
-position-$k$ CTR) yields the textbook
-self-normalised IS variance estimator~\cite{owen2013mc,kong1992ess,swaminathan2015snips}.
+where $A = \sum_i \omega_i \theta_k^i$, $B = \sum_i \omega_i \theta_{k'}^i$,
+and clicks at the two positions are conditionally independent given counts.
+The standard error of $\hat R_{k,k'}$ is then
+$\mathrm{SE}(\hat R_{k,k'})=|\hat R_{k,k'}|\sqrt{\widetilde V(\omega)}$.
+Plugging in shrinkage estimates
+$\hat\theta_k^i=(C_k^i+\bar\theta_k)/(N_k^i+1)$ with $\bar\theta_k$ the
+marginal position-$k$ CTR yields the textbook self-normalised IS variance
+estimator~\cite{owen2013mc,kong1992ess,swaminathan2015snips}.
 
 \paragraph{ARE.} For schemes $a,b$,
 $\mathrm{ARE}(a,b)=\widetilde V(\omega_b)/\widetilde V(\omega_a)$:
@@ -491,18 +498,21 @@ controlled experiments.
 Following~\cite{agarwal2019estimating}: $M{=}10$ positions, $p_k=k^{-\eta}$
 with $\eta=1$, AdjacentChain estimator. A fraction $s$ of documents are
 ``anchors'' with heavy traffic at one position
-($N\sim\mathrm{Unif}(50r,200r)$) and light traffic at the other
+($N\sim\mathrm{Unif}(50\rho,200\rho)$) and light traffic at the other
 ($N\sim\mathrm{Unif}(1,51)$); the remaining $1-s$ are balanced
-($N\sim\mathrm{Unif}(25,75)$ at both positions); $s\in\{0.5,...,0.95\}$,
-$r\in\{1,...,100\}$, 500 trials per cell. At $s=0.80$, $r=100$ harmonic
-reduces variance by $43.6\%$ vs.\ uniform and $5\%$ vs.\ min; reduction
-grows to $\sim 54\%$ at $s=0.90,r=50$. Across the full $(s,r)$ grid the
-data-equivalence factor
-$\mathrm{DEF}(s,r)=b_{\mathrm{uni}}(s,r)/b_{\mathrm{harm}}(s,r)$ -- the
-ratio of base impressions per document at which each scheme first hits a
-fixed MSE threshold -- has median $1.31$, mean $1.30$, max $1.94$. Highly
-imbalanced cells achieve up to $2\times$ data savings; near-balanced
-cells ($r=1$) saturate at $\mathrm{DEF}\approx 1$.
+($N\sim\mathrm{Unif}(25,75)$ at both positions). Here $s$ is the
+traffic split and $\rho$ is the imbalance ratio (disjoint from $r_i$
+above);
+$s\in\{0.5,\ldots,0.95\}$, $\rho\in\{1,\ldots,100\}$, 500 trials per
+cell. At $s=0.80$, $\rho=100$ harmonic reduces variance by $43.6\%$
+vs.\ uniform and $5\%$ vs.\ min; reduction grows to $\sim 54\%$ at
+$s=0.90,\rho=50$. Across the full $(s,\rho)$ grid the data-equivalence
+factor $\mathrm{DEF}(s,\rho)=b_{\mathrm{uni}}(s,\rho)/b_{\mathrm{harm}}(s,\rho)$
+-- the ratio of base impressions per document at which each scheme
+first hits a fixed MSE threshold -- has median $1.31$, mean $1.30$,
+max $1.94$. Highly imbalanced cells achieve up to $2\times$ data
+savings; near-balanced cells ($\rho=1$) saturate at
+$\mathrm{DEF}\approx 1$.
 
 \paragraph{Bias comparability under PBM violations.}
 We additionally simulate three explicit PBM violation models -- trust
@@ -549,17 +559,13 @@ Same simulator with graded relevance from the Yahoo Learning to Rank
 Challenge Set~1 test split (6,936 queries; relevance grades $g\in\{0,...,4\}$
 mapped to $r(q,d)=(2^g-1)/15$ following NDCG; click model
 $P(C=1\mid q,d,k)=p_k\,r(q,d)$; 200 trials). Harmonic reduces variance by
-$\sim 40\%$ vs.\ uniform at imbalance $r=50$ (Var
+$\sim 40\%$ vs.\ uniform at imbalance $\rho=50$ (Var
 $1.5\!\times\!10^{-4}\!\to\!8.7\!\times\!10^{-5}$). With $200$ trials,
 a delta-method approximation places the $95\%$ CI on the
 variance-ratio at $[0.49, 0.71]$, so the gain is well separated from
 $1.0$ but not tightly pinned. Aggressive clipping trades variance for
 bias and yields $\sim\!458\times$ higher MSE.
 
-A production-style $K{=}5$ ranker A/B simulation (single hyperparameter
-setting) shows harmonic's MSE reduction growing from $6.3\%$ to
-$17.2\%$ as adjacent-pair impression imbalance rises---qualitative
-direction only; full sweep deferred to the regular-paper version.
 
 \section{Related Work}
 \label{sec:related}
@@ -588,20 +594,16 @@ regular-paper version.
 \section{Conclusion}
 
 Harmonic weighting is the inverse-variance optimum on a
-\emph{relevance-agnostic count-only surrogate} of the PBM delta-method
-variance (Theorems~\ref{thm:ivw}--\ref{thm:asym}). The actual
-inverse-variance solution ($\theta$-aware oracle) is plug-in infeasible
-on singleton-dominated data ($\mathrm{ARE}=0.002$). The plug-in
-$\widetilde V$ is the natural diagnostic at fixed $\omega$; on full KDD
+relevance-agnostic count-only surrogate of the PBM delta-method
+variance; the actual inverse-variance solution ($\theta$-aware oracle)
+is plug-in infeasible at scale ($\mathrm{ARE}=0.002$). On full KDD,
 $\mathrm{ARE}(\text{harmonic},\text{uniform})=4.53$ on the surrogate,
-with our two proposals tied empirically (harmonic $4.53$, min $4.41$;
-harmonic is preferred because it carries the unconditional guarantee
-of Theorem~\ref{thm:cs}). Under
-known PBM mis-specification (Cochran-$Q/\mathrm{df}=3.83$) different
-schemes target different weighted averages of cell-specific ratios, so
-choosing $\omega$ is a precision/estimand trade-off. Future work:
-shrinkage $\theta$-aware oracle; EM comparison~\cite{wang2018position};
-click models beyond PBM~\cite{yue2010beyond,chuklin2015clickmodels}.
+with our two proposals essentially tied empirically; harmonic is
+preferred because of Theorem~\ref{thm:cs}'s unconditional guarantee.
+Under PBM mis-specification, choosing $\omega$ is a precision/estimand
+trade-off. Future work: shrinkage $\theta$-aware oracle;
+EM~\cite{wang2018position} comparison; click models beyond
+PBM~\cite{yue2010beyond,chuklin2015clickmodels}.
 
 \section*{GenAI Usage Disclosure}
 The authors used a large-language-model assistant for code generation
