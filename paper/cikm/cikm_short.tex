@@ -27,41 +27,49 @@
 \begin{document}
 
 \begin{abstract}
-Intervention harvesting~\cite{agarwal2019estimating} estimates the
-position-bias ratio $p_k/p_{k'}$ between positions $k$ and $k'$ by
-aggregating, across many $(\mathrm{query},\mathrm{doc})$ cells indexed
-by $i$, the per-cell click-rate ratio at the two positions. Let
-$N_k^i$ denote the impression count of cell $i$ at position $k$. On
-real click logs these counts are extremely heavy-tailed: on the full
-KDD Cup 2012 Track 2 log, $60\%$ of interventional $(q,\mathrm{ad})$
-pairs have $\le 5$ total impressions while $0.1\%$ of pairs hold
-$42\%$ of all impressions. The way cells are weighted is therefore
-decisive. The intervention-harvesting estimator of Agarwal et al.\
-uses \emph{uniform} per-cell weighting; we propose two new count-only
-alternatives---a simple \emph{min-count} weight
-$\omega_i=\min(N_k^i,N_{k'}^i)$ and a \emph{harmonic} weight
+Under the \emph{Position-Based Model} (PBM), the probability that a
+user clicks a document $d$ shown for query $q$ at position $k$
+factorises as $p_k\,r_{q,d}$, with $p_k\in(0,1]$ the position-only
+examination probability and $r_{q,d}\in[0,1]$ the query--document
+relevance. Intervention harvesting~\cite{agarwal2019estimating}
+estimates the position-bias ratio $p_k/p_{k'}$ from naturally occurring
+ranking variations by aggregating, across many $(q,d)$ cells (indexed
+by $i$), per-cell click-rate ratios at positions $k$ and $k'$. Each
+cell $i$ contributes a per-cell weight $\omega_i\ge 0$; the choice of
+$\omega_i$ is decisive because impression counts $N_k^i$ (the number
+of times cell $i$ was shown at position $k$) are extremely heavy-tailed
+on real click logs: on the full KDD Cup 2012 Track 2 log, $60\%$ of
+interventional $(q,\mathrm{ad})$ pairs have $\le 5$ total impressions
+while $0.1\%$ of pairs hold $42\%$ of all impressions.
+
+The intervention-harvesting estimator of Agarwal et al.\ uses
+\emph{uniform} weighting ($\omega_i\equiv 1$); we propose two new
+count-only alternatives---the \emph{min-count} weight
+$\omega_i=\min(N_k^i,N_{k'}^i)$ and the \emph{harmonic} weight
 $\omega_i=N_k^iN_{k'}^i/(N_k^i+N_{k'}^i)$.
-\emph{Why harmonic?} Under the Position-Based Model (PBM), the
-per-impression click variance is $p_k r_i(1-p_k r_i)/N_k^i$, which
-depends on the unknown per-cell relevance $r_i$. Replacing the
-$r_i$-dependent factor with a constant yields a \emph{count-only
-surrogate} of the Bernoulli variance that is exact when the per-cell
-relevance $r_i$ is constant across cells, and a controlled
-approximation otherwise. Among count-only weights, harmonic is the inverse-variance
-optimum on this surrogate, and a Cauchy--Schwarz inequality guarantees
-it reduces the surrogate for any impression counts. The full
-inverse-variance optimum would require knowing $r_i$ per cell and is
-infeasible on heavy-tailed data. We assess finite-sample efficiency at
-fixed weights via the closed-form delta-method asymptotic variance of
-the weighted ratio estimator~\cite{owen2013mc,vdv1998asymptotic}. On
-the full KDD log, harmonic's asymptotic relative efficiency over
-uniform weighting is $4.5{\times}$ and remains robust to weight
-capping. Under PBM mis-specification, different weight schemes target
-different weighted averages of cell-specific ratios---an estimand
-caveat we make explicit. Synthetic and Yahoo-LTR semi-synthetic
-experiments with ground truth corroborate the efficiency prediction
-(up to $54\%$ variance reduction at high imbalance); min and harmonic
-are empirically comparable, and we recommend harmonic for its
+\emph{Why harmonic?} Under PBM, the per-impression click variance at
+cell $i$, position $k$ is $p_k r_{q,d}(1-p_k r_{q,d})/N_k^i$ (Bernoulli
+variance), which depends on the unknown per-cell relevance.
+Replacing the relevance-dependent factor with a constant yields a
+\emph{count-only surrogate} of this variance that is exact when the
+per-cell relevance is constant across cells, and a controlled
+approximation otherwise. Among count-only weights, harmonic is the
+inverse-variance optimum on this surrogate, and a Cauchy--Schwarz
+inequality guarantees it reduces the surrogate for any impression
+counts. The full inverse-variance optimum would require knowing
+$r_{q,d}$ per cell and is infeasible on heavy-tailed data.
+
+We assess finite-sample efficiency at fixed weights via the
+closed-form delta-method asymptotic variance of the weighted ratio
+estimator~\cite{owen2013mc,vdv1998asymptotic}. On the full KDD log,
+harmonic's asymptotic relative efficiency over uniform weighting is
+$4.5{\times}$ and remains robust to weight capping. Under PBM
+mis-specification, different weight schemes target different weighted
+averages of cell-specific ratios---an estimand caveat we make
+explicit. Synthetic and Yahoo-LTR semi-synthetic experiments with
+ground truth corroborate the efficiency prediction (up to $54\%$
+variance reduction at high imbalance); min and harmonic are
+empirically comparable, and we recommend harmonic for its
 unconditional theoretical guarantee.
 \end{abstract}
 
