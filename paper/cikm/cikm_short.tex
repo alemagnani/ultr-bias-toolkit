@@ -29,35 +29,35 @@ position-bias ratio $p_k/p_{k'}$ by aggregating per-cell click-rate
 ratios across many $(\mathrm{query},\mathrm{doc})$ cells. On real click
 logs the per-cell impression counts are extremely heavy-tailed: on the
 full KDD Cup 2012 Track 2 log, $60\%$ of interventional
-$(q,\mathrm{ad})$ pairs have $\le 5$ impressions while $0.1\%$ of
-pairs hold $42\%$ of all impressions. The way cells are weighted is
-therefore decisive. We propose two count-aware weighting schemes as drop-in replacements
-for the uniform per-cell weighting used by Agarwal et al.: a simple
-\emph{min-count} weight $\omega_i=\min(N_k^i,N_{k'}^i)$ and the
-\emph{harmonic} weight
-$\omega_i=N_k^iN_{k'}^i/(N_k^i+N_{k'}^i)$. Both are new to this paper.
-The two perform comparably in practice on real heavy-tailed click logs,
-but harmonic has a stronger theoretical foundation: it equals the
-inverse-variance choice under the Position-Based Model (PBM) once
-cell-level relevance is dropped from the per-cell variance---a
-\emph{relevance-agnostic surrogate} of the actual variance. A
-Cauchy--Schwarz inequality guarantees harmonic reduces this surrogate
-for any impression counts.
-The actual inverse-variance solution requires per-cell relevance and is
-infeasible at this scale. We further argue that the naive pair
-bootstrap is poorly aligned with the conditional-on-counts efficiency
-question on heavy-tailed data, and adopt instead the textbook
-delta-method asymptotic variance of the weighted ratio
-estimator~\cite{owen2013mc,vdv1998asymptotic} as a closed-form
-diagnostic. On the full KDD log harmonic's asymptotic relative
-efficiency over uniform weighting is $4.5{\times}$, matched within
-$1$--$2\%$ by click-resample standard error and robust to weight
-capping. A Cochran-$Q$ test confirms substantial PBM mis-specification;
-under such mis-specification, different weight schemes target different
-weighted averages of cell-specific ratios---an estimand caveat we make
-explicit. Synthetic and Yahoo-LTR semi-synthetic experiments with
-ground truth corroborate the efficiency prediction (up to $54\%$
-variance reduction at high imbalance).
+$(q,\mathrm{ad})$ pairs have $\le 5$ impressions while $0.1\%$ of pairs
+hold $42\%$ of all impressions. The way cells are weighted is therefore
+decisive. The intervention-harvesting estimator of Agarwal et al.\ uses
+\emph{uniform} per-cell weighting; we propose two new count-only
+alternatives---a simple \emph{min-count} weight
+$\omega_i=\min(N_k^i,N_{k'}^i)$ and a \emph{harmonic} weight
+$\omega_i=N_k^iN_{k'}^i/(N_k^i+N_{k'}^i)$.
+\emph{Why harmonic?} Under the Position-Based Model (PBM), the
+per-impression click variance is $p_k r_i(1-p_k r_i)/N_k^i$, which
+depends on the unknown per-cell relevance $r_i$. Replacing the
+$r_i$-dependent factor with a constant yields a \emph{count-only
+surrogate} of the Bernoulli variance that is exact when the per-cell
+relevance $r_i$ is constant across cells, and a controlled
+approximation otherwise. Among count-only weights, harmonic is the inverse-variance
+optimum on this surrogate, and a Cauchy--Schwarz inequality guarantees
+it reduces the surrogate for any impression counts. The full
+inverse-variance optimum would require knowing $r_i$ per cell and is
+infeasible on heavy-tailed data. We assess finite-sample efficiency at
+fixed weights via the closed-form delta-method asymptotic variance of
+the weighted ratio estimator~\cite{owen2013mc,vdv1998asymptotic}. On
+the full KDD log, harmonic's asymptotic relative efficiency over
+uniform weighting is $4.5{\times}$ and remains robust to weight
+capping. Under PBM mis-specification, different weight schemes target
+different weighted averages of cell-specific ratios---an estimand
+caveat we make explicit. Synthetic and Yahoo-LTR semi-synthetic
+experiments with ground truth corroborate the efficiency prediction
+(up to $54\%$ variance reduction at high imbalance); min and harmonic
+are empirically comparable, and we recommend harmonic for its
+unconditional theoretical guarantee.
 \end{abstract}
 
 \maketitle
@@ -171,9 +171,11 @@ heavy-tailed click logs $\hat r_i$ is itself extremely noisy on the
 $\sim\!60\%$ singleton mass, making this oracle infeasible in practice
 (Table~\ref{tab:are_full}: ARE $= 0.002$). We therefore work with a
 \emph{relevance-agnostic surrogate} that drops the $r_i$-dependent
-factor from the cell-level variance. The inverse-variance optimum~\cite{borenstein2009meta} on this
-surrogate, restricted to count-only weights, is the harmonic mean of
-the two cell counts. We make this
+factor from the cell-level variance; this surrogate is exact when the
+per-cell relevance $r_i$ is constant across cells, and a controlled
+approximation otherwise. The inverse-variance
+optimum~\cite{borenstein2009meta} on this surrogate, restricted to
+count-only weights, is the harmonic mean of the two cell counts. We make this
 precise:
 
 \begin{theorem}[Count-only IVW on the surrogate]
