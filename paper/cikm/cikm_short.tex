@@ -391,22 +391,14 @@ $\mathrm{ARE}=0.002$: a substantive finding rather than a side
 note---it shows that count-only weighting is robust precisely where
 plug-in IVW fails.
 
-\paragraph{Adjacent pair (2,3).}
-KDD's interventional support is concentrated at the top of the ranking;
-the (2,3) pair has $2.1\mathrm{M}$ pairs and $54\mathrm{M}$ impressions
-(no interventional data at pair $(3,4)$). Plug-in ARE for harmonic vs.\
-uniform is $3.14$ at $(2,3)$ versus $4.53$ at $(1,2)$; $\hat R_{2,3}=1.73$
-versus $\hat R_{1,2}=1.71$. The position-bias decay is consistent across
-adjacent pairs, and the efficiency gain shrinks as the count distribution
-becomes less imbalanced at lower positions.
-
-\paragraph{Regularised $\theta$-aware oracle.}
-The pathology of the $\theta$-aware oracle (ARE $=0.002$) might be cured
-by Beta-shrinkage of $\hat\theta_i$ toward the marginal. We swept
-shrinkage strengths $a\in\{1,10,100,1000\}$ pseudo-counts; ARE rises
-from $0.002$ to $0.61$ at $a=1000$ but never approaches the count-only
-schemes. The count-only surrogate is genuinely the right object to
-optimise at this scale, not just a workaround for noisy $\hat\theta$.
+\paragraph{Adjacent pair (2,3) and regularised $\theta$-oracle.}
+At pair $(2,3)$ ($2.1\mathrm{M}$ pairs), plug-in ARE is $3.14$ and
+$\hat R_{2,3}=1.73$ (vs.\ $1.71$ at $(1,2)$): the gain shrinks as
+imbalance decreases lower in the ranking, and $\hat R$ is consistent
+across pairs. Beta-shrinkage of $\hat\theta_i$ at $a\in\{1,\ldots,1000\}$
+pseudo-counts lifts the $\theta$-oracle's ARE only from $0.002$ to
+$0.61$ -- the count-only surrogate is the right object to optimise at
+this scale.
 
 \paragraph{Asymmetric surrogate (empirical).}
 With $\hat p_1=0.0501$, $\hat p_2=0.0256$ estimated from the marginal
@@ -473,38 +465,24 @@ Harmonic, cap@99th pct          & 1.606 & 2.40e-3 & 2.83 & 765K \\
 
 \paragraph{Estimand under PBM mis-specification.}
 \label{par:estimand}
-PBM is a known approximation; on real logs different weight schemes
-estimate different functionals of cell-specific ratios. Specifically, the
-population limit of $\hat R$ under any weight $\omega$ is
-\[
-R_\omega \;=\; \frac{\sum_i \omega_i\, \theta_k^i}{\sum_i \omega_i\, \theta_{k'}^i},
-\]
-which equals $p_k/p_{k'}$ only when $\theta_k^i/\theta_{k'}^i$ is the same
-constant across cells---i.e.\ when PBM holds exactly. Under mis-specification
-each scheme thus targets a different weighted average of the cell-specific
-ratios $\rho_i=\theta_k^i/\theta_{k'}^i$ (uniform $\to 1.68$, harmonic
-$\to 1.71$, $\theta$-aware oracle $\to 2.34$ on KDD). The plug-in
-$\widetilde V$ comparison is a precision statement at fixed
-$\omega$---a model-based efficiency comparison---and does \emph{not} claim
-that one $R_\omega$ is the ``correct'' position-bias ratio. Choosing
-$\omega$ thus involves a precision/estimand trade-off; harmonic's
-attractive property is that, among count-only schemes, it concentrates on
-high-information cells (where $\rho_i$ is estimated most precisely)
-without depending on noisy plug-in $\hat\theta_i$.
+PBM is a known approximation. The population limit of $\hat R$ under
+weight $\omega$ is $R_\omega=\sum_i\omega_i\theta_k^i / \sum_i\omega_i\theta_{k'}^i$,
+which equals $p_k/p_{k'}$ only when $\theta_k^i/\theta_{k'}^i$ is constant
+across cells (PBM holds exactly). Under mis-specification each scheme
+targets a different weighted average of cell-specific ratios (uniform
+$\to 1.68$, harmonic $\to 1.71$, $\theta$-aware oracle $\to 2.34$ on KDD).
+The plug-in $\widetilde V$ comparison is a precision statement at fixed
+$\omega$ and does \emph{not} claim that one $R_\omega$ is the ``correct''
+position-bias ratio; choosing $\omega$ is a precision/estimand
+trade-off.
 
-\paragraph{Quantifying PBM mis-specification (Cochran's $Q$).}
+\paragraph{Quantifying PBM mis-specification.}
 \label{sec:cochran}
-PBM is a known approximation, not a literal model -- prior
-work~\cite{yue2010beyond,chuklin2015clickmodels} has long
-established that real logs violate it. The relevant question is how
-\emph{large} the deviation is. Cochran's $Q$ on the $16{,}132$
-high-information pairs ($\ge 5$ clicks at each of positions $1$ and $2$)
-gives $Q=6.17{\times}10^4$, $\mathrm{df}=16{,}131$, $Q/\mathrm{df}=3.83$:
-per-cell odds-ratio variability is $\sim 3.8\times$ what binomial sampling
-alone would produce, well outside Poisson dispersion. This magnitude is
-the quantitative driver of the estimand drift discussed in
-Paragraph~\ref{par:estimand}; plug-in $\widetilde V$ keeps the efficiency
-comparison well-posed by working at fixed $\omega$.
+Cochran's $Q$ on the $16{,}132$ high-information pairs ($\ge 5$ clicks at
+each position) gives $Q/\mathrm{df}=3.83$: per-cell odds-ratio variability
+is $\sim 3.8\times$ binomial alone. This is the quantitative driver of the
+estimand drift above; $\widetilde V$ keeps the efficiency comparison
+well-posed by working at fixed $\omega$.
 
 \section{Synthetic and Yahoo-LTR Validation}
 \label{sec:synth}
@@ -600,35 +578,20 @@ SNIPS~\cite{swaminathan2015snips,bottou2013counterfactual}. PBM
 violations on real logs are documented
 in~\cite{yue2010beyond,chuklin2015clickmodels}.
 
-\paragraph{Comparison to PBM-EM.}
-A natural alternative to count-only weighting is to fit the PBM jointly
-for $(p_k, r_i)$ by maximum likelihood. We ran a vanilla
-no-feature PBM-MLE (each cell carries its own $r_i$) on KDD pair
-$(1,2)$: it converges to $\hat R_{1,2}=1.682$, essentially identical
-to the uniform-weighted target ($1.683$). This is expected: with one
-free $r_i$ per cell, the model is over-parameterised on
-singleton-dominated data, and the MLE collapses to the
-uniform-weighted estimand. Wang et al.'s feature-based EM~\cite{wang2018position}
-fits $r_{q,d}$ as a regression on features and would not exhibit this
-degeneracy; on the anonymised $(q,\mathrm{ad})$ aggregation we use, the
-necessary feature set is unavailable. On synthetic data where PBM is
-correctly specified, PBM-MLE recovers the true $R=2.0$ with $\mathrm{SE}=0.035$
-(vs.\ harmonic $0.040$ and uniform $0.055$ over $500$ trials), confirming
-the implementation. A feature-based EM comparison on KDD is regular-paper
-work.
-
-\section{Conclusion}
-
-Harmonic weighting is the inverse-variance optimum on a
-relevance-agnostic count-only surrogate of the PBM delta-method
-variance; the actual inverse-variance solution ($\theta$-aware oracle)
-is plug-in infeasible at scale ($\mathrm{ARE}=0.002$). On full KDD,
-$\mathrm{ARE}(\text{harmonic},\text{uniform})=4.53$ on the surrogate,
-with our two proposals essentially tied empirically; harmonic is
-preferred because of Theorem~\ref{thm:cs}'s unconditional guarantee.
-Under PBM mis-specification, choosing $\omega$ is a precision/estimand
-trade-off. Future work: shrinkage $\theta$-aware oracle;
-EM~\cite{wang2018position} comparison; click models beyond
+\paragraph{Comparison to PBM-EM and outlook.}
+Vanilla no-feature PBM-MLE (one $r_i$ per cell) on KDD $(1,2)$
+collapses to $\hat R_{1,2}=1.682$ -- the uniform estimand -- because
+the model is over-parameterised on singleton-dominated data. Wang
+et al.'s feature-based EM~\cite{wang2018position} avoids this but
+needs features unavailable in the anonymised aggregation; on
+synthetic PBM data, the same MLE recovers $R=2.0$ with
+$\mathrm{SE}=0.035$ (harmonic $0.040$, uniform $0.055$, $500$ trials),
+confirming implementation. \emph{In short:} harmonic is the
+count-only surrogate-IVW optimum and reduces conditional click-noise
+variance by $4.5\times$ vs.\ uniform on KDD with our two proposals
+empirically tied; harmonic is preferred for the unconditional
+guarantee of Theorem~\ref{thm:cs}. Future work: feature-based EM
+comparison; click models beyond
 PBM~\cite{yue2010beyond,chuklin2015clickmodels}.
 
 \section*{GenAI Usage Disclosure}
