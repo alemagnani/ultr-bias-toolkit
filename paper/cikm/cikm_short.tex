@@ -236,18 +236,13 @@ $\omega^\star$ yields variance within $\pm 2\%$ of harmonic. Complete
 proofs and additional sensitivity analyses are provided in the
 supplementary material.
 
-\paragraph{Limits of the symmetric guarantee.}
-The unconditional bound in Theorem~\ref{thm:cs} concerns
-$V_k+V_{k'}$. The asymmetric analogue
-$\alpha V_k(\omega^h)+\beta V_{k'}(\omega^h) \le \alpha V_k(\mathbf 1)+\beta V_{k'}(\mathbf 1)$
-does \emph{not} hold unconditionally: a closed-form $n=2$ counterexample
-with $(N_k^1,N_{k'}^1)=(1,100)$, $(N_k^2,N_{k'}^2)=(100,1)$ and
-$(\alpha,\beta)=(0.01,1)$ has harmonic strictly worse than uniform on the
-asymmetric surrogate. The configurations under which this fails are
-degenerate (each cell informative at exactly one position); we have not
-encountered them in any realistic count distribution we tested. The
-$\omega^\star$ in Theorem~\ref{thm:asym} remains the exact oracle for
-all $(\alpha,\beta)$.
+\emph{Remark.} The asymmetric analogue
+$\alpha V_k(\omega^h)+\beta V_{k'}(\omega^h)\le \alpha V_k(\mathbf 1)+\beta V_{k'}(\mathbf 1)$
+does not hold unconditionally; a closed-form $n=2$ counterexample
+requires strongly anti-correlated $(N_k,N_{k'})$ (each cell informative
+at exactly one position), a regime we have not seen in realistic
+count distributions. The $\omega^\star$ of Theorem~\ref{thm:asym}
+remains the exact oracle for all $(\alpha,\beta)$.
 
 \section{Plug-in Asymptotic Variance as Diagnostic}
 \label{sec:plugin}
@@ -295,14 +290,16 @@ Table~\ref{tab:scaling} reports plug-in SE versus empirical
 click-resample SE across KDD sample fractions, together with
 $\mathrm{ARE}(\text{harmonic},\text{uniform})$ at each scale. Because
 both $\widetilde V$ and click-resample SE share the conditional
-Bernoulli + cross-cell-independence assumption, their agreement is
-primarily an implementation-correctness check; a stronger probe of the
-independence assumption would be a query-cluster bootstrap, which is
-sensitive to Cochran-$Q$-style heterogeneity. We report pair-bootstrap
-numbers in supplementary material. The ARE \emph{grows} with sample
-size ($1.66 \to 4.53$) because the heavy-tailed structure of the count
-distribution becomes more pronounced as more data is included rather
-than averaged out.
+Bernoulli + cross-cell-independence assumption, their agreement
+($1$--$2\%$) is best read as an implementation-correctness check
+rather than as model validation. The ARE \emph{grows} with sample
+size ($1.66\to 4.53$) because the heavy-tailed count structure
+becomes more pronounced as more data is included. A query-cluster
+bootstrap on the same data reflects the heavy-tailedness of the
+\emph{query} distribution (a small set of head queries holds most of
+the impressions) and is reported in supplementary material; it is a
+diagnostic of the underlying log, not of the estimator at fixed
+counts.
 
 \begin{table}[t]
 \caption{Plug-in SE vs.\ click-resample SE across KDD subsamples, and
@@ -393,6 +390,23 @@ that is too noisy on the singleton-dominated tail and collapses to
 $\mathrm{ARE}=0.002$: a substantive finding rather than a side
 note---it shows that count-only weighting is robust precisely where
 plug-in IVW fails.
+
+\paragraph{Adjacent pair (2,3).}
+KDD's interventional support is concentrated at the top of the ranking;
+the (2,3) pair has $2.1\mathrm{M}$ pairs and $54\mathrm{M}$ impressions
+(no interventional data at pair $(3,4)$). Plug-in ARE for harmonic vs.\
+uniform is $3.14$ at $(2,3)$ versus $4.53$ at $(1,2)$; $\hat R_{2,3}=1.73$
+versus $\hat R_{1,2}=1.71$. The position-bias decay is consistent across
+adjacent pairs, and the efficiency gain shrinks as the count distribution
+becomes less imbalanced at lower positions.
+
+\paragraph{Regularised $\theta$-aware oracle.}
+The pathology of the $\theta$-aware oracle (ARE $=0.002$) might be cured
+by Beta-shrinkage of $\hat\theta_i$ toward the marginal. We swept
+shrinkage strengths $a\in\{1,10,100,1000\}$ pseudo-counts; ARE rises
+from $0.002$ to $0.61$ at $a=1000$ but never approaches the count-only
+schemes. The count-only surrogate is genuinely the right object to
+optimise at this scale, not just a workaround for noisy $\hat\theta$.
 
 \paragraph{Asymmetric surrogate (empirical).}
 With $\hat p_1=0.0501$, $\hat p_2=0.0256$ estimated from the marginal
@@ -586,14 +600,22 @@ SNIPS~\cite{swaminathan2015snips,bottou2013counterfactual}. PBM
 violations on real logs are documented
 in~\cite{yue2010beyond,chuklin2015clickmodels}.
 
-\paragraph{Why count-only PBM weighting is still worth studying.}
-Given that PBM is approximate, EM-style joint estimation of relevance
-and propensities~\cite{wang2018position} is a natural alternative
-with its own bias--variance trade-offs (initialisation sensitivity,
-model choice). The two approaches are complementary: a
-relevance-agnostic weight is the right input to an EM M-step that
-re-uses count statistics. Empirical EM comparison is left to the
-regular-paper version.
+\paragraph{Comparison to PBM-EM.}
+A natural alternative to count-only weighting is to fit the PBM jointly
+for $(p_k, r_i)$ by maximum likelihood. We ran a vanilla
+no-feature PBM-MLE (each cell carries its own $r_i$) on KDD pair
+$(1,2)$: it converges to $\hat R_{1,2}=1.682$, essentially identical
+to the uniform-weighted target ($1.683$). This is expected: with one
+free $r_i$ per cell, the model is over-parameterised on
+singleton-dominated data, and the MLE collapses to the
+uniform-weighted estimand. Wang et al.'s feature-based EM~\cite{wang2018position}
+fits $r_{q,d}$ as a regression on features and would not exhibit this
+degeneracy; on the anonymised $(q,\mathrm{ad})$ aggregation we use, the
+necessary feature set is unavailable. On synthetic data where PBM is
+correctly specified, PBM-MLE recovers the true $R=2.0$ with $\mathrm{SE}=0.035$
+(vs.\ harmonic $0.040$ and uniform $0.055$ over $500$ trials), confirming
+the implementation. A feature-based EM comparison on KDD is regular-paper
+work.
 
 \section{Conclusion}
 
