@@ -25,3 +25,8 @@ paper/cikm/*.toc
 paper/cikm/*.bbl
 paper/cikm/*.blg
 paper/cikm/*.synctex.gz
+
+# tooling / latex build artifacts
+.playwright-mcp/
+*.fdb_latexmk
+*.fls

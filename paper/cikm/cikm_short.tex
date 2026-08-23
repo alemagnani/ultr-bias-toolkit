@@ -1,4 +1,4 @@
-\documentclass[sigconf,anonymous]{acmart}
+\documentclass[sigconf]{acmart}
 \usepackage{amsmath, amsthm}
 \usepackage{graphicx}
 \usepackage{url}
@@ -13,16 +13,40 @@
 \newtheorem{proposition}[theorem]{Proposition}
 \newtheorem{corollary}[theorem]{Corollary}
 
-\setcopyright{acmlicensed}
+%% ==== ACM RIGHTS BLOCK — verbatim from ACM Publication Release Confirmation (2026-08-23) ====
 \copyrightyear{2026}
 \acmYear{2026}
-\acmConference[CIKM '26]{ACM CIKM}{October 2026}{Toronto, Canada}
+\setcopyright{cc}
+\setcctype{by}
+\acmConference[CIKM '26]{Proceedings of the 35th ACM International Conference on Information and Knowledge Management}{November 07--11, 2026}{Rome, Italy}
+\acmBooktitle{Proceedings of the 35th ACM International Conference on Information and Knowledge Management (CIKM '26), November 07--11, 2026, Rome, Italy}
+\acmDOI{10.1145/3799682.3839883}
+\acmISBN{979-8-4007-2539-5/2026/11}
+%% ============================================================================================
 
 \title{Surrogate Inverse-Variance Weighting for Intervention Harvesting on Heavy-Tailed Click Logs}
 
-\author{Anonymous}
-\affiliation{\institution{Anonymous}\country{}}
-\renewcommand{\shortauthors}{Anonymous}
+\author{Alessandro Magnani}
+\orcid{0000-0003-0345-9629}
+\affiliation{%
+  \institution{Coupang}
+  \city{Mountain View}
+  \state{CA}
+  \country{USA}
+}
+\email{almagnan@coupang.com}
+
+\author{Min Xie}
+\orcid{0000-0002-7619-2796}
+\affiliation{%
+  \institution{Coupang}
+  \city{Mountain View}
+  \state{CA}
+  \country{USA}
+}
+\email{mixie@coupang.com}
+
+\renewcommand{\shortauthors}{Magnani and Xie}
 
 \begin{document}
 
@@ -69,6 +93,34 @@ and consistent empirical gains; min and harmonic perform comparably,
 with harmonic preferred for its theoretical justification.
 \end{abstract}
 
+%% Required ACM CCS concepts (generated via https://dl.acm.org/ccs)
+\begin{CCSXML}
+<ccs2012>
+   <concept>
+       <concept_id>10002951.10003317.10003338.10003343</concept_id>
+       <concept_desc>Information systems~Learning to rank</concept_desc>
+       <concept_significance>500</concept_significance>
+       </concept>
+   <concept>
+       <concept_id>10002951.10003317.10003359.10003360</concept_id>
+       <concept_desc>Information systems~Evaluation of retrieval results</concept_desc>
+       <concept_significance>300</concept_significance>
+       </concept>
+   <concept>
+       <concept_id>10002951.10003317.10003347.10003350</concept_id>
+       <concept_desc>Information systems~Web search engines</concept_desc>
+       <concept_significance>100</concept_significance>
+       </concept>
+ </ccs2012>
+\end{CCSXML}
+
+\ccsdesc[500]{Information systems~Learning to rank}
+\ccsdesc[300]{Information systems~Evaluation of retrieval results}
+\ccsdesc[100]{Information systems~Web search engines}
+
+\keywords{position bias, intervention harvesting, unbiased learning to rank,
+propensity estimation, click models, inverse-variance weighting}
+
 \maketitle
 
 \section{Introduction}
@@ -109,28 +161,37 @@ heavy-tailed real logs have relied on \emph{bootstrap} resampling,
 which we show can be misleading for inverse-variance-style weights on
 singleton-dominated data (Section~\ref{sec:plugin}).
 
-\textbf{Contributions.}
-\textbf{(1)} We show that the harmonic weight is the inverse-variance
-optimum on a \emph{relevance-agnostic count-only surrogate} of the
-per-cell variance under PBM (Theorem~\ref{thm:ivw}), and prove a
-Cauchy--Schwarz inequality showing it reduces this surrogate for any
-impression counts (Theorem~\ref{thm:cs}). The exact inverse-variance
-oracle for the more general asymmetric surrogate is also characterised,
-and harmonic is its parameter-free special case (Theorem~\ref{thm:asym}).
-\textbf{(2)} We adopt the textbook closed-form asymptotic variance of
-the weighted ratio estimator as a finite-sample diagnostic that is
-properly aligned with conditional-on-counts efficiency on heavy-tailed
-data, where naive pair-bootstrap is misleading.
-\textbf{(3)} On the full KDD log, harmonic delivers an asymptotic
-relative efficiency of $4.53$ over uniform on this surrogate -- meaning
-uniform weighting would need roughly $4.5{\times}$ the data to match
-harmonic's precision -- with the plug-in agreeing within $1$--$2\%$ of
-empirical click-resample standard error and remaining robust to weight
-capping. A Cochran-$Q$ heterogeneity test ($Q/\mathrm{df}=3.83$) confirms
-substantial PBM mis-specification, under which the choice of weight is
-a precision/estimand trade-off rather than a search for a single
-``true'' position-bias ratio. Synthetic and Yahoo-LTR experiments with
-ground truth corroborate.
+\textbf{Contributions.} Inverse-variance weighting is classical; our
+contribution is not the principle itself but its adaptation to, and
+diagnosis on, heavy-tailed intervention harvesting.
+\textbf{(1)} We show the harmonic weight is the inverse-variance optimum
+of a \emph{relevance-agnostic count-only surrogate} of the per-cell
+variance under PBM (Theorem~\ref{thm:ivw}); dropping the
+relevance-dependent term is precisely what makes the optimum
+\emph{deployable}, since the exact oracle needs per-cell relevances. We
+prove a Cauchy--Schwarz guarantee that harmonic reduces this surrogate for
+any impression counts (Theorem~\ref{thm:cs}) and characterise the exact
+asymmetric oracle, of which harmonic is the parameter-free case
+(Theorem~\ref{thm:asym}).
+\textbf{(2)} We report a counter-intuitive \emph{oracle collapse}: the
+exact plug-in inverse-variance oracle, which uses \emph{estimated}
+per-cell relevances, is \emph{worse} than uniform on heavy-tailed logs
+(ARE $0.002$, Table~\ref{tab:are_full}), because $\hat r_i$ is unusable on
+the ${\sim}60\%$ singleton mass -- so the count-only surrogate is not a
+convenience but the robust choice.
+\textbf{(3)} We show that naive pair-bootstrap is the wrong efficiency
+diagnostic on singleton-dominated data, and adopt the closed-form
+asymptotic variance of the weighted ratio estimator, properly aligned with
+conditional-on-counts efficiency.
+\textbf{(4)} On the full KDD log, harmonic delivers an asymptotic relative
+efficiency of $4.53$ over uniform -- uniform would need
+${\approx}4.5{\times}$ the data to match harmonic's precision -- with the
+plug-in within $1$--$2\%$ of empirical click-resample standard error and
+robust to weight capping. A Cochran-$Q$ heterogeneity test
+($Q/\mathrm{df}=3.83$) confirms substantial PBM mis-specification, under
+which the choice of weight is a precision/estimand trade-off rather than a
+search for a single ``true'' position-bias ratio. Synthetic and Yahoo-LTR
+experiments with ground truth corroborate.
 
 \section{Estimator and Theory}
 \label{sec:method}
@@ -578,6 +639,25 @@ SNIPS~\cite{swaminathan2015snips,bottou2013counterfactual}. PBM
 violations on real logs are documented
 in~\cite{yue2010beyond,chuklin2015clickmodels}.
 
+\paragraph{Relation to Agarwal et al.: set construction vs.\ weighting.}
+The framework of~\cite{agarwal2019estimating} has two separable
+ingredients: (i) \emph{interventional-set construction} -- which position
+pairs to harvest and how to chain them (\textsc{AllPairs} over all
+$(k,k')$, \textsc{AdjacentChain} through adjacent pairs) -- and (ii) the
+\emph{per-cell weighting} inside the ratio estimator of
+Eq.~\eqref{eq:Rhat}, which is uniform ($\omega_i\equiv 1$). Our
+contribution is confined to (ii): harmonic is a drop-in replacement for
+the weight in $\hat R_{k,k'}$ and leaves set construction untouched, so it
+composes with \textsc{AllPairs}, \textsc{AdjacentChain}, or any other
+harvesting set. This is why uniform weighting -- not \textsc{AllPairs} --
+is the fair baseline: uniform is the only weighting published for these
+estimators, and \textsc{AllPairs} and \textsc{AdjacentChain} both inherit
+it, so isolating the weighting effect requires holding the set fixed and
+varying $\omega$ alone. Our KDD results (Section~\ref{sec:kdd}) fix the
+adjacent-pair set of~\cite{agarwal2019estimating} and vary only $\omega$;
+the $4.5\times$ efficiency gain is therefore attributable to weighting, not
+to a different set-construction choice.
+
 \paragraph{Comparison to PBM-EM and outlook.}
 Vanilla no-feature PBM-MLE (one $r_i$ per cell) on KDD $(1,2)$
 collapses to $\hat R_{1,2}=1.682$ -- the uniform estimand -- because
@@ -590,7 +670,13 @@ confirming implementation. \emph{In short:} harmonic is the
 count-only surrogate-IVW optimum and reduces conditional click-noise
 variance by $4.5\times$ vs.\ uniform on KDD with our two proposals
 empirically tied; harmonic is preferred for the unconditional
-guarantee of Theorem~\ref{thm:cs}. Future work: feature-based EM
+guarantee of Theorem~\ref{thm:cs}. \emph{Scope.} We target
+propensity-estimation efficiency at a fixed estimand rather than
+end-to-end ranking. Under IPS, ranking quality is governed by the
+propensity \emph{shape} -- recovered by any consistent harvesting
+estimator -- whereas estimation efficiency governs how much log data is
+needed to pin that shape down; we therefore do not claim a direct
+improvement in ranking metrics such as nDCG. Future work: feature-based EM
 comparison; click models beyond
 PBM~\cite{yue2010beyond,chuklin2015clickmodels}.
 
@@ -601,8 +687,9 @@ copy-editing. All experimental design, mathematical derivations
 (Theorems~\ref{thm:ivw}--\ref{thm:asym} and Eq.~\eqref{eq:Vtilde}),
 interpretation, citations, and final wording were authored and verified by
 the authors. No LLM-generated content was used without human review. Full
-code, scripts, and data-processing pipelines are provided as supplementary
-material.
+code with unit tests and the data-processing pipelines needed to reproduce
+every result are publicly available at
+\url{https://github.com/alemagnani/surrogate-ivw-intervention-harvesting}.
 
 \bibliographystyle{ACM-Reference-Format}
 \begin{thebibliography}{15}
